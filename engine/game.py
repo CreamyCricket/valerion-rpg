@@ -66,6 +66,7 @@ class Game:
         "accept",
         "do",
         "buy",
+        "sell",
         "save",
         "load",
         "help",
@@ -358,7 +359,7 @@ class Game:
 
     def _skill_display_data(self) -> dict[str, dict[str, int | str]]:
         display = {}
-        for skill_name in ("athletics", "survival", "lore", "persuasion", "arcana", "stealth"):
+        for skill_name in ("athletics", "stealth", "survival", "arcana", "lore", "persuasion"):
             stat_name = self.player.SKILL_STAT_MAP.get(skill_name, "mind")
             display[skill_name] = {
                 "proficiency": self.player.skill_proficiency(skill_name),
@@ -371,6 +372,106 @@ class Game:
         ability = self.abilities.ABILITIES.get(str(ability_id).strip().lower(), {})
         return str(ability.get("name", str(ability_id).replace("_", " ").title()))
 
+    @staticmethod
+    def _crit_threshold_for_chance(chance: int) -> int:
+        steps = max(1, int(chance) // 5)
+        return max(15, 21 - steps)
+
+    def _prepared_effect_line(self) -> str:
+        if not self.player.has_combat_boosts():
+            return ""
+        if self.player.combat_boost_summary:
+            if self.player.combat_boost_name:
+                return f"{self.player.combat_boost_name}: {self.player.combat_boost_summary}"
+            return self.player.combat_boost_summary
+        return self.player.combat_boost_name
+
+    def _apply_ability_buff(self, ability: dict, buff: dict) -> str:
+        if not isinstance(buff, dict) or not buff:
+            return ""
+
+        normalized_buff = {}
+        for key, amount in buff.items():
+            if key not in self.player.DEFAULT_COMBAT_BOOSTS:
+                continue
+            normalized_buff[str(key)] = int(amount)
+
+        if not normalized_buff:
+            return ""
+
+        parts = []
+        labels = {
+            "attack_bonus": "Accuracy",
+            "damage_bonus": "Damage",
+            "defense_bonus": "Defense",
+            "dodge_bonus": "Dodge",
+            "crit_bonus": "Crit",
+            "spell_bonus": "Spell Power",
+            "heal_bonus": "Healing Power",
+            "enemy_attack_penalty": "Enemy Accuracy",
+            "enemy_defense_penalty": "Enemy Defense",
+        }
+        for key, amount in normalized_buff.items():
+            sign = "+" if amount >= 0 else ""
+            if key == "dodge_bonus":
+                parts.append(f"{sign}{amount * 5}% {labels[key]}")
+            elif key == "crit_bonus":
+                parts.append(f"{sign}{amount}% {labels[key]}")
+            else:
+                parts.append(f"{sign}{amount} {labels[key]}")
+
+        summary = ", ".join(parts)
+        self.player.apply_combat_boost(ability["name"], summary=summary, **normalized_buff)
+        return summary
+
+    def _ability_scale_bonus(self, effect: dict) -> int:
+        stat_name = str(effect.get("scale_stat", "")).strip().lower()
+        skill_name = str(effect.get("scale_skill", "")).strip().lower()
+        total = 0
+        if stat_name in self.player.DEFAULT_STATS:
+            total += max(0, self.player.stat_modifier(stat_name))
+        if skill_name:
+            total += self.player.skill_proficiency(skill_name) // 2
+        return total
+
+    def _resolve_opening_ability_attack(self, ability: dict, enemy_id: str, enemy_data: dict) -> dict:
+        effect = ability.get("effect", {})
+        attack_stat = str(effect.get("scale_stat", self.player.attack_stat_name(self.world.items))).strip().lower()
+        attack_modifier = self.player.attack_roll_modifier(
+            self.world.items,
+            stat_name=attack_stat,
+            bonus=int(effect.get("accuracy_bonus", 0)),
+        )
+        enemy_name = self.world.enemy_name(enemy_id)
+        enemy_defense = int(enemy_data.get("defense", self.combat.DEFAULT_ENEMY_DEFENSE))
+        if str(enemy_data.get("behavior", "")).strip().lower() == "defensive":
+            enemy_defense += 2
+        enemy_defense = max(5, enemy_defense - self.player.combat_boosts["enemy_defense_penalty"])
+
+        roll = self.dice.roll_d20(attack_modifier)
+        hit = roll["total"] >= enemy_defense
+        damage = 0
+        critical = False
+
+        if hit:
+            damage = max(0, int(effect.get("damage", 0)) + self._ability_scale_bonus(effect))
+            crit_chance = min(
+                30,
+                self.player.crit_chance(self.world.items, stat_name=attack_stat) + int(effect.get("crit_bonus", 0)),
+            )
+            critical = damage > 0 and roll["die"] >= self._crit_threshold_for_chance(crit_chance)
+            if critical:
+                damage = self.player.critical_damage(damage)
+
+        return {
+            "enemy_name": enemy_name,
+            "enemy_defense": enemy_defense,
+            "roll": roll,
+            "hit": hit,
+            "damage": damage,
+            "critical": critical,
+        }
+
     def _resolve_random_encounter(self, location_id: str) -> list[str]:
         location = self.world.get_location(location_id)
         location_name = location.get("name", location_id)
@@ -380,6 +481,7 @@ class Game:
 
         encounter_entries = self.world.encounter_entries(location_id)
         encounter_entries.extend(self.factions.encounter_modifiers(self.player, location_id))
+        encounter_entries = self.world.filter_encounter_entries(encounter_entries)
         encounter = self.encounters.roll_from_table(encounter_entries)
         if not encounter:
             return []
@@ -390,6 +492,8 @@ class Game:
             return []
 
         if encounter_type == "enemy":
+            if not self.world.has_enemy(target):
+                return []
             if target in self.world.get_enemies_at(location_id):
                 return []
             self.world.add_enemy(location_id, target)
@@ -404,6 +508,8 @@ class Game:
             return [Narrator.encounter_text(location_name, [encounter_name])]
 
         if encounter_type == "npc":
+            if not self.world.has_npc(target):
+                return []
             if target in self.world.get_npcs_at(location_id):
                 return []
             self.world.add_npc(location_id, target)
@@ -578,6 +684,8 @@ class Game:
 
         if event_type == "ambush":
             enemy_id = str(event.get("enemy", "bandit"))
+            if not self.world.has_enemy(enemy_id):
+                return []
             enemy_name = self.world.enemy_name(enemy_id)
             self.world.add_enemy(location_id, enemy_id)
             if check["success"]:
@@ -887,6 +995,8 @@ class Game:
             return self._cmd_do(arg)
         if command == "buy":
             return self._cmd_buy(arg)
+        if command == "sell":
+            return self._cmd_sell(arg)
         if command == "save":
             return self._cmd_save()
         if command == "load":
@@ -1094,6 +1204,9 @@ class Game:
                 f"{enemy_name} HP {enemy_hp_before}"
             ),
         ]
+        prepared_effect = self._prepared_effect_line()
+        if prepared_effect:
+            lines.insert(1, "Prepared effect: " + prepared_effect)
         lines.extend(result["log"])
 
         if result["victory"]:
@@ -1113,6 +1226,7 @@ class Game:
             self.running = False
             lines.append("Game over.")
 
+        self.player.clear_combat_boosts()
         if self.running:
             lines.extend(self._post_action_world_tick("fight"))
         transition_text = self._scene_transition_text(self.player.event_log[event_count_before:])
@@ -1155,6 +1269,7 @@ class Game:
             f"Focus: {self.player.focus}/{self.player.max_focus}",
             f"Defense: {self.player.defense_value(self.world.items)}",
             f"Gold: {self.player.gold}",
+            f"Carry: {len(self.player.inventory)}/{self.player.carry_capacity()}",
         ]
         lines.extend(self.inventory.inventory_lines(self.player, self.world.items))
         return "\n".join(lines)
@@ -1176,6 +1291,9 @@ class Game:
                 f"({next_objective['have']}/{next_objective['need']})"
             )
 
+        derived = self.player.derived_stats(self.world.items)
+        prepared_effect = self._prepared_effect_line()
+
         return (
             "Player Stats\n"
             f"Name: {self.player.name}\n"
@@ -1185,21 +1303,30 @@ class Game:
             f"Background: {self.player.background}\n"
             f"Level: {self.player.level}\n"
             f"XP: {self.player.xp}/{self.player.xp_needed_for_next_level()}\n"
-            f"HP: {self.player.hp}/{self.player.max_hp}\n"
-            f"Focus: {self.player.focus}/{self.player.max_focus}\n"
-            f"Attack: {self.player.attack_value(self.world.items)}\n"
-            f"Defense: {self.player.defense_value(self.world.items)}\n"
-            f"Strength: {self.player.stat_value('strength')}\n"
-            f"Agility: {self.player.stat_value('agility')}\n"
-            f"Mind: {self.player.stat_value('mind')}\n"
-            f"Vitality: {self.player.stat_value('vitality')}\n"
-            f"Gold: {self.player.gold}\n"
+            f"Resources: HP {self.player.hp}/{self.player.max_hp} | Focus {self.player.focus}/{self.player.max_focus} | Gold {self.player.gold}\n"
+            "Core stats: "
+            f"Strength {self.player.stat_value('strength')} ({self.player.stat_modifier('strength'):+d}) | "
+            f"Agility {self.player.stat_value('agility')} ({self.player.stat_modifier('agility'):+d}) | "
+            f"Mind {self.player.stat_value('mind')} ({self.player.stat_modifier('mind'):+d}) | "
+            f"Vitality {self.player.stat_value('vitality')} ({self.player.stat_modifier('vitality'):+d})\n"
+            "Derived: "
+            f"Attack {derived['attack']} ({derived['attack_stat']}) | "
+            f"Accuracy {derived['accuracy']} | "
+            f"Defense {derived['defense']} | "
+            f"Dodge {derived['dodge_chance']}% | "
+            f"Crit {derived['crit_chance']}% | "
+            f"Resilience {derived['resilience']}\n"
+            "Power: "
+            f"Spell {derived['spell_power']} | "
+            f"Healing {derived['healing_power']} | "
+            f"Carry {len(self.player.inventory)}/{derived['carry_capacity']}\n"
             f"Location: {location_name}\n"
             f"Equipped weapon: {equipped_weapon}\n"
             f"Equipped armor: {equipped_armor}\n"
             f"Inventory items: {len(self.player.inventory)}\n"
             f"Abilities known: {', '.join(self._ability_name(ability_id) for ability_id in self.player.abilities) or 'none'}\n"
             f"Active quest: {active_quest_summary}"
+            + (f"\nPrepared effect: {prepared_effect}" if prepared_effect else "")
             + (f"\nBio: {self.player.bio}" if self.player.bio else "")
         )
 
@@ -1207,11 +1334,15 @@ class Game:
         return Narrator.skills_text(self._skill_display_data())
 
     def _cmd_abilities(self) -> str:
-        return Narrator.abilities_text(
+        text = Narrator.abilities_text(
             self.abilities.available_to(self.player),
             self.player.focus,
             self.player.max_focus,
         )
+        prepared_effect = self._prepared_effect_line()
+        if prepared_effect:
+            text += "\nPrepared effect: " + prepared_effect
+        return text
 
     def _cmd_recap(self) -> str:
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
@@ -1355,6 +1486,7 @@ class Game:
 
     def character_context(self) -> dict:
         summary = self.player.character_summary()
+        summary.update(self.player.derived_stats(self.world.items))
         summary["attack"] = self.player.attack_value(self.world.items)
         summary["inventory"] = [self.world.item_name(item_id) for item_id in self.player.inventory]
         summary["abilities"] = [self._ability_name(ability_id) for ability_id in self.player.abilities]
@@ -1621,10 +1753,25 @@ class Game:
         if self.current_location not in self.SAFE_REST_LOCATIONS:
             return Narrator.rest_not_safe_text(location_name)
 
+        lines = []
+        rest_cost = int(location.get("rest_cost", 0))
+        if rest_cost > 0:
+            rest_faction = str(location.get("rest_faction", "")).strip().lower()
+            rest_npc = str(location.get("rest_npc", "")).strip().lower() or None
+            if rest_faction:
+                allowed, denial = self.factions.service_access(self.player, rest_faction, rest_npc)
+                if not allowed:
+                    return denial
+                rest_cost = self.factions.price_for_service(self.player, rest_faction, rest_npc, rest_cost)
+            if self.player.gold < rest_cost:
+                return f"You need {rest_cost} gold to rest at {location_name}, but you only have {self.player.gold} gold."
+            self.player.gold -= rest_cost
+            lines.append(f"Room cost: {rest_cost} gold. Gold left: {self.player.gold}.")
+
         was_injured = self.player.hp < self.player.max_hp or self.player.focus < self.player.max_focus
         self.player.hp = self.player.max_hp
         self.player.focus = self.player.max_focus
-        lines = [
+        lines.append(
             Narrator.rest_text(
                 location_name,
                 self.player.hp,
@@ -1633,7 +1780,7 @@ class Game:
                 self.player.max_focus,
                 was_injured,
             )
-        ]
+        )
         lines.extend(self._post_action_world_tick("rest"))
         return "\n".join(lines)
 
@@ -1672,12 +1819,24 @@ class Game:
 
         if ability.get("target") == "self":
             self.player.spend_focus(cost)
-            healed = self.player.heal(int(effect.get("heal", 0)))
+            healed = 0
+            heal_amount = int(effect.get("heal", 0))
+            if heal_amount > 0:
+                healed = self.player.heal(heal_amount + self._ability_scale_bonus(effect))
+            buff_summary = self._apply_ability_buff(ability, effect.get("buff", {}))
+
             if healed > 0:
                 lines.append(
                     Narrator.ability_text(
                         ability["name"],
                         f"You recover {healed} HP. HP {self.player.hp}/{self.player.max_hp}. Focus {self.player.focus}/{self.player.max_focus}.",
+                    )
+                )
+            elif buff_summary:
+                lines.append(
+                    Narrator.ability_text(
+                        ability["name"],
+                        f"You prepare for the next fight: {buff_summary}. Focus {self.player.focus}/{self.player.max_focus}.",
                     )
                 )
             else:
@@ -1700,15 +1859,50 @@ class Game:
         enemy_data = self.world.enemies.get(enemy_id, {})
         enemy_name = self.world.enemy_name(enemy_id)
         enemy_hp_before = int(enemy_data.get("hp", 1))
-        opening_damage = max(0, int(effect.get("damage", 0)) + max(0, self.player.stat_modifier("mind")))
-        enemy_hp_after = max(0, enemy_hp_before - opening_damage)
         self.player.spend_focus(cost)
-        lines.append(
-            Narrator.ability_text(
-                ability["name"],
-                f"You hit {enemy_name} for {opening_damage} opening damage. Focus {self.player.focus}/{self.player.max_focus}.",
+        buff_summary = self._apply_ability_buff(ability, effect.get("buff", {}))
+        opening_result = None
+        opening_damage = 0
+
+        if int(effect.get("damage", 0)) > 0:
+            opening_result = self._resolve_opening_ability_attack(ability, enemy_id, enemy_data)
+            if opening_result["hit"]:
+                opening_damage = opening_result["damage"]
+                crit_text = " Critical hit." if opening_result["critical"] else ""
+                lines.append(
+                    Narrator.ability_text(
+                        ability["name"],
+                        f"You roll {opening_result['roll']['die']} + {opening_result['roll']['modifier']} = {opening_result['roll']['total']} "
+                        f"against {enemy_name} DEF {opening_result['enemy_defense']} and hit for {opening_damage} opening damage.{crit_text} "
+                        f"Focus {self.player.focus}/{self.player.max_focus}.",
+                    )
+                )
+            else:
+                lines.append(
+                    Narrator.ability_text(
+                        ability["name"],
+                        f"You roll {opening_result['roll']['die']} + {opening_result['roll']['modifier']} = {opening_result['roll']['total']} "
+                        f"against {enemy_name} DEF {opening_result['enemy_defense']} and miss. Focus {self.player.focus}/{self.player.max_focus}.",
+                    )
+                )
+        elif buff_summary:
+            lines.append(
+                Narrator.ability_text(
+                    ability["name"],
+                    f"You prepare against {enemy_name}: {buff_summary}. Focus {self.player.focus}/{self.player.max_focus}.",
+                )
             )
-        )
+
+        if effect.get("reveal_enemy"):
+            family = str(enemy_data.get("family", "unknown")).replace("_", " ")
+            lines.append(
+                Narrator.ability_text(
+                    ability["name"],
+                    f"{enemy_name} reads as {family}. HP {enemy_hp_before}, DEF {int(enemy_data.get('defense', 10))}, ATK {int(enemy_data.get('attack', 1))}.",
+                )
+            )
+
+        enemy_hp_after = max(0, enemy_hp_before - opening_damage)
 
         if enemy_hp_after <= 0:
             result = {
@@ -1727,6 +1921,9 @@ class Game:
                 self.world.items,
                 starting_enemy_hp=enemy_hp_after,
             )
+            prepared_effect = self._prepared_effect_line()
+            if prepared_effect:
+                lines.append("Prepared effect: " + prepared_effect)
             lines.append(
                 f"Start: Your HP {player_hp_before}/{self.player.max_hp} | "
                 f"{enemy_name} HP {enemy_hp_after}/{enemy_hp_before}"
@@ -1749,6 +1946,7 @@ class Game:
                 self.running = False
                 lines.append("Game over.")
 
+        self.player.clear_combat_boosts()
         if self.running:
             lines.extend(self._post_action_world_tick("cast"))
         transition_text = self._scene_transition_text(self.player.event_log[event_count_before:])
@@ -1769,6 +1967,31 @@ class Game:
 
     def _cmd_journal(self) -> str:
         return "\n".join(self.quests.journal_lines(self.player, world=self.world, current_location=self.current_location))
+
+    def _npc_service_lines(self, npc_id: str, npc_data: dict) -> list[str]:
+        services = []
+        stock = npc_data.get("shop_inventory", [])
+        if isinstance(stock, list) and stock:
+            services.append("buy, sell")
+
+        location = self.world.get_location(self.current_location)
+        rest_npc = str(location.get("rest_npc", "")).strip().lower()
+        rest_cost = int(location.get("rest_cost", 0))
+        if npc_id == rest_npc:
+            if rest_cost > 0:
+                price = self.factions.price_for_service(
+                    self.player,
+                    str(location.get("rest_faction", "")).strip().lower(),
+                    npc_id,
+                    rest_cost,
+                )
+                services.append(f"rest ({price} gold)")
+            else:
+                services.append("rest")
+
+        if not services:
+            return []
+        return ["Services: " + ", ".join(services) + "."]
 
     def _cmd_talk(self, arg: str) -> str:
         location = self.world.get_location(self.current_location)
@@ -1814,7 +2037,8 @@ class Game:
             world=self.world,
             current_location=self.current_location,
         )
-        return Narrator.npc_dialogue_text(npc_name, role, dialogue, offers)
+        service_lines = self._npc_service_lines(npc_query, npc_data)
+        return Narrator.npc_dialogue_text(npc_name, role, dialogue, offers, service_lines=service_lines)
 
     def _cmd_ask(self, arg: str) -> str:
         usage = "Use format: ask <npc> about <topic>"
@@ -2027,7 +2251,12 @@ class Game:
         for npc_id in self._visible_npcs_at_location(self.current_location):
             npc_data = self.world.get_npc(npc_id)
             stock = npc_data.get("shop_inventory", [])
-            if not isinstance(stock, list) or not stock:
+            buy_types = npc_data.get("buy_types", [])
+            if not isinstance(stock, list):
+                stock = []
+            if not isinstance(buy_types, list):
+                buy_types = []
+            if not stock and not buy_types:
                 continue
             shops.append(
                 {
@@ -2035,6 +2264,7 @@ class Game:
                     "name": self.world.npc_name(npc_id),
                     "faction": str(npc_data.get("faction", "")).strip().lower(),
                     "stock": [str(item_id).strip().lower() for item_id in stock if str(item_id).strip()],
+                    "buy_types": [str(item_type).strip().lower() for item_type in buy_types if str(item_type).strip()],
                 }
             )
         return shops
@@ -2050,6 +2280,23 @@ class Game:
             lines.append(f"- {item_name} ({item_type}) - {price} gold")
         return lines
 
+    def _shop_buys_item(self, shop: dict, item_id: str) -> bool:
+        if item_id in shop.get("stock", []):
+            return True
+        item_type = str(self.world.items.get(item_id, {}).get("type", "")).strip().lower()
+        return bool(item_type and item_type in shop.get("buy_types", []))
+
+    def _sellable_inventory_lines(self, shops: list[dict]) -> list[str]:
+        lines = []
+        for item_id in self.player.inventory:
+            for shop in shops:
+                if not self._shop_buys_item(shop, item_id):
+                    continue
+                value = self.inventory.sell_price(item_id, self.world.items)
+                lines.append(f"- {self.world.item_name(item_id)} to {shop['name']} for {value} gold")
+                break
+        return lines
+
     def _cmd_buy(self, arg: str) -> str:
         shops = self._local_shop_npcs()
         if not shops:
@@ -2058,12 +2305,16 @@ class Game:
         if not arg:
             lines = []
             for shop in shops:
+                if not shop["stock"]:
+                    continue
                 allowed, denial = self.factions.service_access(self.player, shop["faction"], shop["npc_id"])
                 lines.append(f"{shop['name']} offers:")
                 if not allowed:
                     lines.append(f"- {denial}")
                     continue
                 lines.extend(self._shop_stock_lines(shop))
+            if not lines:
+                return "You cannot buy here: local vendors are not offering goods right now."
             lines.append("Use 'buy <item>' to purchase something from a local vendor.")
             return "\n".join(lines)
 
@@ -2122,6 +2373,65 @@ class Game:
                 if caravan_lines:
                     lines.extend(caravan_lines)
             extra_lines = self._post_action_world_tick("buy")
+            if extra_lines:
+                lines.extend(extra_lines)
+            return "\n".join(lines)
+        return message
+
+    def _cmd_sell(self, arg: str) -> str:
+        shops = self._local_shop_npcs()
+        if not shops:
+            return "You cannot sell here: no local vendor is trading for goods in this location."
+
+        if not self.player.inventory:
+            return "You have nothing to sell."
+
+        if not arg:
+            lines = self._sellable_inventory_lines(shops)
+            if not lines:
+                return "No local vendor wants anything from your backpack right now."
+            lines.append("Use 'sell <item>' to trade something away.")
+            return "Sellable items\n" + "\n".join(lines)
+
+        item_id = self.inventory.find_item_in_inventory(self.player, self.world.items, arg)
+        if not item_id:
+            lines = self.inventory.inventory_lines(self.player, self.world.items)
+            return f"You do not have '{arg}'.\n" + "\n".join(lines)
+
+        selected_shop = None
+        for shop in shops:
+            if self._shop_buys_item(shop, item_id):
+                selected_shop = shop
+                break
+
+        if not selected_shop:
+            return "No local vendor is willing to buy that item here."
+
+        allowed, denial = self.factions.service_access(
+            self.player,
+            selected_shop["faction"],
+            selected_shop["npc_id"],
+        )
+        if not allowed:
+            return denial
+
+        sold, message = self.inventory.sell_item(
+            self.player,
+            item_id,
+            self.world.items,
+            value_override=self.inventory.sell_price(item_id, self.world.items),
+            buyer_name=selected_shop["name"],
+        )
+        if sold:
+            lines = [message]
+            lines.extend(
+                self._apply_social_rewards(
+                    reputation_changes={selected_shop["faction"]: 1} if selected_shop["faction"] else None,
+                    trust_changes={selected_shop["npc_id"]: 1},
+                    source=f"sell_{item_id}",
+                )
+            )
+            extra_lines = self._post_action_world_tick("sell")
             if extra_lines:
                 lines.extend(extra_lines)
             return "\n".join(lines)
@@ -2216,11 +2526,12 @@ class Game:
             "do <free text>     - Optional wrapper for safe narrative input like observe, ask, or listen.\n"
             "free text          - You can also type lines like 'look around', 'go to the forest', or 'attack the slime'.\n"
             "buy <item>         - Purchase from a local vendor in your current location.\n"
+            "sell <item>        - Sell a carried item to a willing local vendor.\n"
             "\n"
-            "inventory          - See HP, gold, carried items, and weapon.\n"
-            "stats              - Snapshot core stats, focus, and next quest target.\n"
-            "skills             - Show your skill totals and proficiencies.\n"
-            "abilities          - List your class abilities and spells.\n"
+            "inventory          - See HP, focus, carry load, carried items, and gear.\n"
+            "stats              - Snapshot core stats, derived combat values, and quest focus.\n"
+            "skills             - Show skill totals, proficiencies, and linked core stats.\n"
+            "abilities          - List your class abilities, spells, and current focus.\n"
             "recap              - Recap your location, resources, and quests.\n"
             "story              - Tell the story of your adventure so far.\n"
             "history            - Show a timeline of important adventure events.\n"
@@ -2232,7 +2543,7 @@ class Game:
             "hint               - Get a next-step suggestion.\n"
             "rest               - Heal fully in Village Square, the Shop, or an Inn.\n"
             "use <item>         - Consume a potion or equip a weapon.\n"
-            "cast <ability>     - Use a known spell or class ability.\n"
+            "cast <ability>     - Spend focus on a known spell or class ability.\n"
             "quests             - Show raw quest progress and completion.\n"
             "journal            - Read each quest's story and progress.\n"
             "about              - Explain engine rules vs AI narration.\n"

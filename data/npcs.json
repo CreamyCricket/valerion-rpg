@@ -74,55 +74,78 @@
   },
   "gatewarden": {
     "name": "Gatewarden",
-    "role": "Town guard",
+    "role": "Stonewatch gate warden",
     "aliases": ["town guard", "warden", "gate guard"],
-    "dialogue": "The Gatewarden keeps the peace with a patient stare, the sort that has seen merchants, refugees, and trouble all arrive through the same gate.",
+    "dialogue": "The Gatewarden checks wagons, faces, and weather with the same patient care, because Stonewatch stays calm only if its threshold stays watched.",
     "faction": "kingdom_guard",
     "important": true
   },
   "market_broker": {
     "name": "Market Broker",
     "role": "Square broker",
-    "aliases": ["broker", "market seller", "quartermaster"],
-    "dialogue": "The Market Broker speaks in prices, shortages, and whispers, as if the whole town can be measured by what people hurry to buy.",
+    "aliases": ["broker", "market seller", "factor"],
+    "dialogue": "The Market Broker tracks shortages, caravan delays, and who paid too much for bad steel, treating Stonewatch's mood like another line in the ledger.",
     "faction": "merchant_guild",
     "important": true,
-    "shop_inventory": ["potion", "greater_potion", "bandage", "ration"]
+    "shop_inventory": ["healing_potion", "bread_ration", "bandage_kit", "torch_bundle"],
+    "buy_types": ["weapon", "armor", "consumable", "utility", "gear", "loot"]
   },
   "blacksmith": {
     "name": "Blacksmith",
     "role": "Forge master",
     "aliases": ["smith", "forge master", "armorer"],
-    "dialogue": "The Blacksmith values plain speech, tested steel, and customers who understand that bad gear usually fails at the worst possible moment.",
+    "dialogue": "The Blacksmith speaks like steel ought to be honest, with no patience for flashy junk and plenty for people who mean to survive what they buy.",
     "faction": "merchant_guild",
     "important": true,
-    "shop_inventory": ["iron_sword", "battle_axe", "leather_vest", "iron_mail"]
+    "shop_inventory": ["iron_sword", "war_axe", "padded_coat", "chain_vest", "iron_shield"],
+    "buy_types": ["weapon", "armor", "loot"]
   },
   "arcanist": {
     "name": "Arcanist",
-    "role": "Mage merchant",
+    "role": "Mage supplier",
     "aliases": ["mage merchant", "mage seller", "spell merchant"],
-    "dialogue": "The Arcanist keeps the shop quiet and precise, with the air of someone who expects carelessness to cost more than coin.",
+    "dialogue": "The Arcanist arranges powders, glass, and warded tools with exact care, as if sloppy hands are the fastest road to an expensive funeral.",
     "faction": "shrine_keepers",
     "important": true,
-    "shop_inventory": ["apprentice_staff", "mana_tonic", "focus_draught", "warded_cloak"]
+    "shop_inventory": ["apprentice_staff", "spell_focus", "mana_tonic", "novice_grimoire"],
+    "buy_types": ["weapon", "consumable", "gear", "loot"]
   },
   "fletcher": {
     "name": "Fletcher",
-    "role": "Weapons dealer",
+    "role": "Weapons merchant",
     "aliases": ["bowyer", "weapons dealer", "arrow maker"],
-    "dialogue": "The Fletcher talks like range is a discipline rather than a comfort, and seems unimpressed by anyone who believes distance makes them safe.",
+    "dialogue": "The Fletcher talks about balance, reach, and timing with the dry certainty of someone who knows bad aim and bad equipment usually fail together.",
     "faction": "merchant_guild",
     "important": true,
-    "shop_inventory": ["spear", "short_bow", "hunting_bow"]
+    "shop_inventory": ["hunting_spear", "longbow", "dagger", "leather_armor"],
+    "buy_types": ["weapon", "armor", "loot"]
   },
   "innkeeper": {
     "name": "Innkeeper",
     "role": "Inn host",
     "aliases": ["host", "bartender", "keeper"],
-    "dialogue": "The Innkeeper has the steady manner of someone who has heard every kind of road story and knows which ones end better after a meal and a night's sleep.",
+    "dialogue": "The Innkeeper keeps a warm room, cheap food, and enough discretion to let road-worn strangers feel human again before morning.",
     "faction": "merchant_guild",
     "important": true,
-    "shop_inventory": ["ration", "herb", "mana_tonic"]
+    "shop_inventory": ["bread_ration", "bandage_kit", "torch_bundle"],
+    "buy_types": ["consumable", "utility", "loot"]
+  },
+  "quartermaster": {
+    "name": "Quartermaster",
+    "role": "Watch quartermaster",
+    "aliases": ["watch quartermaster", "barracks quartermaster", "armory clerk"],
+    "dialogue": "The Quartermaster keeps Stonewatch's watch supplied with plain gear, sharper records, and a suspicion of anyone who wastes either.",
+    "faction": "kingdom_guard",
+    "important": true,
+    "shop_inventory": ["iron_shield", "padded_coat", "bandage_kit", "torch_bundle"],
+    "buy_types": ["weapon", "armor", "consumable", "utility", "loot"]
+  },
+  "shrine_caretaker": {
+    "name": "Shrine Caretaker",
+    "role": "Town shrine keeper",
+    "aliases": ["town caretaker", "shrine keeper", "temple caretaker"],
+    "dialogue": "The Shrine Caretaker keeps the little town altar swept, lit, and useful, insisting that a watched flame steadies frightened people as much as prayer does.",
+    "faction": "shrine_keepers",
+    "important": true
   }
 }

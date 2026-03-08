@@ -44,16 +44,24 @@ class CombatEngine:
         enemy_fled = False
         while player.is_alive() and enemy_hp > 0:
             player_attack = max(1, player.attack_value(items_data))
-            player_roll = self.dice.roll_d20(player_attack)
-            effective_enemy_defense = enemy_defense + 2 if behavior == "defensive" else enemy_defense
+            player_attack_modifier = player.attack_roll_modifier(items_data)
+            player_roll = self.dice.roll_d20(player_attack_modifier)
+            effective_enemy_defense = enemy_defense - player.combat_boosts["enemy_defense_penalty"]
+            if behavior == "defensive":
+                effective_enemy_defense += 2
+            effective_enemy_defense = max(5, effective_enemy_defense)
             if player_roll["total"] >= effective_enemy_defense:
                 player_damage = player_attack
+                critical_hit = player_roll["die"] >= player.crit_threshold(items_data)
+                if critical_hit:
+                    player_damage = player.critical_damage(player_damage)
                 enemy_hp -= player_damage
                 enemy_hp_after = max(0, enemy_hp)
+                crit_text = " Critical hit." if critical_hit else ""
                 log.append(
                     f"Turn {turn}: You roll {player_roll['die']} + {player_roll['modifier']} = {player_roll['total']} "
                     f"against {enemy_name} DEF {effective_enemy_defense} and hit for {player_damage} damage "
-                    f"(enemy HP: {enemy_hp_after})."
+                    f"(enemy HP: {enemy_hp_after}).{crit_text}"
                 )
             else:
                 log.append(
@@ -79,14 +87,16 @@ class CombatEngine:
                     enemy_attack_modifier += 2
                 else:
                     enemy_attack_modifier += 1
+            enemy_attack_modifier = max(1, enemy_attack_modifier - player.combat_boosts["enemy_attack_penalty"])
 
             player_defense = player.defense_value(items_data)
             enemy_roll = self.dice.roll_d20(enemy_attack_modifier)
             if enemy_roll["total"] >= player_defense:
-                player.hp = max(0, player.hp - enemy_attack)
+                damage_taken = max(1, enemy_attack - player.resilience_value())
+                player.hp = max(0, player.hp - damage_taken)
                 log.append(
                     f"Turn {turn}: {enemy_name} rolls {enemy_roll['die']} + {enemy_roll['modifier']} = {enemy_roll['total']} "
-                    f"against your DEF {player_defense} and hits for {enemy_attack} damage "
+                    f"against your DEF {player_defense} and hits for {damage_taken} damage "
                     f"(your HP: {player.hp}/{player.max_hp})."
                 )
             else:

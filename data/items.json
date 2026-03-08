@@ -48,11 +48,39 @@
     "effect": "focus_8",
     "price": 13
   },
+  "healing_potion": {
+    "name": "Healing Potion",
+    "type": "consumable",
+    "description": "A stronger red tonic sold to people who expect real wounds rather than bad luck.",
+    "effect": "heal_12",
+    "price": 9
+  },
+  "bread_ration": {
+    "name": "Bread Ration",
+    "type": "consumable",
+    "description": "Dark bread, cured cheese, and salted scraps wrapped for a day on the road.",
+    "effect": "heal_4",
+    "price": 2
+  },
+  "bandage_kit": {
+    "name": "Bandage Kit",
+    "type": "consumable",
+    "description": "A tighter roll of cloth, salve, and pins packed for more serious field treatment.",
+    "effect": "heal_6",
+    "price": 5
+  },
+  "torch_bundle": {
+    "name": "Torch Bundle",
+    "type": "utility",
+    "description": "A tied set of road torches kept dry for caves, cellars, and late travel.",
+    "price": 4
+  },
   "rusty_sword": {
     "name": "Rusty Sword",
     "type": "weapon",
     "description": "An old blade with chipped edges, but still useful.",
     "effect": "attack_plus_2",
+    "attack_stat": "strength",
     "price": 7
   },
   "iron_sword": {
@@ -60,13 +88,23 @@
     "type": "weapon",
     "description": "A straight, dependable sword balanced for everyday fighting.",
     "effect": "attack_plus_3",
+    "attack_stat": "strength",
     "price": 15
+  },
+  "war_axe": {
+    "name": "War Axe",
+    "type": "weapon",
+    "description": "A better-forged axe with the weight and edge to matter when the swing lands cleanly.",
+    "effect": "attack_plus_4",
+    "attack_stat": "strength",
+    "price": 18
   },
   "battle_axe": {
     "name": "Battle Axe",
     "type": "weapon",
     "description": "A broad-headed axe that hits hard when the swing lands cleanly.",
     "effect": "attack_plus_4",
+    "attack_stat": "strength",
     "price": 20
   },
   "spear": {
@@ -74,13 +112,23 @@
     "type": "weapon",
     "description": "A simple ash-wood spear valued for reach and reliability.",
     "effect": "attack_plus_3",
+    "attack_stat": "strength",
     "price": 14
+  },
+  "hunting_spear": {
+    "name": "Hunting Spear",
+    "type": "weapon",
+    "description": "A balanced spear meant for boar, wolves, and anything else best discouraged before it closes.",
+    "effect": "attack_plus_4",
+    "attack_stat": "strength",
+    "price": 16
   },
   "short_bow": {
     "name": "Short Bow",
     "type": "weapon",
     "description": "A practical bow for hunters and scouts moving through tight ground.",
     "effect": "attack_plus_2",
+    "attack_stat": "agility",
     "price": 12
   },
   "hunting_bow": {
@@ -88,14 +136,74 @@
     "type": "weapon",
     "description": "A stronger bow that rewards a steady hand and open sight lines.",
     "effect": "attack_plus_3",
+    "attack_stat": "agility",
     "price": 18
+  },
+  "longbow": {
+    "name": "Longbow",
+    "type": "weapon",
+    "description": "A taller bow built for a patient draw and harder range than quick forest shooting.",
+    "effect": "attack_plus_4",
+    "attack_stat": "agility",
+    "price": 19
+  },
+  "dagger": {
+    "name": "Dagger",
+    "type": "weapon",
+    "description": "A narrow knife made for quick work, close timing, and travelers who dislike empty belts.",
+    "effect": "attack_plus_2",
+    "attack_stat": "agility",
+    "price": 8
   },
   "apprentice_staff": {
     "name": "Apprentice Staff",
     "type": "weapon",
     "description": "A rune-bound staff made to help novice casters keep their focus.",
     "effect": "attack_plus_2",
+    "attack_stat": "mind",
     "price": 16
+  },
+  "spell_focus": {
+    "name": "Spell Focus",
+    "type": "weapon",
+    "description": "A warded focus rod that trades reach for steadier arcane alignment in cramped spaces.",
+    "effect": "attack_plus_1",
+    "attack_stat": "mind",
+    "price": 12
+  },
+  "novice_grimoire": {
+    "name": "Novice Grimoire",
+    "type": "gear",
+    "description": "A stitched training book of basic wards, copied cantrips, and margin notes from safer hands.",
+    "price": 14
+  },
+  "padded_coat": {
+    "name": "Padded Coat",
+    "type": "armor",
+    "description": "Layered cloth meant to stop bruising, soften falls, and make a bad blow slightly less bad.",
+    "effect": "defense_plus_1",
+    "price": 8
+  },
+  "leather_armor": {
+    "name": "Leather Armor",
+    "type": "armor",
+    "description": "Worked leather hardened for the road, light enough to move in and honest enough to trust.",
+    "effect": "defense_plus_2",
+    "price": 14
+  },
+  "chain_vest": {
+    "name": "Chain Vest",
+    "type": "armor",
+    "description": "A sleeveless mesh of linked iron rings that gives real protection without full soldier weight.",
+    "effect": "defense_plus_2",
+    "price": 19
+  },
+  "iron_shield": {
+    "name": "Iron Shield",
+    "type": "armor",
+    "description": "A compact shield strapped for road use, counted here as protection more than ornament.",
+    "effect": "defense_plus_2",
+    "price": 17
   },
   "leather_vest": {
     "name": "Leather Vest",
@@ -122,19 +230,22 @@
     "name": "Road Knife",
     "type": "weapon",
     "description": "A quick-drawn knife favored by robbers who expect their work to stay up close.",
-    "effect": "attack_plus_2"
+    "effect": "attack_plus_2",
+    "attack_stat": "agility"
   },
   "ritual_knife": {
     "name": "Ritual Knife",
     "type": "weapon",
     "description": "A blackened ceremonial blade still sharp enough to be dangerous in plain hands.",
-    "effect": "attack_plus_2"
+    "effect": "attack_plus_2",
+    "attack_stat": "agility"
   },
   "barbed_spear": {
     "name": "Barbed Spear",
     "type": "weapon",
     "description": "A hunting spear with a vicious head, taken from something that meant to keep it.",
-    "effect": "attack_plus_3"
+    "effect": "attack_plus_3",
+    "attack_stat": "strength"
   },
   "slime_gel": {
     "name": "Slime Gel",

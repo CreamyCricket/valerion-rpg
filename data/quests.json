@@ -328,5 +328,72 @@
       "gold": 18,
       "items": ["herb"]
     }
+  },
+  "q013_badges_for_the_watch": {
+    "quest_id": "q013_badges_for_the_watch",
+    "title": "Badges for the Watch",
+    "description": "Stonewatch's Quartermaster wants a raider badge brought in so the watch can track who is pressing the road.",
+    "giver": "quartermaster",
+    "requires_acceptance": true,
+    "faction_rewards": {
+      "kingdom_guard": 10,
+      "merchant_guild": 4,
+      "thieves_circle": -4
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "bring_item",
+      "item": "raider_badge",
+      "count": 1,
+      "turn_in": "watch_barracks"
+    },
+    "reward": {
+      "gold": 18,
+      "items": ["bandage_kit"]
+    }
+  },
+  "q014_ashes_for_stonewatch": {
+    "quest_id": "q014_ashes_for_stonewatch",
+    "title": "Ashes for Stonewatch",
+    "description": "The Shrine Caretaker wants shrine ash gathered from the corrupted wilds before its stain reaches the town altar.",
+    "giver": "shrine_caretaker",
+    "requires_acceptance": true,
+    "faction_rewards": {
+      "shrine_keepers": 12,
+      "cult_of_ash": -4
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "bring_item",
+      "item": "shrine_ash",
+      "count": 1,
+      "turn_in": "town_shrine"
+    },
+    "reward": {
+      "gold": 16,
+      "items": ["novice_grimoire"]
+    }
+  },
+  "q015_tusk_for_the_forge": {
+    "quest_id": "q015_tusk_for_the_forge",
+    "title": "Tusk for the Forge",
+    "description": "The Blacksmith wants a fresh boar tusk for a fitting experiment in frontier spearwork.",
+    "giver": "blacksmith",
+    "requires_acceptance": true,
+    "faction_rewards": {
+      "merchant_guild": 8,
+      "forest_clans": 4
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "bring_item",
+      "item": "boar_tusk",
+      "count": 1,
+      "turn_in": "blacksmith"
+    },
+    "reward": {
+      "gold": 10,
+      "items": ["hunting_spear"]
+    }
   }
 }

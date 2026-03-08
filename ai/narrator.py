@@ -36,8 +36,19 @@ class Narrator:
             f"Starting HP: {character_context.get('max_hp', 20)}",
             f"Starting Focus: {character_context.get('max_focus', 6)}",
             f"Starting Attack: {character_context.get('attack', character_context.get('base_attack', 3))}",
+            f"Starting Accuracy: {character_context.get('accuracy', character_context.get('attack', 3))}",
+            f"Starting Defense: {character_context.get('defense', 10)}",
+            f"Starting Dodge: {character_context.get('dodge_chance', 0)}%",
+            f"Starting Crit: {character_context.get('crit_chance', 5)}%",
             f"Starting Gold: {character_context.get('gold', 0)}",
         ]
+        if "spell_power" in character_context or "healing_power" in character_context:
+            lines.append(
+                "Power: "
+                f"Spell {character_context.get('spell_power', 0)} | "
+                f"Healing {character_context.get('healing_power', 0)} | "
+                f"Carry {len(character_context.get('inventory', []))}/{character_context.get('carry_capacity', len(character_context.get('inventory', [])))}"
+            )
         stats = character_context.get("stats", {})
         if isinstance(stats, dict) and stats:
             lines.append(
@@ -198,7 +209,7 @@ class Narrator:
     @staticmethod
     def skills_text(skills: dict[str, dict[str, int]]) -> str:
         lines = ["Skills"]
-        for skill_name in ("athletics", "survival", "lore", "persuasion", "arcana", "stealth"):
+        for skill_name in ("athletics", "stealth", "survival", "arcana", "lore", "persuasion"):
             entry = skills.get(skill_name, {}) if isinstance(skills, dict) else {}
             total = int(entry.get("total", 0))
             proficiency = int(entry.get("proficiency", 0))
@@ -225,8 +236,16 @@ class Narrator:
         return f"{name}: {detail}"
 
     @staticmethod
-    def npc_dialogue_text(npc_name: str, role: str, dialogue: str, offered_quests: list[str]) -> str:
+    def npc_dialogue_text(
+        npc_name: str,
+        role: str,
+        dialogue: str,
+        offered_quests: list[str],
+        service_lines: list[str] | None = None,
+    ) -> str:
         lines = [f"{npc_name} ({role})", dialogue]
+        if service_lines:
+            lines.extend(service_lines)
         if offered_quests:
             lines.append("Quest offers: " + ", ".join(offered_quests))
             lines.append("Use 'accept <quest>' to take one.")

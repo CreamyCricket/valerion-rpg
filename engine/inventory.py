@@ -120,6 +120,9 @@ class InventoryEngine:
         item = items_data.get(item_id, {})
         return max(1, int(item.get("price", 1)))
 
+    def sell_price(self, item_id: str, items_data: dict) -> int:
+        return max(1, self.item_price(item_id, items_data) // 2)
+
     def buy_item(
         self,
         player: Character,
@@ -146,3 +149,27 @@ class InventoryEngine:
         player.gold -= cost
         player.inventory.append(item_id)
         return True, f"{seller_name}: Sold 1 {item_name} for {cost} gold. Gold left: {player.gold}."
+
+    def sell_item(
+        self,
+        player: Character,
+        item_id: str,
+        items_data: dict,
+        value_override: int | None = None,
+        buyer_name: str = "Merchant",
+    ) -> tuple[bool, str]:
+        if item_id not in player.inventory:
+            return False, f"{buyer_name}: You do not have that item."
+        if item_id not in items_data:
+            return False, f"{buyer_name}: That item does not exist."
+
+        value = int(value_override) if value_override is not None else self.sell_price(item_id, items_data)
+        item_name = items_data.get(item_id, {}).get("name", self._fallback_name(item_id))
+
+        player.inventory.remove(item_id)
+        if player.equipped_weapon == item_id:
+            player.equipped_weapon = None
+        if getattr(player, "equipped_armor", None) == item_id:
+            player.equipped_armor = None
+        player.gold += value
+        return True, f"{buyer_name}: Bought 1 {item_name} for {value} gold. Gold now: {player.gold}."

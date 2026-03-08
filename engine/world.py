@@ -43,6 +43,35 @@ class World:
         return self.get_location(location_id).get("npcs", [])
 
     @staticmethod
+    def _normalize_entity_id(entity_id: str) -> str:
+        return str(entity_id).strip().lower()
+
+    def has_enemy(self, enemy_id: str) -> bool:
+        return self._normalize_entity_id(enemy_id) in self.enemies
+
+    def has_item(self, item_id: str) -> bool:
+        return self._normalize_entity_id(item_id) in self.items
+
+    def has_npc(self, npc_id: str) -> bool:
+        return self._normalize_entity_id(npc_id) in self.npcs
+
+    def filter_encounter_entries(self, entries: list[dict]) -> list[dict]:
+        filtered = []
+        if not isinstance(entries, list):
+            return filtered
+
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            encounter_type = self._normalize_entity_id(entry.get("type", ""))
+            target = self._normalize_entity_id(entry.get("target", ""))
+            if encounter_type == "enemy" and self.has_enemy(target):
+                filtered.append(copy.deepcopy(entry))
+            elif encounter_type == "npc" and self.has_npc(target):
+                filtered.append(copy.deepcopy(entry))
+        return filtered
+
+    @staticmethod
     def _state_library() -> dict:
         return {
             "bandit_raid": {
@@ -228,11 +257,11 @@ class World:
 
     def encounter_entries(self, location_id: str) -> list[dict]:
         base_entries = self.get_location(location_id).get("encounters", [])
-        entries = copy.deepcopy(base_entries) if isinstance(base_entries, list) else []
+        entries = self.filter_encounter_entries(base_entries)
         for state in self.get_location_states(location_id):
             modifiers = state.get("encounter_modifiers", [])
             if isinstance(modifiers, list):
-                entries.extend(copy.deepcopy(modifiers))
+                entries.extend(self.filter_encounter_entries(modifiers))
         return entries
 
     def npc_dialogue_note(self, location_id: str, npc_id: str) -> str:
@@ -257,9 +286,12 @@ class World:
         return lines
 
     def add_enemy(self, location_id: str, enemy_id: str) -> None:
+        normalized_enemy = self._normalize_entity_id(enemy_id)
+        if location_id not in self.state_locations or not self.has_enemy(normalized_enemy):
+            return
         enemies = self.get_enemies_at(location_id)
-        if enemy_id not in enemies:
-            enemies.append(enemy_id)
+        if normalized_enemy not in enemies:
+            enemies.append(normalized_enemy)
 
     def remove_enemy(self, location_id: str, enemy_id: str) -> None:
         enemies = self.get_enemies_at(location_id)
@@ -272,9 +304,19 @@ class World:
             items.remove(item_id)
 
     def add_npc(self, location_id: str, npc_id: str) -> None:
+        normalized_npc = self._normalize_entity_id(npc_id)
+        if location_id not in self.state_locations or not self.has_npc(normalized_npc):
+            return
         npcs = self.get_npcs_at(location_id)
-        if npc_id not in npcs:
-            npcs.append(npc_id)
+        if normalized_npc not in npcs:
+            npcs.append(normalized_npc)
+
+    def _sync_state_enemies(self, location_id: str) -> None:
+        enemies = self.get_enemies_at(location_id)
+        for state in self.get_location_states(location_id):
+            spawn_enemy = self._normalize_entity_id(state.get("spawn_enemy", ""))
+            if spawn_enemy and self.has_enemy(spawn_enemy) and spawn_enemy not in enemies:
+                enemies.append(spawn_enemy)
 
     def clear_transient_npcs(self, location_id: str) -> None:
         default_npcs = list(self.locations.get(location_id, {}).get("npcs", []))
@@ -437,12 +479,36 @@ class World:
             saved_items = location_state.get("items", default_items)
             saved_npcs = location_state.get("npcs", default_npcs)
 
-            enemy_allow = set(saved_enemies) if isinstance(saved_enemies, list) else set(default_enemies)
-            item_allow = set(saved_items) if isinstance(saved_items, list) else set(default_items)
-            npc_allow = set(saved_npcs) if isinstance(saved_npcs, list) else set(default_npcs)
-            saved_enemy_order = [str(enemy_id) for enemy_id in saved_enemies] if isinstance(saved_enemies, list) else list(default_enemies)
-            saved_item_order = [str(item_id) for item_id in saved_items] if isinstance(saved_items, list) else list(default_items)
-            saved_npc_order = [str(npc_id) for npc_id in saved_npcs] if isinstance(saved_npcs, list) else list(default_npcs)
+            enemy_allow = {
+                self._normalize_entity_id(enemy_id)
+                for enemy_id in saved_enemies
+                if self.has_enemy(enemy_id)
+            } if isinstance(saved_enemies, list) else set(default_enemies)
+            item_allow = {
+                self._normalize_entity_id(item_id)
+                for item_id in saved_items
+                if self.has_item(item_id)
+            } if isinstance(saved_items, list) else set(default_items)
+            npc_allow = {
+                self._normalize_entity_id(npc_id)
+                for npc_id in saved_npcs
+                if self.has_npc(npc_id)
+            } if isinstance(saved_npcs, list) else set(default_npcs)
+            saved_enemy_order = [
+                self._normalize_entity_id(enemy_id)
+                for enemy_id in saved_enemies
+                if self.has_enemy(enemy_id)
+            ] if isinstance(saved_enemies, list) else list(default_enemies)
+            saved_item_order = [
+                self._normalize_entity_id(item_id)
+                for item_id in saved_items
+                if self.has_item(item_id)
+            ] if isinstance(saved_items, list) else list(default_items)
+            saved_npc_order = [
+                self._normalize_entity_id(npc_id)
+                for npc_id in saved_npcs
+                if self.has_npc(npc_id)
+            ] if isinstance(saved_npcs, list) else list(default_npcs)
 
             # Preserve canonical ordering from base data while restoring only saved survivors.
             self.state_locations[location_id]["enemies"] = [
@@ -474,6 +540,7 @@ class World:
                     if self._state_template(normalized_state):
                         restored.append(normalized_state)
                 self.location_states[location_id] = restored
+                self._sync_state_enemies(location_id)
                 self._sync_state_npcs(location_id)
 
     def map_lines(self, current_location: str) -> list[str]:

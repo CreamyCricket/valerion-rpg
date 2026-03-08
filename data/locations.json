@@ -8,7 +8,7 @@
       "shop": "shop",
       "forest": "forest_path",
       "river": "river_crossing",
-      "town": "town_gate"
+      "stonewatch": "town_gate"
     },
     "enemies": [],
     "items": [],
@@ -46,6 +46,8 @@
   "shop": {
     "name": "Shop",
     "description": "A small wooden shop stocked with simple supplies and tools.",
+    "region": "Village Roads",
+    "lore": "The village shop is less a market than a lifeline, keeping enough simple gear on hand that locals do not have to wait for the next safe caravan.",
     "connected_locations": {
       "square": "village_square"
     },
@@ -188,6 +190,8 @@
   "old_watchtower": {
     "name": "Old Watchtower",
     "description": "A broken stone tower rises above the trees, quiet but still standing.",
+    "region": "Village Roads",
+    "lore": "The watchtower once gave the village warning over the road and treeline, so even half-ruined it still feels like part of the same border watch.",
     "connected_locations": {
       "path": "forest_path",
       "ruins": "old_ruins"
@@ -256,7 +260,7 @@
         "name": "Hidden Treasure",
         "type": "treasure",
         "weight": 100,
-        "skill": "lockpicking",
+        "skill": "arcana",
         "dc": 14,
         "reward_gold": 15,
         "reward_item": "potion"
@@ -305,7 +309,7 @@
         "name": "Injured Traveler",
         "type": "traveler",
         "weight": 30,
-        "skill": "survival",
+        "skill": "athletics",
         "dc": 12,
         "reward_item": "bandage",
         "reward_gold": 5
@@ -354,7 +358,7 @@
         "name": "Hidden Treasure",
         "type": "treasure",
         "weight": 60,
-        "skill": "lockpicking",
+        "skill": "lore",
         "dc": 13,
         "reward_gold": 12,
         "reward_item": "bandage"
@@ -401,7 +405,7 @@
         "name": "Hidden Treasure",
         "type": "treasure",
         "weight": 50,
-        "skill": "lockpicking",
+        "skill": "athletics",
         "dc": 13,
         "reward_gold": 14,
         "reward_item": "potion"
@@ -472,12 +476,13 @@
   },
   "town_gate": {
     "name": "Town Gate",
-    "description": "A high stone arch and timber doors mark the entrance to Greyhaven, a busier town than the village roads suggest.",
-    "region": "Greyhaven",
-    "lore": "Greyhaven grew rich by taking traffic the forest villages could not hold, and it measures danger by what it interrupts.",
+    "description": "Stonewatch's gate rises in pale blockwork above the road, built to welcome trade while making trouble slow itself down.",
+    "region": "Stonewatch",
+    "lore": "Stonewatch holds because caravans, patrols, pilgrims, and hunters all need the same wall, the same market, and the same rules at the end of a long road.",
     "connected_locations": {
       "village": "village_square",
-      "market": "market_square"
+      "market": "market_square",
+      "barracks": "watch_barracks"
     },
     "enemies": [],
     "items": [],
@@ -490,18 +495,20 @@
   },
   "market_square": {
     "name": "Market Square",
-    "description": "Greyhaven's central square is full of awnings, stacked crates, and enough voices to make the road feel far away.",
-    "region": "Greyhaven",
-    "lore": "Every road into Greyhaven leaves some mark here: river cargo, forest hides, shrine gossip, and mercenary coin all end up in the same square.",
+    "description": "Stonewatch's market square is tight with awnings, handcarts, and callers who know the road well enough to price it by the mile.",
+    "region": "Stonewatch",
+    "lore": "The square is where forest goods become town coin, where travelers overhear their next lead, and where Stonewatch proves it is more than a checkpoint with walls.",
     "connected_locations": {
       "gate": "town_gate",
       "blacksmith": "blacksmith",
       "mage": "mage_shop",
       "weapons": "weapon_shop",
-      "inn": "inn"
+      "inn": "inn",
+      "shrine": "town_shrine",
+      "barracks": "watch_barracks"
     },
     "enemies": [],
-    "items": ["ration"],
+    "items": [],
     "npcs": ["market_broker"],
     "encounters": [],
     "world_event_chance": 0,
@@ -511,7 +518,9 @@
   },
   "blacksmith": {
     "name": "Blacksmith",
-    "description": "The forge room glows orange beneath soot-dark beams, with finished blades hanging beside work still warm from the anvil.",
+    "description": "Heat, hammer-song, and iron filings fill the forge, where practical work is stacked in racks before it ever reaches a display wall.",
+    "region": "Stonewatch",
+    "lore": "Stonewatch's smiths live on road demand: nails for wagons, rivets for armor, and hard promises about which steel will still hold after a bad week.",
     "connected_locations": {
       "square": "market_square"
     },
@@ -526,7 +535,9 @@
   },
   "mage_shop": {
     "name": "Mage Shop",
-    "description": "Shelves of powders, sealed vials, and ward-marked cloth line a quiet room that smells faintly of ink and ozone.",
+    "description": "Quiet shelves of glass, vellum, and warded tools keep the mage shop feeling more measured than grand, with every item set where careless hands cannot reach it first.",
+    "region": "Stonewatch",
+    "lore": "Stonewatch's arcane trade stays modest on purpose: enough to arm novices, mend field kits, and keep the shrine orders supplied without pretending the frontier is a college.",
     "connected_locations": {
       "square": "market_square"
     },
@@ -541,7 +552,9 @@
   },
   "weapon_shop": {
     "name": "Weapon Shop",
-    "description": "Racks of bows, polearms, and bundled shafts fill a narrow shop built for hunters, scouts, and anyone expecting trouble at range.",
+    "description": "Racks of bows, spears, and field blades line a narrow room built for hunters, scouts, and travelers who expect the road to argue back.",
+    "region": "Stonewatch",
+    "lore": "The weapon shop survives by outfitting people who need clean range, quick reach, or something cheap enough to risk on uncertain roads.",
     "connected_locations": {
       "square": "market_square"
     },
@@ -556,13 +569,53 @@
   },
   "inn": {
     "name": "Inn",
-    "description": "The common room is warm, bright, and noisy enough to make even a guarded traveler lower their shoulders.",
+    "description": "Warm light, stew steam, and tired voices make the inn feel like the first room in miles where nobody needs to keep moving.",
+    "region": "Stonewatch",
+    "lore": "Road towns are measured by their inns as much as their walls, and Stonewatch keeps one good enough that caravans plan around it.",
     "connected_locations": {
       "square": "market_square"
     },
     "enemies": [],
     "items": [],
     "npcs": ["innkeeper"],
+    "rest_cost": 2,
+    "rest_faction": "merchant_guild",
+    "rest_npc": "innkeeper",
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "town_shrine": {
+    "name": "Shrine",
+    "description": "A compact stone shrine stands off the market lane, quiet enough to gather breath without pretending the road beyond its walls has gone anywhere.",
+    "region": "Stonewatch",
+    "lore": "Stonewatch's shrine is less grand than old woodland sanctums, but it remains where guards, traders, and pilgrims all come to steady themselves before the next road.",
+    "connected_locations": {
+      "square": "market_square"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["shrine_caretaker"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "watch_barracks": {
+    "name": "Watch Barracks",
+    "description": "Open racks, chalk boards, and bundled kit line the barracks hall where Stonewatch turns road worry into patrols and supply counts.",
+    "region": "Stonewatch",
+    "lore": "The barracks keep Stonewatch honest: not a grand fortress, but a working watch-post where discipline means the roads still function tomorrow.",
+    "connected_locations": {
+      "gate": "town_gate",
+      "square": "market_square"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["quartermaster"],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
