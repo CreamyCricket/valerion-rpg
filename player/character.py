@@ -649,7 +649,7 @@ class Character:
 
     def equipped_item_ids(self) -> list[str]:
         item_ids = []
-        for item_id in (self.equipped_weapon, self.equipped_armor):
+        for item_id in (self.equipped_weapon, self.equipped_armor, self.equipped_accessory):
             if item_id and item_id in self.inventory and item_id not in item_ids:
                 item_ids.append(item_id)
         return item_ids
@@ -1241,6 +1241,7 @@ class Character:
             "inventory": list(self.inventory),
             "equipped_weapon": self.equipped_weapon,
             "equipped_armor": self.equipped_armor,
+            "equipped_accessory": self.equipped_accessory,
             "stats": dict(self.stats),
             "skills": dict(self.skills),
             "abilities": list(self.abilities),
@@ -1287,6 +1288,12 @@ class Character:
             equipped_armor = str(equipped_armor)
         if equipped_armor not in inventory:
             equipped_armor = None
+
+        equipped_accessory = data.get("equipped_accessory")
+        if equipped_accessory is not None:
+            equipped_accessory = str(equipped_accessory)
+        if equipped_accessory not in inventory:
+            equipped_accessory = None
 
         name = cls._clean_text(data.get("name", "Hero"), default="Hero", max_length=40)
         gender = cls.normalize_gender(data.get("gender", "Other"))
@@ -1406,6 +1413,7 @@ class Character:
             inventory=inventory,
             equipped_weapon=equipped_weapon,
             equipped_armor=equipped_armor,
+            equipped_accessory=equipped_accessory,
             gold=gold,
             stats=stats,
             skills=skills,

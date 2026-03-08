@@ -473,11 +473,11 @@ class Game:
         skill_name = str(effect.get("scale_skill", "")).strip().lower()
         total = 0
         if stat_name in self.player.DEFAULT_STATS:
-            total += max(0, self.player.stat_modifier(stat_name))
+            total += max(0, self.player.effective_stat_modifier(stat_name, self.world.items))
         if secondary_stat in self.player.DEFAULT_STATS:
-            total += max(0, self.player.stat_modifier(secondary_stat))
+            total += max(0, self.player.effective_stat_modifier(secondary_stat, self.world.items))
         if skill_name:
-            total += self.player.skill_proficiency(skill_name) // 2
+            total += self.player.skill_proficiency(skill_name, self.world.items) // 2
         return total
 
     def _resolve_opening_ability_attack(self, ability: dict, enemy_id: str, enemy_data: dict) -> dict:
@@ -502,7 +502,7 @@ class Game:
         if hit:
             damage = max(0, int(effect.get("damage", 0)) + self._ability_scale_bonus(effect))
             crit_chance = min(
-                30,
+                25,
                 self.player.crit_chance(self.world.items, stat_name=attack_stat) + int(effect.get("crit_bonus", 0)),
             )
             critical = damage > 0 and roll["die"] >= self._crit_threshold_for_chance(crit_chance)
@@ -1371,6 +1371,9 @@ class Game:
         equipped_armor = "none"
         if getattr(self.player, "equipped_armor", None):
             equipped_armor = self.world.item_name(self.player.equipped_armor)
+        equipped_accessory = "none"
+        if getattr(self.player, "equipped_accessory", None):
+            equipped_accessory = self.world.item_name(self.player.equipped_accessory)
 
         active_quest_summary = "None"
         next_objective = self.quests.next_objective(self.player, campaign_context=self.arc_context())
@@ -1419,6 +1422,7 @@ class Game:
             f"Location: {location_name}\n"
             f"Equipped weapon: {equipped_weapon}\n"
             f"Equipped armor: {equipped_armor}\n"
+            f"Equipped accessory: {equipped_accessory}\n"
             f"Inventory items: {len(self.player.inventory)}\n"
             f"Abilities known: {', '.join(self._ability_name(ability_id) for ability_id in self.player.abilities) or 'none'}\n"
             f"Active quest: {active_quest_summary}"
@@ -1615,6 +1619,7 @@ class Game:
         summary["abilities"] = [self._ability_name(ability_id) for ability_id in self.player.abilities]
         summary["equipped_weapon"] = self.world.item_name(self.player.equipped_weapon) if self.player.equipped_weapon else ""
         summary["equipped_armor"] = self.world.item_name(self.player.equipped_armor) if self.player.equipped_armor else ""
+        summary["equipped_accessory"] = self.world.item_name(self.player.equipped_accessory) if self.player.equipped_accessory else ""
         summary["race_lore"] = Character.creation_lore("race", self.player.race)
         summary["class_lore"] = Character.creation_lore("class", self.player.player_class)
         summary["background_lore"] = Character.creation_lore("background", self.player.background)

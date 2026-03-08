@@ -162,7 +162,8 @@ class Narrator:
 
         lines.append(
             f"Gear: Weapon {character_context.get('equipped_weapon', 'none') or 'none'} | "
-            f"Armor {character_context.get('equipped_armor', 'none') or 'none'}"
+            f"Armor {character_context.get('equipped_armor', 'none') or 'none'} | "
+            f"Accessory {character_context.get('equipped_accessory', 'none') or 'none'}"
         )
 
         if abilities:

@@ -85,7 +85,7 @@ class InventoryEngine:
 
     def inventory_lines(self, player: Character, items_data: dict) -> list[str]:
         if not player.inventory:
-            return ["Backpack: empty", "Equipped weapon: none", "Equipped armor: none"]
+            return ["Backpack: empty", "Equipped weapon: none", "Equipped armor: none", "Equipped accessory: none"]
 
         lines = ["Backpack:"]
         for index, item_id in enumerate(player.inventory, start=1):
@@ -98,6 +98,8 @@ class InventoryEngine:
                 equipped_tags.append("weapon")
             if item_id == getattr(player, "equipped_armor", None):
                 equipped_tags.append("armor")
+            if item_id == getattr(player, "equipped_accessory", None):
+                equipped_tags.append("accessory")
             equipped_tag = f" [{' & '.join(equipped_tags)}]" if equipped_tags else ""
             bonus_text = f" | {', '.join(bonus_parts)}" if bonus_parts else ""
             lines.append(f"{index}. {item_name} ({item_type}){equipped_tag}{bonus_text}")
@@ -107,8 +109,12 @@ class InventoryEngine:
         equipped_armor_name = "none"
         if getattr(player, "equipped_armor", None):
             equipped_armor_name = self.item_label(player.equipped_armor, items_data)
+        equipped_accessory_name = "none"
+        if getattr(player, "equipped_accessory", None):
+            equipped_accessory_name = self.item_label(player.equipped_accessory, items_data)
         lines.append(f"Equipped weapon: {equipped_name}")
         lines.append(f"Equipped armor: {equipped_armor_name}")
+        lines.append(f"Equipped accessory: {equipped_accessory_name}")
         return lines
 
     def use_item(self, player: Character, item_id: str, items_data: dict) -> str:
@@ -168,6 +174,15 @@ class InventoryEngine:
             bonus_parts = self.item_bonus_parts(item)
             bonus_text = " Bonuses: " + ", ".join(bonus_parts) + "." if bonus_parts else ""
             return f"You equipped {self.item_label(item_id, items_data)}. Defense is now {defense_value}.{bonus_text}"
+
+        if item_type in {"gear", "accessory"}:
+            if getattr(player, "equipped_accessory", None) == item_id:
+                return f"{item_name} is already equipped. Its bonuses are already active."
+            player.equipped_accessory = item_id
+            bonus_parts = self.item_bonus_parts(item)
+            bonus_text = " Bonuses: " + ", ".join(bonus_parts) + "." if bonus_parts else ""
+            focus_text = f" Focus {player.focus}/{player.max_focus}."
+            return f"You equipped {self.item_label(item_id, items_data)}.{bonus_text}{focus_text}"
 
         return f"{item_name} is not a usable item."
 
@@ -237,5 +252,7 @@ class InventoryEngine:
             player.equipped_weapon = None
         if getattr(player, "equipped_armor", None) == item_id:
             player.equipped_armor = None
+        if getattr(player, "equipped_accessory", None) == item_id:
+            player.equipped_accessory = None
         player.gold += value
         return True, f"{buyer_name}: Bought 1 {item_name} for {value} gold. Gold now: {player.gold}."
