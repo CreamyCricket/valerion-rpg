@@ -13,6 +13,7 @@ class SceneContext:
     recent_event_notes: tuple[str, ...]
     chapter_title: str
     chapter_note: str
+    chapter_tone: str = ""
     active_quest_title: str = ""
     active_quest_note: str = ""
 
@@ -35,8 +36,9 @@ class DMContextBuilder:
         active_quest_title: str = "",
         active_quest_note: str = "",
     ) -> SceneContext:
-        chapter_title = str(chapter_progress.get("title", "Chapter 1: Forest Roads"))
+        chapter_title = str(chapter_progress.get("title", "Arc 1: Village Roads"))
         chapter_note = str(chapter_progress.get("note", "")).strip()
+        chapter_tone = str(chapter_progress.get("tone", "")).strip().lower()
         event_notes = self._recent_event_notes(recent_events, current_location_id=location_id)
         return SceneContext(
             location_id=location_id,
@@ -49,6 +51,7 @@ class DMContextBuilder:
             recent_event_notes=tuple(event_notes),
             chapter_title=chapter_title,
             chapter_note=chapter_note,
+            chapter_tone=chapter_tone,
             active_quest_title=active_quest_title.strip(),
             active_quest_note=active_quest_note.strip(),
         )

@@ -10,8 +10,70 @@ class InventoryEngine:
     def _fallback_name(item_id: str) -> str:
         return item_id.replace("_", " ").title()
 
+    @staticmethod
+    def _item_effect_bonus(item: dict, prefix: str) -> int:
+        effect = str(item.get("effect", ""))
+        if effect.startswith(prefix):
+            try:
+                return int(effect.split("_")[-1])
+            except ValueError:
+                return 0
+        return 0
+
     def add_item(self, player: Character, item_id: str) -> None:
         player.inventory.append(item_id)
+
+    @staticmethod
+    def item_rarity(item: dict) -> str:
+        return str(item.get("rarity", "common")).strip().title() or "Common"
+
+    @classmethod
+    def item_bonus_parts(cls, item: dict) -> list[str]:
+        parts = []
+        attack_bonus = int(item.get("attack_bonus", cls._item_effect_bonus(item, "attack_plus_")))
+        defense_bonus = int(item.get("defense_bonus", cls._item_effect_bonus(item, "defense_plus_")))
+        if attack_bonus:
+            parts.append(f"ATK +{attack_bonus}")
+        if defense_bonus:
+            parts.append(f"DEF +{defense_bonus}")
+        stat_bonuses = item.get("stat_bonuses", {})
+        if isinstance(stat_bonuses, dict):
+            for stat_name, amount in stat_bonuses.items():
+                if int(amount):
+                    parts.append(f"{str(stat_name).title()} +{int(amount)}")
+        skill_bonuses = item.get("skill_bonuses", {})
+        if isinstance(skill_bonuses, dict):
+            for skill_name, amount in skill_bonuses.items():
+                if int(amount):
+                    parts.append(f"{str(skill_name).replace('_', ' ').title()} +{int(amount)}")
+        for field, label in (
+            ("crit_bonus", "Crit"),
+            ("dodge_bonus", "Dodge"),
+            ("spell_power_bonus", "Spell"),
+            ("magic_guard_bonus", "Guard"),
+        ):
+            amount = int(item.get(field, 0))
+            if amount:
+                suffix = "%" if field in {"crit_bonus"} else ""
+                parts.append(f"{label} +{amount}{suffix}")
+        return parts
+
+    @classmethod
+    def item_label(cls, item_id: str, items_data: dict) -> str:
+        item = items_data.get(item_id, {})
+        item_name = item.get("name", cls._fallback_name(item_id))
+        rarity = cls.item_rarity(item)
+        tier = str(item.get("tier", "")).strip()
+        tier_text = f" T{tier}" if tier else ""
+        return f"{item_name} [{rarity}{tier_text}]"
+
+    @classmethod
+    def item_shop_line(cls, item_id: str, items_data: dict, price: int) -> str:
+        item = items_data.get(item_id, {})
+        item_type = item.get("type", "item")
+        bonus_parts = cls.item_bonus_parts(item)
+        bonus_text = " | " + ", ".join(bonus_parts) if bonus_parts else ""
+        return f"- {cls.item_label(item_id, items_data)} ({item_type}){bonus_text} - {price} gold"
 
     def find_item_in_inventory(self, player: Character, items_data: dict, query: str) -> str | None:
         query = query.strip().lower()
@@ -28,23 +90,23 @@ class InventoryEngine:
         lines = ["Backpack:"]
         for index, item_id in enumerate(player.inventory, start=1):
             item = items_data.get(item_id, {})
-            item_name = item.get("name", self._fallback_name(item_id))
+            item_name = self.item_label(item_id, items_data)
             item_type = item.get("type", "unknown")
+            bonus_parts = self.item_bonus_parts(item)
             equipped_tags = []
             if item_id == player.equipped_weapon:
                 equipped_tags.append("weapon")
             if item_id == getattr(player, "equipped_armor", None):
                 equipped_tags.append("armor")
             equipped_tag = f" [{' & '.join(equipped_tags)}]" if equipped_tags else ""
-            lines.append(f"{index}. {item_name} ({item_type}){equipped_tag}")
+            bonus_text = f" | {', '.join(bonus_parts)}" if bonus_parts else ""
+            lines.append(f"{index}. {item_name} ({item_type}){equipped_tag}{bonus_text}")
         equipped_name = "none"
         if player.equipped_weapon:
-            equipped = items_data.get(player.equipped_weapon, {})
-            equipped_name = equipped.get("name", self._fallback_name(player.equipped_weapon))
+            equipped_name = self.item_label(player.equipped_weapon, items_data)
         equipped_armor_name = "none"
         if getattr(player, "equipped_armor", None):
-            equipped_armor = items_data.get(player.equipped_armor, {})
-            equipped_armor_name = equipped_armor.get("name", self._fallback_name(player.equipped_armor))
+            equipped_armor_name = self.item_label(player.equipped_armor, items_data)
         lines.append(f"Equipped weapon: {equipped_name}")
         lines.append(f"Equipped armor: {equipped_armor_name}")
         return lines
@@ -93,7 +155,9 @@ class InventoryEngine:
                 return f"{item_name} is already equipped. Attack is {attack_value}."
             player.equipped_weapon = item_id
             attack_value = player.attack_value(items_data)
-            return f"You equipped {item_name}. Attack is now {attack_value}."
+            bonus_parts = self.item_bonus_parts(item)
+            bonus_text = " Bonuses: " + ", ".join(bonus_parts) + "." if bonus_parts else ""
+            return f"You equipped {self.item_label(item_id, items_data)}. Attack is now {attack_value}.{bonus_text}"
 
         if item_type == "armor":
             if getattr(player, "equipped_armor", None) == item_id:
@@ -101,7 +165,9 @@ class InventoryEngine:
                 return f"{item_name} is already equipped. Defense is {defense_value}."
             player.equipped_armor = item_id
             defense_value = player.defense_value(items_data)
-            return f"You equipped {item_name}. Defense is now {defense_value}."
+            bonus_parts = self.item_bonus_parts(item)
+            bonus_text = " Bonuses: " + ", ".join(bonus_parts) + "." if bonus_parts else ""
+            return f"You equipped {self.item_label(item_id, items_data)}. Defense is now {defense_value}.{bonus_text}"
 
         return f"{item_name} is not a usable item."
 

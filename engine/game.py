@@ -7,6 +7,7 @@ from ai.narrator import Narrator
 from ai.scene_composer import SceneComposer
 from engine.action_router import ActionRouter
 from engine.abilities import AbilityEngine
+from engine.campaign import CampaignEngine
 from engine.combat import CombatEngine
 from engine.dice import DiceEngine
 from engine.encounters import EncounterEngine
@@ -43,6 +44,8 @@ class Game:
         "fight",
         "take",
         "inventory",
+        "character",
+        "sheet",
         "stats",
         "skills",
         "abilities",
@@ -98,6 +101,7 @@ class Game:
         self.dice = DiceEngine()
         self.encounters = EncounterEngine()
         self.factions = FactionEngine(self.world.factions)
+        self.campaign = CampaignEngine(self.world.arcs)
         self.inventory = InventoryEngine()
         self.quests = QuestEngine(self.world.quests, self.world.items)
         self.intent_parser = IntentParser()
@@ -192,11 +196,14 @@ class Game:
             return
         if self.player.has_event("important_item_acquired", "item_id", item_id):
             return
+        location_id = self.current_location if self.current_location in self.world.locations else ""
         self._log_event(
             "important_item_acquired",
             item_id=item_id,
             item_name=self.world.item_name(item_id),
             source=source,
+            location_id=location_id,
+            location_name=self.world.get_location(location_id).get("name", location_id) if location_id else "",
         )
 
     def _backfill_world_progress_events(self) -> None:
@@ -265,12 +272,14 @@ class Game:
 
     def _available_quest_titles_here(self) -> list[str]:
         npcs_here = self._visible_npcs_at_location(self.current_location)
+        campaign_context = self.arc_context()
         if len(npcs_here) == 1:
             return self.quests.quest_offer_lines(
                 self.player,
                 npcs_here[0],
                 world=self.world,
                 current_location=self.current_location,
+                campaign_context=campaign_context,
             )
         return [
             quest.get("title", quest_id)
@@ -279,6 +288,7 @@ class Game:
                 npcs_here,
                 world=self.world,
                 current_location=self.current_location,
+                campaign_context=campaign_context,
             )
         ]
 
@@ -313,7 +323,7 @@ class Game:
         return lines
 
     def _skill_check(self, skill_name: str, dc: int) -> dict:
-        modifier = self.player.skill_value(skill_name)
+        modifier = self.player.skill_value(skill_name) + max(0, self.player.stat_modifier("luck"))
         roll = self.dice.roll_d20(modifier)
         return {
             "skill": skill_name,
@@ -359,11 +369,11 @@ class Game:
 
     def _skill_display_data(self) -> dict[str, dict[str, int | str]]:
         display = {}
-        for skill_name in ("athletics", "stealth", "survival", "arcana", "lore", "persuasion"):
+        for skill_name in ("swordsmanship", "archery", "defense", "spellcasting", "stealth", "survival", "lore", "persuasion"):
             stat_name = self.player.SKILL_STAT_MAP.get(skill_name, "mind")
             display[skill_name] = {
-                "proficiency": self.player.skill_proficiency(skill_name),
-                "total": self.player.skill_value(skill_name),
+                "proficiency": self.player.skill_proficiency(skill_name, self.world.items),
+                "total": self.player.skill_value(skill_name, self.world.items),
                 "stat": stat_name,
             }
         return display
@@ -371,6 +381,39 @@ class Game:
     def _ability_name(self, ability_id: str) -> str:
         ability = self.abilities.ABILITIES.get(str(ability_id).strip().lower(), {})
         return str(ability.get("name", str(ability_id).replace("_", " ").title()))
+
+    def _combat_ability_lines(self, enemy_id: str | None = None) -> list[str]:
+        enemy_name = self.world.enemy_name(enemy_id) if enemy_id else ""
+        lines = ["- Attack with: fight <enemy>"]
+        available = self.abilities.available_to(self.player)
+        affordable = [ability for ability in available if self.player.focus >= int(ability.get("cost", 0))]
+        if enemy_id:
+            for ability in affordable:
+                target = str(ability.get("target", "")).strip().lower()
+                if target == "enemy":
+                    lines.append(
+                        f"- Cast {ability['name']} now: cast {ability['name'].lower()} {enemy_name.lower()} "
+                        f"(cost {int(ability.get('cost', 0))})"
+                    )
+        self_target_lines = []
+        for ability in affordable:
+            target = str(ability.get("target", "")).strip().lower()
+            if target == "self":
+                self_target_lines.append(
+                    f"- Prepare {ability['name']}: cast {ability['name'].lower()} "
+                    f"(cost {int(ability.get('cost', 0))})"
+                )
+        lines.extend(self_target_lines)
+        return lines
+
+    def _enemy_combat_summary(self, enemy_id: str) -> str:
+        enemy_data = self.world.enemies.get(enemy_id, {})
+        family = str(enemy_data.get("family", "unknown")).replace("_", " ")
+        class_type = str(enemy_data.get("class_type", "foe")).replace("_", " ")
+        level = int(enemy_data.get("level", 1))
+        abilities = [str(ability_id).replace("_", " ").title() for ability_id in enemy_data.get("abilities", [])]
+        ability_text = ", ".join(abilities) if abilities else "none"
+        return f"{family}, {class_type}, level {level}. Abilities: {ability_text}."
 
     @staticmethod
     def _crit_threshold_for_chance(chance: int) -> int:
@@ -426,10 +469,13 @@ class Game:
 
     def _ability_scale_bonus(self, effect: dict) -> int:
         stat_name = str(effect.get("scale_stat", "")).strip().lower()
+        secondary_stat = str(effect.get("secondary_stat", "")).strip().lower()
         skill_name = str(effect.get("scale_skill", "")).strip().lower()
         total = 0
         if stat_name in self.player.DEFAULT_STATS:
             total += max(0, self.player.stat_modifier(stat_name))
+        if secondary_stat in self.player.DEFAULT_STATS:
+            total += max(0, self.player.stat_modifier(secondary_stat))
         if skill_name:
             total += self.player.skill_proficiency(skill_name) // 2
         return total
@@ -769,7 +815,7 @@ class Game:
         return [Narrator.world_event_text(event_name, location_name, outcome), *social_lines]
 
     def _active_quest_scene_note(self, location_id: str) -> tuple[str, str]:
-        next_objective = self.quests.next_objective(self.player)
+        next_objective = self.quests.next_objective(self.player, campaign_context=self.arc_context())
         if not next_objective:
             return "", ""
 
@@ -819,7 +865,7 @@ class Game:
     def _build_scene_context(self, location_id: str | None = None, recent_events: list[dict] | None = None):
         location_id = location_id or self.current_location
         location = self.world.get_location(location_id)
-        chapter_progress = self._chapter_progress()
+        chapter_progress = self.arc_context()
         active_quest_title, active_quest_note = self._active_quest_scene_note(location_id)
         return self.dm_context.build(
             location_id=location_id,
@@ -949,6 +995,8 @@ class Game:
             return self._cmd_take(arg)
         if command == "inventory":
             return self._cmd_inventory()
+        if command in {"character", "sheet"}:
+            return self._cmd_character()
         if command == "stats":
             return self._cmd_stats()
         if command == "skills":
@@ -1044,6 +1092,7 @@ class Game:
             scene_lines=self.scene_composer.compose_look_lines(scene_context),
             state_lines=[state.get("name", state.get("state_id", "State")) for state in self.world.get_location_states(self.current_location)],
             history_flags=self._history_flags(),
+            location_context=self._location_lore_context(),
         )
 
     def _cmd_inspect(self, arg: str) -> str:
@@ -1060,8 +1109,14 @@ class Game:
                     self.current_location,
                     location,
                     self._history_flags(),
+                    location_context=self._location_lore_context(),
                 )
-            return Narrator.inspect_location_text(location, self.current_location, self._history_flags())
+            return Narrator.inspect_location_text(
+                location,
+                self.current_location,
+                self._history_flags(),
+                location_context=self._location_lore_context(),
+            )
 
         lore_object_id = self._find_lore_object_at_location(self.current_location, query)
         if lore_object_id:
@@ -1174,7 +1229,13 @@ class Game:
         for quest_id in self.quests.recently_completed_quests:
             quest_data = self.quests.quests.get(quest_id, {})
             quest_title = quest_data.get("title", quest_id)
-            self._log_event("quest_completed", quest_id=quest_id, quest_title=quest_title)
+            self._log_event(
+                "quest_completed",
+                quest_id=quest_id,
+                quest_title=quest_title,
+                location_id=self.current_location,
+                location_name=location_name,
+            )
             lines.extend(self._apply_quest_social_effects(quest_id))
             reward_items = quest_data.get("reward", {}).get("items", [])
             if isinstance(reward_items, list):
@@ -1197,16 +1258,22 @@ class Game:
         event_count_before = len(self.player.event_log)
         result = self.combat.fight(self.player, enemy_id, self.world.enemies, self.world.items)
 
-        lines = [
-            Narrator.combat_intro(enemy_name),
-            (
-                f"Start: Your HP {player_hp_before}/{self.player.max_hp} | "
-                f"{enemy_name} HP {enemy_hp_before}"
-            ),
-        ]
+        lines = [Narrator.combat_intro(enemy_name)]
         prepared_effect = self._prepared_effect_line()
-        if prepared_effect:
-            lines.insert(1, "Prepared effect: " + prepared_effect)
+        lines.append(
+            Narrator.combat_header_text(
+                enemy_name=enemy_name,
+                player_hp=player_hp_before,
+                player_max_hp=self.player.max_hp,
+                player_focus=self.player.focus,
+                player_max_focus=self.player.max_focus,
+                enemy_hp=enemy_hp_before,
+                enemy_max_hp=enemy_hp_before,
+                enemy_summary=self._enemy_combat_summary(enemy_id),
+                prepared_effect=prepared_effect,
+            )
+        )
+        lines.append(Narrator.combat_options_text(self._combat_ability_lines(enemy_id)))
         lines.extend(result["log"])
 
         if result["victory"]:
@@ -1232,7 +1299,16 @@ class Game:
         transition_text = self._scene_transition_text(self.player.event_log[event_count_before:])
         if transition_text:
             lines.append(transition_text)
-        lines.append(f"End: Your HP {self.player.hp}/{self.player.max_hp} | {enemy_name} HP {result['enemy_hp']}")
+        lines.append(
+            Narrator.combat_footer_text(
+                player_hp=self.player.hp,
+                player_max_hp=self.player.max_hp,
+                player_focus=self.player.focus,
+                player_max_focus=self.player.max_focus,
+                enemy_name=enemy_name,
+                enemy_hp=result["enemy_hp"],
+            )
+        )
         return "\n".join(lines)
 
     def _cmd_take(self, arg: str) -> str:
@@ -1274,6 +1350,19 @@ class Game:
         lines.extend(self.inventory.inventory_lines(self.player, self.world.items))
         return "\n".join(lines)
 
+    def _cmd_character(self) -> str:
+        context = self.character_context()
+        context["level"] = self.player.level
+        return Narrator.character_sheet_text(
+            character_context=context,
+            skills=self._skill_display_data(),
+            abilities=self.abilities.available_to(self.player),
+            current_hp=self.player.hp,
+            current_focus=self.player.focus,
+            xp=self.player.xp,
+            xp_needed=self.player.xp_needed_for_next_level(),
+        )
+
     def _cmd_stats(self) -> str:
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
         equipped_weapon = "none"
@@ -1284,7 +1373,7 @@ class Game:
             equipped_armor = self.world.item_name(self.player.equipped_armor)
 
         active_quest_summary = "None"
-        next_objective = self.quests.next_objective(self.player)
+        next_objective = self.quests.next_objective(self.player, campaign_context=self.arc_context())
         if next_objective:
             active_quest_summary = (
                 f"{next_objective['title']} "
@@ -1304,21 +1393,28 @@ class Game:
             f"Level: {self.player.level}\n"
             f"XP: {self.player.xp}/{self.player.xp_needed_for_next_level()}\n"
             f"Resources: HP {self.player.hp}/{self.player.max_hp} | Focus {self.player.focus}/{self.player.max_focus} | Gold {self.player.gold}\n"
-            "Core stats: "
-            f"Strength {self.player.stat_value('strength')} ({self.player.stat_modifier('strength'):+d}) | "
-            f"Agility {self.player.stat_value('agility')} ({self.player.stat_modifier('agility'):+d}) | "
-            f"Mind {self.player.stat_value('mind')} ({self.player.stat_modifier('mind'):+d}) | "
-            f"Vitality {self.player.stat_value('vitality')} ({self.player.stat_modifier('vitality'):+d})\n"
+            "Physical stats: "
+            f"Strength {self.player.effective_stat_value('strength', self.world.items)} ({self.player.effective_stat_modifier('strength', self.world.items):+d}) | "
+            f"Agility {self.player.effective_stat_value('agility', self.world.items)} ({self.player.effective_stat_modifier('agility', self.world.items):+d}) | "
+            f"Vitality {self.player.effective_stat_value('vitality', self.world.items)} ({self.player.effective_stat_modifier('vitality', self.world.items):+d}) | "
+            f"Endurance {self.player.effective_stat_value('endurance', self.world.items)} ({self.player.effective_stat_modifier('endurance', self.world.items):+d})\n"
+            "Mental stats: "
+            f"Mind {self.player.effective_stat_value('mind', self.world.items)} ({self.player.effective_stat_modifier('mind', self.world.items):+d}) | "
+            f"Wisdom {self.player.effective_stat_value('wisdom', self.world.items)} ({self.player.effective_stat_modifier('wisdom', self.world.items):+d}) | "
+            f"Charisma {self.player.effective_stat_value('charisma', self.world.items)} ({self.player.effective_stat_modifier('charisma', self.world.items):+d}) | "
+            f"Luck {self.player.effective_stat_value('luck', self.world.items)} ({self.player.effective_stat_modifier('luck', self.world.items):+d})\n"
             "Derived: "
-            f"Attack {derived['attack']} ({derived['attack_stat']}) | "
+            f"Attack {derived['attack']} ({derived['attack_stat']}/{derived['weapon_skill']}) | "
             f"Accuracy {derived['accuracy']} | "
             f"Defense {derived['defense']} | "
             f"Dodge {derived['dodge_chance']}% | "
             f"Crit {derived['crit_chance']}% | "
             f"Resilience {derived['resilience']}\n"
             "Power: "
+            f"Mana/Focus {derived['mana']} | "
             f"Spell {derived['spell_power']} | "
             f"Healing {derived['healing_power']} | "
+            f"Magic Guard {derived['magic_guard']} | "
             f"Carry {len(self.player.inventory)}/{derived['carry_capacity']}\n"
             f"Location: {location_name}\n"
             f"Equipped weapon: {equipped_weapon}\n"
@@ -1339,6 +1435,9 @@ class Game:
             self.player.focus,
             self.player.max_focus,
         )
+        enemies_here = self.world.get_enemies_at(self.current_location)
+        if enemies_here:
+            text += "\n" + Narrator.combat_options_text(self._combat_ability_lines(enemies_here[0]))
         prepared_effect = self._prepared_effect_line()
         if prepared_effect:
             text += "\nPrepared effect: " + prepared_effect
@@ -1350,9 +1449,9 @@ class Game:
         if self.player.equipped_weapon:
             equipped_weapon = self.world.item_name(self.player.equipped_weapon)
 
-        quest_summary = self.quests.recap_summary(self.player)
+        campaign_context = self.arc_context()
+        quest_summary = self.quests.recap_summary(self.player, campaign_context=campaign_context)
         event_counts = self._event_counts()
-        chapter_progress = self._chapter_progress()
         return Narrator.recap_text(
             player_name=self.player.name,
             location_name=location_name,
@@ -1365,7 +1464,8 @@ class Game:
             demo_complete=quest_summary["demo_complete"],
             event_counts=event_counts,
             recent_events=self.player.event_log[-3:],
-            chapter_progress=chapter_progress,
+            event_memory=self._event_memory(),
+            chapter_progress=campaign_context,
             character_context=self._character_lore_context(),
             location_context=self._location_lore_context(),
             history_flags=self._history_flags(),
@@ -1373,9 +1473,9 @@ class Game:
 
     def _cmd_story(self) -> str:
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
-        quest_summary = self.quests.story_summary(self.player)
+        campaign_context = self.arc_context()
+        quest_summary = self.quests.story_summary(self.player, campaign_context=campaign_context)
         event_counts = self._event_counts()
-        chapter_progress = self._chapter_progress()
 
         shrine_guardian_status = None
         ruined_shrine = self.world.locations.get("ruined_shrine")
@@ -1396,65 +1496,29 @@ class Game:
             shrine_guardian_status=shrine_guardian_status,
             event_counts=event_counts,
             recent_events=self.player.event_log[-5:],
-            chapter_progress=chapter_progress,
+            event_memory=self._event_memory(),
+            chapter_progress=campaign_context,
             character_context=self._character_lore_context(),
             location_context=self._location_lore_context(),
             history_flags=self._history_flags(),
         )
 
     def _event_counts(self) -> dict:
-        counts = {
-            "locations_visited": 0,
-            "enemies_defeated": 0,
-            "quests_completed": 0,
-            "minibosses_defeated": 0,
-            "important_items_acquired": 0,
-        }
+        return dict(self._event_memory().get("counts", {}))
 
-        for event in self.player.event_log:
-            event_type = event.get("type")
-            if event_type == "location_visited":
-                counts["locations_visited"] += 1
-            elif event_type == "enemy_defeated":
-                counts["enemies_defeated"] += 1
-            elif event_type == "quest_completed":
-                counts["quests_completed"] += 1
-            elif event_type == "miniboss_defeated":
-                counts["minibosses_defeated"] += 1
-            elif event_type == "important_item_acquired":
-                counts["important_items_acquired"] += 1
-
-        return counts
+    def _campaign_arc(self) -> dict:
+        """Compute the current campaign arc from deterministic progress signals."""
+        return self.campaign.current_arc(self.player, self.quests)
 
     def _chapter_progress(self) -> dict:
-        """Compute lightweight chapter context from major milestones for UI text."""
-        history_flags = self._history_flags()
+        """Backward-compatible alias for the current campaign arc context."""
+        return self._campaign_arc()
 
-        chapter_title = "Chapter 1: Forest Roads"
-        chapter_note = "Push beyond the village and secure the nearby roads."
-
-        if (
-            history_flags.get("watchtower_cleared")
-            or history_flags.get("watchtower_sweep_completed")
-            or history_flags.get("shrine_guardian_defeated")
-        ):
-            chapter_title = "Chapter 2: Watchtower and Shrine"
-            if history_flags.get("shrine_guardian_defeated"):
-                chapter_note = "Major milestone: the Shrine Guardian has been defeated."
-            elif history_flags.get("watchtower_sweep_completed"):
-                chapter_note = "The watchtower threat has been reported and the route is stabilizing."
-            else:
-                chapter_note = "The watchtower is quieter, and deeper forest mysteries are now in focus."
-        elif history_flags.get("forest_path_cleared"):
-            chapter_note = "Forest Path danger has been reduced; press deeper toward the watchtower and shrine."
-
-        return {
-            "title": chapter_title,
-            "note": chapter_note,
-        }
+    def arc_context(self) -> dict:
+        return self._campaign_arc()
 
     def chapter_context(self) -> dict:
-        return self._chapter_progress()
+        return self.arc_context()
 
     def history_context(self) -> dict:
         return self._history_flags()
@@ -1476,18 +1540,77 @@ class Game:
     def _location_lore_context(self) -> dict:
         location = self.world.get_location(self.current_location)
         states = self.world.get_location_states(self.current_location)
+        location_memory = self.player.location_event_memory(self.current_location)
         return {
             "location_name": location.get("name", self.current_location),
             "region": location.get("region", ""),
             "location_lore": location.get("lore", ""),
             "state_names": [state.get("name", state.get("state_id", "State")) for state in states],
             "npcs": self._visible_npc_names_at_location(self.current_location),
+            "visit_count": location_memory.get("visit_count", 0),
+            "defeated_enemies_here": [entry.get("name", "") for entry in location_memory.get("defeated_enemies", [])],
+            "minibosses_here": [entry.get("name", "") for entry in location_memory.get("minibosses_defeated", [])],
+            "world_states_started_here": [entry.get("name", "") for entry in location_memory.get("world_states_started", [])],
+            "world_states_cleared_here": [entry.get("name", "") for entry in location_memory.get("world_states_cleared", [])],
+            "recent_memory_events": [Narrator.event_line(event) for event in location_memory.get("recent_events", [])],
+        }
+
+    def _event_memory(self) -> dict:
+        return self.player.event_memory()
+
+    def _npc_memory_lines(self, npc_id: str) -> list[str]:
+        location_name = self.world.get_location(self.current_location).get("name", self.current_location)
+        location_memory = self.player.location_event_memory(self.current_location)
+        lines = []
+
+        visit_count = int(location_memory.get("visit_count", 0))
+        if visit_count > 1:
+            lines.append(f"Shared memory: you have returned to {location_name} {visit_count} times.")
+
+        defeated_here = [entry.get("name", "Unknown threat") for entry in location_memory.get("defeated_enemies", [])]
+        if defeated_here:
+            lines.append("Local memory: your victories here include " + ", ".join(defeated_here[:2]) + ".")
+
+        active_states = [state.get("name", state.get("state_id", "State")) for state in self.world.get_location_states(self.current_location)]
+        if active_states:
+            lines.append("Current pressure: " + ", ".join(active_states) + ".")
+
+        npc_memory = self.player.ensure_npc_memory(npc_id, faction_id=self.world.get_npc(npc_id).get("faction", ""))
+        quests_completed = npc_memory.get("quests_completed", [])
+        if quests_completed:
+            lines.append(f"They remember {len(quests_completed)} completed quest{'s' if len(quests_completed) != 1 else ''} tied to you.")
+
+        return lines
+
+    def _npc_memory_context(self, npc_id: str) -> dict:
+        npc_data = self.world.get_npc(npc_id)
+        memory = self.player.ensure_npc_memory(npc_id, faction_id=npc_data.get("faction", ""))
+        return {
+            "npc_name": self.world.npc_name(npc_id),
+            "faction_name": self.factions.faction_name(memory.get("faction", "")) if memory.get("faction", "") else "Unaffiliated",
+            "trust": int(memory.get("trust", 0)),
+            "trust_tier": self.factions.tier_name(int(memory.get("trust", 0))),
+            "quests_completed": len(memory.get("quests_completed", [])),
+            "helped": int(memory.get("helped", 0)),
+            "harmed": int(memory.get("harmed", 0)),
         }
 
     def character_context(self) -> dict:
         summary = self.player.character_summary()
         summary.update(self.player.derived_stats(self.world.items))
         summary["attack"] = self.player.attack_value(self.world.items)
+        summary["stats"] = {
+            stat_name: self.player.effective_stat_value(stat_name, self.world.items)
+            for stat_name in self.player.DEFAULT_STATS
+        }
+        summary["skills"] = {
+            skill_name: self.player.skill_value(skill_name, self.world.items)
+            for skill_name in self.player.DEFAULT_SKILLS
+        }
+        summary["skill_proficiencies"] = {
+            skill_name: self.player.skill_proficiency(skill_name, self.world.items)
+            for skill_name in self.player.DEFAULT_SKILLS
+        }
         summary["inventory"] = [self.world.item_name(item_id) for item_id in self.player.inventory]
         summary["abilities"] = [self._ability_name(ability_id) for ability_id in self.player.abilities]
         summary["equipped_weapon"] = self.world.item_name(self.player.equipped_weapon) if self.player.equipped_weapon else ""
@@ -1580,7 +1703,7 @@ class Game:
         return lines
 
     def _cmd_history(self) -> str:
-        return Narrator.history_text(self.player.event_log)
+        return Narrator.history_text(self.player.event_log, event_memory=self._event_memory())
 
     def _cmd_world(self) -> str:
         return Narrator.world_text(self.world.world_state_lines(self.current_location))
@@ -1608,9 +1731,10 @@ class Game:
             npcs_here,
             world=self.world,
             current_location=self.current_location,
+            campaign_context=self.arc_context(),
         )
 
-        next_objective = self.quests.next_objective(self.player)
+        next_objective = self.quests.next_objective(self.player, campaign_context=self.arc_context())
         if next_objective:
             title = next_objective["title"]
             objective = next_objective["objective"]
@@ -1803,11 +1927,19 @@ class Game:
     def _cmd_cast(self, arg: str) -> str:
         available = self.abilities.available_to(self.player)
         if not arg:
-            return "Cast what?\n" + Narrator.abilities_text(available, self.player.focus, self.player.max_focus)
+            lines = ["Cast what?", Narrator.abilities_text(available, self.player.focus, self.player.max_focus)]
+            enemies_here = self.world.get_enemies_at(self.current_location)
+            if enemies_here:
+                lines.append(Narrator.combat_options_text(self._combat_ability_lines(enemies_here[0])))
+            return "\n".join(lines)
 
         ability, target_text = self.abilities.parse_player_input(self.player, arg)
         if not ability:
-            return "You do not know that ability.\n" + Narrator.abilities_text(available, self.player.focus, self.player.max_focus)
+            lines = ["You do not know that ability.", Narrator.abilities_text(available, self.player.focus, self.player.max_focus)]
+            enemies_here = self.world.get_enemies_at(self.current_location)
+            if enemies_here:
+                lines.append(Narrator.combat_options_text(self._combat_ability_lines(enemies_here[0])))
+            return "\n".join(lines)
 
         cost = int(ability.get("cost", 0))
         if self.player.focus < cost:
@@ -1895,10 +2027,16 @@ class Game:
 
         if effect.get("reveal_enemy"):
             family = str(enemy_data.get("family", "unknown")).replace("_", " ")
+            class_type = str(enemy_data.get("class_type", "foe")).replace("_", " ")
+            level = int(enemy_data.get("level", 1))
+            abilities = [str(ability_id).replace("_", " ").title() for ability_id in enemy_data.get("abilities", [])]
+            ability_text = ", ".join(abilities) if abilities else "none"
             lines.append(
                 Narrator.ability_text(
                     ability["name"],
-                    f"{enemy_name} reads as {family}. HP {enemy_hp_before}, DEF {int(enemy_data.get('defense', 10))}, ATK {int(enemy_data.get('attack', 1))}.",
+                    f"{enemy_name} reads as {family}, {class_type}, level {level}. "
+                    f"HP {enemy_hp_before}, DEF {int(enemy_data.get('defense', 10))}, ATK {int(enemy_data.get('attack', 1))}. "
+                    f"Abilities: {ability_text}.",
                 )
             )
 
@@ -1922,12 +2060,20 @@ class Game:
                 starting_enemy_hp=enemy_hp_after,
             )
             prepared_effect = self._prepared_effect_line()
-            if prepared_effect:
-                lines.append("Prepared effect: " + prepared_effect)
             lines.append(
-                f"Start: Your HP {player_hp_before}/{self.player.max_hp} | "
-                f"{enemy_name} HP {enemy_hp_after}/{enemy_hp_before}"
+                Narrator.combat_header_text(
+                    enemy_name=enemy_name,
+                    player_hp=player_hp_before,
+                    player_max_hp=self.player.max_hp,
+                    player_focus=self.player.focus,
+                    player_max_focus=self.player.max_focus,
+                    enemy_hp=enemy_hp_after,
+                    enemy_max_hp=enemy_hp_before,
+                    enemy_summary=self._enemy_combat_summary(enemy_id),
+                    prepared_effect=prepared_effect,
+                )
             )
+            lines.append(Narrator.combat_options_text(self._combat_ability_lines(enemy_id)))
             lines.extend(result["log"])
             if result["victory"]:
                 lines.extend(self._resolve_enemy_victory(enemy_id, enemy_name, result, enemy_data))
@@ -1952,7 +2098,16 @@ class Game:
         transition_text = self._scene_transition_text(self.player.event_log[event_count_before:])
         if transition_text:
             lines.append(transition_text)
-        lines.append(f"End: Your HP {self.player.hp}/{self.player.max_hp} | {enemy_name} HP {result['enemy_hp']}")
+        lines.append(
+            Narrator.combat_footer_text(
+                player_hp=self.player.hp,
+                player_max_hp=self.player.max_hp,
+                player_focus=self.player.focus,
+                player_max_focus=self.player.max_focus,
+                enemy_name=enemy_name,
+                enemy_hp=result["enemy_hp"],
+            )
+        )
         return "\n".join(lines)
 
     def _cmd_quests(self) -> str:
@@ -1962,15 +2117,28 @@ class Game:
                 self._visible_npcs_at_location(self.current_location),
                 world=self.world,
                 current_location=self.current_location,
+                campaign_context=self.arc_context(),
             )
         )
 
     def _cmd_journal(self) -> str:
-        return "\n".join(self.quests.journal_lines(self.player, world=self.world, current_location=self.current_location))
+        return "\n".join(
+            self.quests.journal_lines(
+                self.player,
+                world=self.world,
+                current_location=self.current_location,
+                campaign_context=self.arc_context(),
+            )
+        )
 
     def _npc_service_lines(self, npc_id: str, npc_data: dict) -> list[str]:
         services = []
         stock = npc_data.get("shop_inventory", [])
+        faction_id = str(npc_data.get("faction", "")).strip().lower()
+        if faction_id:
+            services.append(
+                f"standing {self.factions.faction_name(faction_id)} {self.factions.standing_text(self.player, faction_id)}"
+            )
         if isinstance(stock, list) and stock:
             services.append("buy, sell")
 
@@ -2036,9 +2204,18 @@ class Game:
             npc_query,
             world=self.world,
             current_location=self.current_location,
+            campaign_context=self.arc_context(),
         )
         service_lines = self._npc_service_lines(npc_query, npc_data)
-        return Narrator.npc_dialogue_text(npc_name, role, dialogue, offers, service_lines=service_lines)
+        memory_lines = self._npc_memory_lines(npc_query)
+        return Narrator.npc_dialogue_text(
+            npc_name,
+            role,
+            dialogue,
+            offers,
+            service_lines=service_lines,
+            memory_lines=memory_lines,
+        )
 
     def _cmd_ask(self, arg: str) -> str:
         usage = "Use format: ask <npc> about <topic>"
@@ -2072,7 +2249,12 @@ class Game:
                 )
             return f"{self.TALKABLE_NPCS[npc_query]} is not here, and there is no one to ask."
 
-        return Narrator.ask_text(npc_query, topic, self._history_flags())
+        return Narrator.ask_text(
+            npc_query,
+            topic,
+            self._history_flags(),
+            npc_memory=self._npc_memory_context(npc_query),
+        )
 
     def _cmd_accept(self, arg: str) -> str:
         npcs_here = self._visible_npcs_at_location(self.current_location)
@@ -2083,6 +2265,7 @@ class Game:
             self.inventory,
             world=self.world,
             current_location=self.current_location,
+            campaign_context=self.arc_context(),
         )
         if accepted and quest_id:
             quest_data = self.quests.quests.get(quest_id, {})
@@ -2090,6 +2273,8 @@ class Game:
                 "quest_accepted",
                 quest_id=quest_id,
                 quest_title=quest_data.get("title", quest_id),
+                location_id=self.current_location,
+                location_name=self.world.get_location(self.current_location).get("name", self.current_location),
             )
             giver = str(quest_data.get("giver", "")).strip().lower()
             if giver:
@@ -2271,13 +2456,15 @@ class Game:
 
     def _shop_stock_lines(self, shop: dict) -> list[str]:
         lines = []
+        faction_id = str(shop.get("faction", "")).strip().lower()
+        if faction_id:
+            lines.append(
+                f"Standing: {self.factions.faction_name(faction_id)} {self.factions.standing_text(self.player, faction_id)}"
+            )
         for item_id in shop["stock"]:
-            item = self.world.items.get(item_id, {})
             base_cost = self.inventory.item_price(item_id, self.world.items)
             price = self.factions.price_for_service(self.player, shop["faction"], shop["npc_id"], base_cost)
-            item_name = item.get("name", item_id.replace("_", " ").title())
-            item_type = item.get("type", "item")
-            lines.append(f"- {item_name} ({item_type}) - {price} gold")
+            lines.append(self.inventory.item_shop_line(item_id, self.world.items, price))
         return lines
 
     def _shop_buys_item(self, shop: dict, item_id: str) -> bool:
@@ -2476,6 +2663,7 @@ class Game:
         self.dice = DiceEngine()
         self.encounters = EncounterEngine()
         self.factions = FactionEngine(self.world.factions)
+        self.campaign = CampaignEngine(self.world.arcs)
         self.inventory = InventoryEngine()
         self.quests = QuestEngine(self.world.quests, self.world.items)
 
@@ -2529,6 +2717,8 @@ class Game:
             "sell <item>        - Sell a carried item to a willing local vendor.\n"
             "\n"
             "inventory          - See HP, focus, carry load, carried items, and gear.\n"
+            "character          - Show a compact full character sheet.\n"
+            "sheet              - Alias for `character`.\n"
             "stats              - Snapshot core stats, derived combat values, and quest focus.\n"
             "skills             - Show skill totals, proficiencies, and linked core stats.\n"
             "abilities          - List your class abilities, spells, and current focus.\n"

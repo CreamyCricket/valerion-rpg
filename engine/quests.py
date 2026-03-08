@@ -89,7 +89,35 @@ class QuestEngine:
         minimum = int(requirement.get("min", 0))
         return player.npc_trust(npc_id) >= minimum
 
-    def _is_available(self, player: Character, quest: dict, world=None, current_location: str | None = None) -> bool:
+    @staticmethod
+    def _campaign_requirement_met(quest: dict, campaign_context: dict | None) -> bool:
+        if not isinstance(quest, dict):
+            return True
+
+        minimum_arc = int(quest.get("min_arc", 0) or 0)
+        maximum_arc = int(quest.get("max_arc", 0) or 0)
+        if minimum_arc <= 0 and maximum_arc <= 0:
+            return True
+
+        campaign_context = campaign_context or {}
+        current_arc_index = int(campaign_context.get("index", 1) or 1)
+        if minimum_arc > 0 and current_arc_index < minimum_arc:
+            return False
+        if maximum_arc > 0 and current_arc_index > maximum_arc:
+            return False
+        return True
+
+    def _is_available(
+        self,
+        player: Character,
+        quest: dict,
+        world=None,
+        current_location: str | None = None,
+        campaign_context: dict | None = None,
+    ) -> bool:
+        if not self._campaign_requirement_met(quest, campaign_context):
+            return False
+
         requirements = quest.get("requires_events", [])
         if isinstance(requirements, list) and requirements:
             if not all(self._event_requirement_met(player, requirement) for requirement in requirements):
@@ -121,16 +149,37 @@ class QuestEngine:
     def _requires_acceptance(quest: dict) -> bool:
         return bool(quest.get("requires_acceptance", False))
 
-    def _is_active(self, player: Character, quest_id: str, quest: dict, world=None, current_location: str | None = None) -> bool:
+    def _is_active(
+        self,
+        player: Character,
+        quest_id: str,
+        quest: dict,
+        world=None,
+        current_location: str | None = None,
+        campaign_context: dict | None = None,
+    ) -> bool:
         if quest_id in self.completed:
             return False
         if self._requires_acceptance(quest) and quest_id in self.accepted:
             return True
-        if not self._is_available(player, quest, world=world, current_location=current_location):
+        if not self._is_available(
+            player,
+            quest,
+            world=world,
+            current_location=current_location,
+            campaign_context=campaign_context,
+        ):
             return False
         return not self._requires_acceptance(quest)
 
-    def available_quests(self, player: Character, npc_ids: list[str] | None = None, world=None, current_location: str | None = None) -> list[tuple[str, dict]]:
+    def available_quests(
+        self,
+        player: Character,
+        npc_ids: list[str] | None = None,
+        world=None,
+        current_location: str | None = None,
+        campaign_context: dict | None = None,
+    ) -> list[tuple[str, dict]]:
         if npc_ids is None:
             npc_filter = None
         else:
@@ -143,7 +192,13 @@ class QuestEngine:
                 continue
             if not self._requires_acceptance(quest):
                 continue
-            if not self._is_available(player, quest, world=world, current_location=current_location):
+            if not self._is_available(
+                player,
+                quest,
+                world=world,
+                current_location=current_location,
+                campaign_context=campaign_context,
+            ):
                 continue
             giver = str(quest.get("giver", "")).strip().lower()
             if npc_filter is not None and giver not in npc_filter:
@@ -151,8 +206,21 @@ class QuestEngine:
             offered.append((quest_id, quest))
         return offered
 
-    def quest_offer_lines(self, player: Character, npc_id: str, world=None, current_location: str | None = None) -> list[str]:
-        offered = self.available_quests(player, [npc_id], world=world, current_location=current_location)
+    def quest_offer_lines(
+        self,
+        player: Character,
+        npc_id: str,
+        world=None,
+        current_location: str | None = None,
+        campaign_context: dict | None = None,
+    ) -> list[str]:
+        offered = self.available_quests(
+            player,
+            [npc_id],
+            world=world,
+            current_location=current_location,
+            campaign_context=campaign_context,
+        )
         return [quest.get("title", quest_id) for quest_id, quest in offered]
 
     def accept_quest(
@@ -163,8 +231,15 @@ class QuestEngine:
         inventory_engine,
         world=None,
         current_location: str | None = None,
+        campaign_context: dict | None = None,
     ) -> tuple[bool, list[str], str | None]:
-        offered = self.available_quests(player, npc_ids, world=world, current_location=current_location)
+        offered = self.available_quests(
+            player,
+            npc_ids,
+            world=world,
+            current_location=current_location,
+            campaign_context=campaign_context,
+        )
         if not offered:
             return False, ["No quests are being offered here right now."], None
 
@@ -194,8 +269,21 @@ class QuestEngine:
             lines.append(f"Received quest item: {self._item_name(item_id)}.")
         return True, lines, quest_id
 
-    def list_quests(self, player: Character, npc_ids: list[str] | None = None, world=None, current_location: str | None = None) -> list[str]:
-        offered = self.available_quests(player, npc_ids, world=world, current_location=current_location)
+    def list_quests(
+        self,
+        player: Character,
+        npc_ids: list[str] | None = None,
+        world=None,
+        current_location: str | None = None,
+        campaign_context: dict | None = None,
+    ) -> list[str]:
+        offered = self.available_quests(
+            player,
+            npc_ids,
+            world=world,
+            current_location=current_location,
+            campaign_context=campaign_context,
+        )
         active = []
         completed = []
 
@@ -203,7 +291,14 @@ class QuestEngine:
             if quest_id in self.completed:
                 completed.append(quest.get("title", quest_id))
                 continue
-            if not self._is_active(player, quest_id, quest, world=world, current_location=current_location):
+            if not self._is_active(
+                player,
+                quest_id,
+                quest,
+                world=world,
+                current_location=current_location,
+                campaign_context=campaign_context,
+            ):
                 continue
             title = quest.get("title", quest_id)
             objective = quest.get("objective", {})
@@ -232,7 +327,13 @@ class QuestEngine:
 
         return lines
 
-    def journal_lines(self, player: Character, world=None, current_location: str | None = None) -> list[str]:
+    def journal_lines(
+        self,
+        player: Character,
+        world=None,
+        current_location: str | None = None,
+        campaign_context: dict | None = None,
+    ) -> list[str]:
         offered_lines = []
         active_lines = []
         completed_lines = []
@@ -249,9 +350,22 @@ class QuestEngine:
             have = self.progress.get(quest_id, 0)
             entry = f"- {title}\n  {description}\n  Progress: {have}/{need}"
 
-            if self._is_active(player, quest_id, quest, world=world, current_location=current_location):
+            if self._is_active(
+                player,
+                quest_id,
+                quest,
+                world=world,
+                current_location=current_location,
+                campaign_context=campaign_context,
+            ):
                 active_lines.append(entry)
-            elif self._requires_acceptance(quest) and self._is_available(player, quest, world=world, current_location=current_location):
+            elif self._requires_acceptance(quest) and self._is_available(
+                player,
+                quest,
+                world=world,
+                current_location=current_location,
+                campaign_context=campaign_context,
+            ):
                 offered_lines.append(entry)
 
         lines = ["Journal", "Offered Quests:"]
@@ -262,7 +376,7 @@ class QuestEngine:
         lines.extend(completed_lines or ["- none"])
         return lines
 
-    def recap_summary(self, player: Character) -> dict:
+    def recap_summary(self, player: Character, campaign_context: dict | None = None) -> dict:
         active = []
         completed = []
 
@@ -270,7 +384,7 @@ class QuestEngine:
             if quest_id in self.completed:
                 completed.append(quest.get("title", quest_id))
                 continue
-            if not self._is_active(player, quest_id, quest):
+            if not self._is_active(player, quest_id, quest, campaign_context=campaign_context):
                 continue
 
             title = quest.get("title", quest_id)
@@ -286,7 +400,7 @@ class QuestEngine:
             "demo_complete": self.demo_complete_shown,
         }
 
-    def story_summary(self, player: Character) -> dict:
+    def story_summary(self, player: Character, campaign_context: dict | None = None) -> dict:
         active = []
         completed = []
         important_progress = []
@@ -295,7 +409,7 @@ class QuestEngine:
             if quest_id in self.completed:
                 completed.append(quest.get("title", quest_id))
                 continue
-            if not self._is_active(player, quest_id, quest):
+            if not self._is_active(player, quest_id, quest, campaign_context=campaign_context):
                 continue
 
             title = quest.get("title", quest_id)
@@ -338,9 +452,9 @@ class QuestEngine:
 
         return f"progress {have}/{need}"
 
-    def next_objective(self, player: Character) -> dict | None:
+    def next_objective(self, player: Character, campaign_context: dict | None = None) -> dict | None:
         for quest_id, quest in self.quests.items():
-            if not self._is_active(player, quest_id, quest):
+            if not self._is_active(player, quest_id, quest, campaign_context=campaign_context):
                 continue
 
             objective = quest.get("objective", {})

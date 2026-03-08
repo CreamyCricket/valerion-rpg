@@ -97,7 +97,7 @@
     "dialogue": "The Blacksmith speaks like steel ought to be honest, with no patience for flashy junk and plenty for people who mean to survive what they buy.",
     "faction": "merchant_guild",
     "important": true,
-    "shop_inventory": ["iron_sword", "war_axe", "padded_coat", "chain_vest", "iron_shield"],
+    "shop_inventory": ["iron_sword", "war_axe", "battle_axe", "padded_coat", "chain_vest", "iron_mail", "iron_shield"],
     "buy_types": ["weapon", "armor", "loot"]
   },
   "arcanist": {
@@ -107,7 +107,7 @@
     "dialogue": "The Arcanist arranges powders, glass, and warded tools with exact care, as if sloppy hands are the fastest road to an expensive funeral.",
     "faction": "shrine_keepers",
     "important": true,
-    "shop_inventory": ["apprentice_staff", "spell_focus", "mana_tonic", "novice_grimoire"],
+    "shop_inventory": ["apprentice_staff", "spell_focus", "ember_focus", "mana_tonic", "focus_draught", "novice_grimoire", "warded_cloak"],
     "buy_types": ["weapon", "consumable", "gear", "loot"]
   },
   "fletcher": {
@@ -117,7 +117,7 @@
     "dialogue": "The Fletcher talks about balance, reach, and timing with the dry certainty of someone who knows bad aim and bad equipment usually fail together.",
     "faction": "merchant_guild",
     "important": true,
-    "shop_inventory": ["hunting_spear", "longbow", "dagger", "leather_armor"],
+    "shop_inventory": ["dagger", "hunting_spear", "hunting_bow", "longbow", "leather_armor", "wolfhide_vest"],
     "buy_types": ["weapon", "armor", "loot"]
   },
   "innkeeper": {
@@ -137,7 +137,7 @@
     "dialogue": "The Quartermaster keeps Stonewatch's watch supplied with plain gear, sharper records, and a suspicion of anyone who wastes either.",
     "faction": "kingdom_guard",
     "important": true,
-    "shop_inventory": ["iron_shield", "padded_coat", "bandage_kit", "torch_bundle"],
+    "shop_inventory": ["iron_shield", "padded_coat", "chain_vest", "bandage_kit", "torch_bundle"],
     "buy_types": ["weapon", "armor", "consumable", "utility", "loot"]
   },
   "shrine_caretaker": {
@@ -145,6 +145,58 @@
     "role": "Town shrine keeper",
     "aliases": ["town caretaker", "shrine keeper", "temple caretaker"],
     "dialogue": "The Shrine Caretaker keeps the little town altar swept, lit, and useful, insisting that a watched flame steadies frightened people as much as prayer does.",
+    "faction": "shrine_keepers",
+    "important": true
+  },
+  "hold_warden": {
+    "name": "Hold Warden",
+    "role": "Ironridge pass warden",
+    "aliases": ["ridge warden", "hold guard", "pass warden"],
+    "dialogue": "The Hold Warden speaks like a road ledger with a spear behind it, counting caravans, raiders, and broken axle stories with equal care.",
+    "faction": "kingdom_guard",
+    "important": true
+  },
+  "thane_brom": {
+    "name": "Thane Brom",
+    "role": "Ironridge thane",
+    "aliases": ["thane", "hold thane", "brom"],
+    "dialogue": "Thane Brom carries himself like someone used to weighing people by what they finish, not by how loudly they promise it.",
+    "faction": "kingdom_guard",
+    "important": true
+  },
+  "ledger_clerk": {
+    "name": "Ledger Clerk",
+    "role": "Caravan clerk",
+    "aliases": ["clerk", "caravan clerk", "quarter clerk"],
+    "dialogue": "The Ledger Clerk keeps slate, ink, and caravan tallies moving in steady order, treating supplies as seriously as soldiers treat arrows.",
+    "faction": "merchant_guild",
+    "important": true,
+    "shop_inventory": ["bread_ration", "torch_bundle", "bandage_kit"],
+    "buy_types": ["consumable", "utility", "loot"]
+  },
+  "forgemistress": {
+    "name": "Forge-Mistress",
+    "role": "Ironridge smith",
+    "aliases": ["forge mistress", "ridge smith", "mistress"],
+    "dialogue": "The Forge-Mistress judges gear by balance, temper, and whether it comes back bent, which she considers a confession rather than an accident.",
+    "faction": "merchant_guild",
+    "important": true,
+    "shop_inventory": ["war_axe", "battle_axe", "chain_vest", "iron_mail", "iron_shield"],
+    "buy_types": ["weapon", "armor", "loot"]
+  },
+  "coast_ranger": {
+    "name": "Coast Ranger",
+    "role": "Breakwater scout",
+    "aliases": ["ranger", "coast scout", "shore ranger"],
+    "dialogue": "The Coast Ranger watches surf, tracks, and broken rigging with the same hard patience, because trouble on the shore almost always arrives in pieces first.",
+    "faction": "kingdom_guard",
+    "important": true
+  },
+  "vault_scholar": {
+    "name": "Vault Scholar",
+    "role": "Ash-vault researcher",
+    "aliases": ["vault researcher", "researcher", "ash scholar"],
+    "dialogue": "The Vault Scholar studies soot marks and cult sigils with unnerving calm, intent on learning what the ash-vault once kept before the wrong people finish claiming it.",
     "faction": "shrine_keepers",
     "important": true
   }

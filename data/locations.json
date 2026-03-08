@@ -281,7 +281,8 @@
       "village": "village_square",
       "forest": "forest_path",
       "camp": "bandit_camp",
-      "ruins": "old_ruins"
+      "ruins": "old_ruins",
+      "coast": "stormbreak_cliffs"
     },
     "enemies": [],
     "items": ["herb"],
@@ -611,7 +612,8 @@
     "lore": "The barracks keep Stonewatch honest: not a grand fortress, but a working watch-post where discipline means the roads still function tomorrow.",
     "connected_locations": {
       "gate": "town_gate",
-      "square": "market_square"
+      "square": "market_square",
+      "ridge": "ironridge_pass"
     },
     "enemies": [],
     "items": [],
@@ -619,6 +621,169 @@
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "ironridge_pass": {
+    "name": "Ironridge Pass",
+    "description": "Switchback stone roads climb toward dwarf-cut walls while cold wind carries forge smoke down the pass.",
+    "region": "Ironridge Hold",
+    "lore": "Ironridge's pass is where caravan hope meets hard stone, watched closely because every loaded wagon draws either trade or trouble.",
+    "connected_locations": {
+      "stonewatch": "watch_barracks",
+      "hold": "ironridge_square"
+    },
+    "enemies": ["ridge_raider"],
+    "items": ["bandage"],
+    "npcs": ["hold_warden"],
+    "encounters": [
+      {"type": "enemy", "target": "ridge_raider", "weight": 40},
+      {"type": "enemy", "target": "ore_thief", "weight": 35},
+      {"type": "enemy", "target": "stone_ram", "weight": 25}
+    ],
+    "world_event_chance": 18,
+    "world_events": [
+      {"event_id": "injured_traveler", "name": "Injured Traveler", "type": "traveler", "weight": 50, "skill": "survival", "dc": 13, "reward_item": "bandage", "reward_gold": 6},
+      {"event_id": "wandering_trader", "name": "Wandering Trader", "type": "trader", "weight": 50, "skill": "persuasion", "dc": 13, "reward_gold": 4}
+    ],
+    "state_event_chance": 16,
+    "state_events": [
+      {"state_id": "bandit_raid", "weight": 45},
+      {"state_id": "merchant_caravan", "weight": 55}
+    ]
+  },
+  "ironridge_square": {
+    "name": "Ironridge Square",
+    "description": "Heavy lintels, slate roofs, and carved clan marks give the hold's square a practical grandeur built to last centuries, not seasons.",
+    "region": "Ironridge Hold",
+    "lore": "Ironridge lives by ore, contract, and memory, measuring worth by what survives the road and what holds true after the hammer falls.",
+    "connected_locations": {
+      "pass": "ironridge_pass",
+      "forge": "ironridge_forge"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["thane_brom", "ledger_clerk"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "ironridge_forge": {
+    "name": "Ironridge Forge",
+    "description": "Banked coals, rune-cut anvils, and orderly steel racks make the hold's forge feel like a workshop built inside a heartbeat.",
+    "region": "Ironridge Hold",
+    "lore": "The hold's forge is where caravan contracts become iron certainty, and where visiting traders learn quickly that dwarven steel is priced by labor, not flattery.",
+    "connected_locations": {
+      "square": "ironridge_square"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["forgemistress"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "stormbreak_cliffs": {
+    "name": "Stormbreak Cliffs",
+    "description": "Salt wind lashes the cliff road while shattered watch posts stare down at black water and broken surf.",
+    "region": "Stormbreak Coast",
+    "lore": "Stormbreak's coast is useful, dangerous, and never fully quiet, with smugglers, wreck-scavengers, and honest scouts all reading the same tide for different reasons.",
+    "connected_locations": {
+      "river": "river_crossing",
+      "cove": "stormbreak_cove"
+    },
+    "enemies": ["wreck_diver"],
+    "items": ["herb"],
+    "npcs": ["coast_ranger"],
+    "encounters": [
+      {"type": "enemy", "target": "wreck_diver", "weight": 45},
+      {"type": "enemy", "target": "sea_raider", "weight": 35},
+      {"type": "enemy", "target": "goblin", "weight": 20}
+    ],
+    "world_event_chance": 22,
+    "world_events": [
+      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 45, "skill": "lore", "dc": 13, "reward_gold": 10, "reward_item": "torch_bundle"},
+      {"event_id": "injured_traveler", "name": "Injured Traveler", "type": "traveler", "weight": 25, "skill": "survival", "dc": 13, "reward_item": "bandage", "reward_gold": 6},
+      {"event_id": "bandit_ambush", "name": "Sea Raider Ambush", "type": "ambush", "weight": 30, "enemy": "sea_raider", "skill": "stealth", "dc": 13}
+    ],
+    "state_event_chance": 12,
+    "state_events": [
+      {"state_id": "traveler_in_need", "weight": 100}
+    ]
+  },
+  "stormbreak_cove": {
+    "name": "Stormbreak Cove",
+    "description": "A narrow cove of wreck timber, tide pools, and wave-cut stone gives raiders and scavengers too many places to hide.",
+    "region": "Stormbreak Coast",
+    "lore": "The cove keeps what storms and raids leave behind, which is why every patrol through it feels like checking the coast's teeth for fresh blood.",
+    "connected_locations": {
+      "cliffs": "stormbreak_cliffs",
+      "vault": "ashen_stair"
+    },
+    "enemies": ["sea_raider"],
+    "items": ["bandage"],
+    "npcs": [],
+    "encounters": [
+      {"type": "enemy", "target": "sea_raider", "weight": 50},
+      {"type": "enemy", "target": "wreck_diver", "weight": 35},
+      {"type": "enemy", "target": "goblin", "weight": 15}
+    ],
+    "world_event_chance": 18,
+    "world_events": [
+      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 60, "skill": "survival", "dc": 14, "reward_gold": 14, "reward_item": "bandage_kit"},
+      {"event_id": "bandit_ambush", "name": "Sea Raider Ambush", "type": "ambush", "weight": 40, "enemy": "sea_raider", "skill": "stealth", "dc": 14}
+    ],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "ashen_stair": {
+    "name": "Ashen Stair",
+    "description": "Blackened steps descend beneath a cliffside arch whose seals were broken from within long ago.",
+    "region": "Ashen Vault",
+    "lore": "The stair marks the edge of a buried sanctuary that burned once, was sealed, and has lately begun drawing cult marks and careful footsteps back to it.",
+    "connected_locations": {
+      "cove": "stormbreak_cove",
+      "vault": "ashen_vault"
+    },
+    "enemies": ["ash_adept"],
+    "items": ["mana_tonic"],
+    "npcs": ["vault_scholar"],
+    "encounters": [
+      {"type": "enemy", "target": "ash_adept", "weight": 50},
+      {"type": "enemy", "target": "cinder_guardian", "weight": 25},
+      {"type": "enemy", "target": "ash_wisp", "weight": 25}
+    ],
+    "world_event_chance": 15,
+    "world_events": [
+      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 100, "skill": "arcana", "dc": 14, "reward_gold": 16, "reward_item": "mana_tonic"}
+    ],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "ashen_vault": {
+    "name": "Ashen Vault",
+    "description": "Soot-dark halls and half-melted shrine metal stretch into a vault where old devotion and newer corruption have fused together.",
+    "region": "Ashen Vault",
+    "lore": "Whatever the vault guarded, the Cult of Ash now treats it as a reliquary and proving ground, leaving old stone guardians to share the dark with living zealots.",
+    "connected_locations": {
+      "stair": "ashen_stair"
+    },
+    "enemies": ["cinder_guardian", "ash_adept"],
+    "items": ["potion"],
+    "npcs": [],
+    "encounters": [
+      {"type": "enemy", "target": "cinder_guardian", "weight": 45},
+      {"type": "enemy", "target": "ash_adept", "weight": 35},
+      {"type": "enemy", "target": "ash_wisp", "weight": 20}
+    ],
+    "world_event_chance": 12,
+    "world_events": [
+      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 100, "skill": "lore", "dc": 15, "reward_gold": 20, "reward_item": "ember_focus"}
+    ],
     "state_event_chance": 0,
     "state_events": []
   }

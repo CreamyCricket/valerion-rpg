@@ -300,6 +300,7 @@
     "description": "The Caretaker needs the latest corruption surge at the shrine put down before it roots itself again.",
     "giver": "caretaker",
     "requires_acceptance": true,
+    "min_arc": 4,
     "requires_world_states": [
       {
         "location": "ruined_shrine",
@@ -335,6 +336,7 @@
     "description": "Stonewatch's Quartermaster wants a raider badge brought in so the watch can track who is pressing the road.",
     "giver": "quartermaster",
     "requires_acceptance": true,
+    "min_arc": 3,
     "faction_rewards": {
       "kingdom_guard": 10,
       "merchant_guild": 4,
@@ -358,6 +360,7 @@
     "description": "The Shrine Caretaker wants shrine ash gathered from the corrupted wilds before its stain reaches the town altar.",
     "giver": "shrine_caretaker",
     "requires_acceptance": true,
+    "min_arc": 3,
     "faction_rewards": {
       "shrine_keepers": 12,
       "cult_of_ash": -4
@@ -380,6 +383,7 @@
     "description": "The Blacksmith wants a fresh boar tusk for a fitting experiment in frontier spearwork.",
     "giver": "blacksmith",
     "requires_acceptance": true,
+    "min_arc": 3,
     "faction_rewards": {
       "merchant_guild": 8,
       "forest_clans": 4
@@ -394,6 +398,79 @@
     "reward": {
       "gold": 10,
       "items": ["hunting_spear"]
+    }
+  },
+  "q016_holdfast_raiders": {
+    "quest_id": "q016_holdfast_raiders",
+    "title": "Holdfast Raiders",
+    "description": "The Hold Warden wants the raiders testing Ironridge Pass driven back before the next ore train arrives.",
+    "giver": "hold_warden",
+    "requires_acceptance": true,
+    "min_arc": 3,
+    "faction_rewards": {
+      "kingdom_guard": 10,
+      "merchant_guild": 4,
+      "thieves_circle": -8
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "ridge_raider",
+      "count": 1,
+      "location": "ironridge_pass",
+      "turn_in": "ironridge_pass"
+    },
+    "reward": {
+      "gold": 18,
+      "items": ["bandage_kit"]
+    }
+  },
+  "q017_stormbreak_sweep": {
+    "quest_id": "q017_stormbreak_sweep",
+    "title": "Stormbreak Sweep",
+    "description": "The Coast Ranger wants the sea raiders in Stormbreak Cove cut down before they start reading every wreck as free harbor.",
+    "giver": "coast_ranger",
+    "requires_acceptance": true,
+    "min_arc": 3,
+    "faction_rewards": {
+      "kingdom_guard": 8,
+      "merchant_guild": 6,
+      "thieves_circle": -10
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "sea_raider",
+      "count": 1,
+      "location": "stormbreak_cove",
+      "turn_in": "stormbreak_cliffs"
+    },
+    "reward": {
+      "gold": 18,
+      "items": ["torch_bundle"]
+    }
+  },
+  "q018_seal_of_the_vault": {
+    "quest_id": "q018_seal_of_the_vault",
+    "title": "Seal of the Vault",
+    "description": "The Vault Scholar needs a cult seal recovered from the Ashen Stair so the shrine orders can verify who has reopened the vault.",
+    "giver": "vault_scholar",
+    "requires_acceptance": true,
+    "min_arc": 4,
+    "faction_rewards": {
+      "shrine_keepers": 12,
+      "cult_of_ash": -8
+    },
+    "trust_reward": 10,
+    "objective": {
+      "type": "bring_item",
+      "item": "cultist_seal",
+      "count": 1,
+      "turn_in": "ashen_stair"
+    },
+    "reward": {
+      "gold": 20,
+      "items": ["mana_tonic"]
     }
   }
 }

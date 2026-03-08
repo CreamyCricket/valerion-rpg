@@ -13,6 +13,7 @@ class World:
         self.npcs = self._load_json(base / "npcs.json")
         self.quests = self._load_json(base / "quests.json")
         self.factions = self._load_json(base / "factions.json")
+        self.arcs = self._load_json(base / "arcs.json")
 
         # Runtime world state. Locations change when items are taken or enemies are defeated.
         self.state_locations = copy.deepcopy(self.locations)

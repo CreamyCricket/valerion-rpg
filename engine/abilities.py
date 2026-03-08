@@ -17,10 +17,10 @@ class AbilityEngine:
             "effect": {
                 "damage": 4,
                 "scale_stat": "strength",
-                "scale_skill": "athletics",
+                "scale_skill": "swordsmanship",
                 "accuracy_bonus": 1,
             },
-            "description": "A heavy opening blow that scales with Strength and a trained body.",
+            "description": "A heavy opening blow that scales with Strength and sword training.",
         },
         "guard_stance": {
             "name": "Guard Stance",
@@ -43,7 +43,7 @@ class AbilityEngine:
             "effect": {
                 "damage": 3,
                 "scale_stat": "agility",
-                "scale_skill": "survival",
+                "scale_skill": "archery",
                 "accuracy_bonus": 2,
                 "crit_bonus": 10,
             },
@@ -73,10 +73,11 @@ class AbilityEngine:
             "effect": {
                 "damage": 5,
                 "scale_stat": "mind",
-                "scale_skill": "arcana",
+                "secondary_stat": "wisdom",
+                "scale_skill": "spellcasting",
                 "accuracy_bonus": 1,
             },
-            "description": "Send a sharp bolt of fire that scales with Mind and arcane training.",
+            "description": "Send a sharp bolt of fire that scales with Mind and spellcasting.",
         },
         "frost_shard": {
             "name": "Frost Shard",
@@ -86,7 +87,8 @@ class AbilityEngine:
             "effect": {
                 "damage": 3,
                 "scale_stat": "mind",
-                "scale_skill": "arcana",
+                "secondary_stat": "wisdom",
+                "scale_skill": "spellcasting",
                 "buff": {
                     "enemy_attack_penalty": 2,
                 },
@@ -101,10 +103,10 @@ class AbilityEngine:
             "cost": 3,
             "effect": {
                 "heal": 6,
-                "scale_stat": "mind",
+                "scale_stat": "wisdom",
                 "scale_skill": "lore",
             },
-            "description": "Gather light into a steady restoration shaped by Mind and lore.",
+            "description": "Gather light into a steady restoration shaped by Wisdom and lore.",
         },
         "backstab": {
             "name": "Backstab",

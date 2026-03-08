@@ -1,4 +1,5 @@
 import unittest
+import random
 
 from ai.intent_parser import IntentParser
 from engine.game import Game
@@ -39,6 +40,19 @@ class IntentParserTests(unittest.TestCase):
                 self.assertEqual(parsed.target, expected["target"])
                 self.assertFalse(parsed.safe)
 
+    def test_action_parser_cleans_extra_natural_language_fillers(self) -> None:
+        cases = {
+            "go toward the forest please": ("move", "forest"),
+            "engage the green slime": ("fight", "green slime"),
+            "pick the herb up": ("take", "herb"),
+            "drink my potion": ("use", "potion"),
+        }
+
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                parsed = self.parser.parse(text)
+                self.assertEqual((parsed.intent, parsed.target), expected)
+
     def test_ask_about_topic_does_not_treat_topic_as_npc(self) -> None:
         parsed = self.parser.parse("ask about the forest")
         self.assertEqual(parsed.intent, "ask")
@@ -65,6 +79,9 @@ class IntentParserTests(unittest.TestCase):
 
 
 class GameIntentRoutingTests(unittest.TestCase):
+    def setUp(self) -> None:
+        random.seed(1)
+
     def _snapshot(self, game: Game) -> dict:
         return {
             "location": game.current_location,
@@ -120,6 +137,20 @@ class GameIntentRoutingTests(unittest.TestCase):
         self.assertNotIn("slime", game.world.get_enemies_at("forest_path"))
         self.assertIn("herb", game.player.inventory)
         self.assertNotIn("potion", game.player.inventory)
+
+    def test_ambiguous_or_invalid_natural_language_actions_do_not_change_state(self) -> None:
+        game = Game(data_dir="data", player_name="Tester")
+        game.process_command("go to the forest")
+        game.player.inventory.extend(["potion", "greater_potion"])
+        before = self._snapshot(game)
+
+        invalid_move = game.process_command("go to the sea")
+        ambiguous_use = game.process_command("drink pot")
+
+        after = self._snapshot(game)
+        self.assertEqual(before, after)
+        self.assertIn("Nothing changes yet.", invalid_move)
+        self.assertIn("Nothing changes yet.", ambiguous_use)
 
     def test_single_word_classic_commands_keep_existing_behavior(self) -> None:
         game = Game(data_dir="data", player_name="Tester")

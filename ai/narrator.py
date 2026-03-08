@@ -6,7 +6,7 @@ class Narrator:
 
     @staticmethod
     def new_game_intro(chapter_progress: dict, location_name: str, character_context: dict | None = None) -> str:
-        title = chapter_progress.get("title", "Chapter 1: Forest Roads")
+        title = chapter_progress.get("title", "Arc 1: Village Roads")
         note = chapter_progress.get("note", "")
         parts = [title]
         if note:
@@ -45,17 +45,36 @@ class Narrator:
         if "spell_power" in character_context or "healing_power" in character_context:
             lines.append(
                 "Power: "
+                f"Mana/Focus {character_context.get('mana', character_context.get('max_focus', 0))} | "
                 f"Spell {character_context.get('spell_power', 0)} | "
                 f"Healing {character_context.get('healing_power', 0)} | "
+                f"Magic Guard {character_context.get('magic_guard', 0)} | "
                 f"Carry {len(character_context.get('inventory', []))}/{character_context.get('carry_capacity', len(character_context.get('inventory', [])))}"
             )
         stats = character_context.get("stats", {})
         if isinstance(stats, dict) and stats:
             lines.append(
-                "Core stats: "
+                "Stats: "
+                + ", ".join(f"{stat_name.title()} {int(value)}" for stat_name, value in stats.items())
+            )
+        skill_values = character_context.get("skills", {})
+        skill_proficiencies = character_context.get("skill_proficiencies", {})
+        if isinstance(skill_values, dict) and skill_values:
+            lines.append(
+                "Skills: "
                 + ", ".join(
-                    f"{stat_name.title()} {int(value)}"
-                    for stat_name, value in stats.items()
+                    f"{skill_name.title()} {int(skill_values.get(skill_name, 0))}"
+                    f" (prof {int(skill_proficiencies.get(skill_name, 0))})"
+                    for skill_name in (
+                        "swordsmanship",
+                        "archery",
+                        "defense",
+                        "spellcasting",
+                        "stealth",
+                        "survival",
+                        "lore",
+                        "persuasion",
+                    )
                 )
             )
         inventory = character_context.get("inventory", [])
@@ -85,9 +104,81 @@ class Narrator:
         return "\n".join(lines)
 
     @staticmethod
+    def character_sheet_text(
+        character_context: dict,
+        skills: dict[str, dict[str, int | str]],
+        abilities: list[dict],
+        current_hp: int,
+        current_focus: int,
+        xp: int,
+        xp_needed: int,
+    ) -> str:
+        lines = [
+            "Character Sheet",
+            (
+                f"{character_context.get('name', 'Hero')} | "
+                f"{character_context.get('race', 'Unknown')} {character_context.get('class', 'Adventurer')} | "
+                f"{character_context.get('background', 'Unknown')}"
+            ),
+            f"Level {character_context.get('level', 1)} | XP {xp}/{xp_needed}",
+            (
+                f"Resources: HP {current_hp}/{character_context.get('max_hp', current_hp)} | "
+                f"Mana/Focus {current_focus}/{character_context.get('max_focus', current_focus)} | "
+                f"Gold {character_context.get('gold', 0)}"
+            ),
+        ]
+
+        stats = character_context.get("stats", {})
+        if isinstance(stats, dict) and stats:
+            lines.append(
+                "Stats: "
+                + ", ".join(
+                    f"{stat_name.title()} {int(value)}"
+                    for stat_name, value in stats.items()
+                )
+            )
+
+        lines.append(
+            "Derived: "
+            f"Attack {character_context.get('attack', 0)} ({character_context.get('attack_stat', 'Unknown')}/{character_context.get('weapon_skill', 'Unknown')}) | "
+            f"Accuracy {character_context.get('accuracy', 0)} | "
+            f"Defense {character_context.get('defense', 0)} | "
+            f"Dodge {character_context.get('dodge_chance', 0)}% | "
+            f"Crit {character_context.get('crit_chance', 0)}%"
+        )
+        lines.append(
+            "Power: "
+            f"Spell {character_context.get('spell_power', 0)} | "
+            f"Healing {character_context.get('healing_power', 0)} | "
+            f"Magic Guard {character_context.get('magic_guard', 0)} | "
+            f"Resilience {character_context.get('resilience', 0)}"
+        )
+
+        skill_bits = []
+        for skill_name in ("swordsmanship", "archery", "defense", "spellcasting", "stealth", "survival", "lore", "persuasion"):
+            entry = skills.get(skill_name, {}) if isinstance(skills, dict) else {}
+            skill_bits.append(f"{skill_name.title()} {int(entry.get('total', 0))}")
+        lines.append("Skills: " + ", ".join(skill_bits))
+
+        lines.append(
+            f"Gear: Weapon {character_context.get('equipped_weapon', 'none') or 'none'} | "
+            f"Armor {character_context.get('equipped_armor', 'none') or 'none'}"
+        )
+
+        if abilities:
+            lines.append("Abilities: " + ", ".join(str(ability.get("name", "Ability")) for ability in abilities))
+        else:
+            lines.append("Abilities: none")
+
+        bio = str(character_context.get("bio", "") or "").strip()
+        if bio:
+            lines.append("Bio: " + bio)
+        return "\n".join(lines)
+
+    @staticmethod
     def load_reminder_text(location_name: str, chapter_progress: dict, history_flags: dict | None) -> str:
         history_flags = history_flags or {}
-        title = chapter_progress.get("title", "Chapter 1: Forest Roads")
+        title = chapter_progress.get("title", "Arc 1: Village Roads")
         note = chapter_progress.get("note", "")
         lines = [f"Returning to {location_name}.", title]
         if note:
@@ -111,7 +202,9 @@ class Narrator:
         scene_lines: list[str] | None = None,
         state_lines: list[str] | None = None,
         history_flags: dict | None = None,
+        location_context: dict | None = None,
     ) -> str:
+        location_context = location_context or {}
         lines = [f"{location.get('name', 'Unknown')}\n{location.get('description', '')}"]
         if scene_lines:
             lines.extend(scene_lines)
@@ -119,6 +212,10 @@ class Narrator:
             memory_note = Narrator._location_memory_note(location_id, history_flags or {}, inspect_mode=False)
             if memory_note:
                 lines.append(memory_note)
+
+        continuity_lines = Narrator._location_continuity_lines(location_context)
+        if continuity_lines:
+            lines.extend(continuity_lines)
 
         if state_lines:
             lines.append("Area state: " + ", ".join(state_lines))
@@ -209,7 +306,7 @@ class Narrator:
     @staticmethod
     def skills_text(skills: dict[str, dict[str, int]]) -> str:
         lines = ["Skills"]
-        for skill_name in ("athletics", "stealth", "survival", "arcana", "lore", "persuasion"):
+        for skill_name in ("swordsmanship", "archery", "defense", "spellcasting", "stealth", "survival", "lore", "persuasion"):
             entry = skills.get(skill_name, {}) if isinstance(skills, dict) else {}
             total = int(entry.get("total", 0))
             proficiency = int(entry.get("proficiency", 0))
@@ -236,14 +333,64 @@ class Narrator:
         return f"{name}: {detail}"
 
     @staticmethod
+    def combat_header_text(
+        enemy_name: str,
+        player_hp: int,
+        player_max_hp: int,
+        player_focus: int,
+        player_max_focus: int,
+        enemy_hp: int,
+        enemy_max_hp: int,
+        enemy_summary: str = "",
+        prepared_effect: str = "",
+    ) -> str:
+        lines = [
+            f"Combat: {enemy_name}",
+            f"Player: HP {player_hp}/{player_max_hp} | Focus {player_focus}/{player_max_focus}",
+            f"Enemy: HP {enemy_hp}/{enemy_max_hp}",
+        ]
+        if enemy_summary:
+            lines.append("Enemy read: " + enemy_summary)
+        if prepared_effect:
+            lines.append("Prepared effect: " + prepared_effect)
+        return "\n".join(lines)
+
+    @staticmethod
+    def combat_options_text(option_lines: list[str]) -> str:
+        lines = ["Combat options"]
+        if option_lines:
+            lines.extend(option_lines)
+        else:
+            lines.append("- Attack with: fight <enemy>")
+        return "\n".join(lines)
+
+    @staticmethod
+    def combat_footer_text(
+        player_hp: int,
+        player_max_hp: int,
+        player_focus: int,
+        player_max_focus: int,
+        enemy_name: str,
+        enemy_hp: int,
+    ) -> str:
+        return (
+            f"Combat end: Player HP {player_hp}/{player_max_hp} | "
+            f"Focus {player_focus}/{player_max_focus} | "
+            f"{enemy_name} HP {enemy_hp}"
+        )
+
+    @staticmethod
     def npc_dialogue_text(
         npc_name: str,
         role: str,
         dialogue: str,
         offered_quests: list[str],
         service_lines: list[str] | None = None,
+        memory_lines: list[str] | None = None,
     ) -> str:
         lines = [f"{npc_name} ({role})", dialogue]
+        if memory_lines:
+            lines.extend(memory_lines)
         if service_lines:
             lines.extend(service_lines)
         if offered_quests:
@@ -355,7 +502,9 @@ class Narrator:
         location: dict,
         location_id: str | None = None,
         history_flags: dict | None = None,
+        location_context: dict | None = None,
     ) -> str:
+        location_context = location_context or {}
         name = location.get("name", "Unknown")
         description = location.get("description", "There is nothing notable here.")
         lines = [f"You inspect {name}.", description]
@@ -363,52 +512,81 @@ class Narrator:
             memory_note = Narrator._location_memory_note(location_id, history_flags or {}, inspect_mode=True)
             if memory_note:
                 lines.append(memory_note)
+        continuity_lines = Narrator._location_continuity_lines(location_context, inspect_mode=True)
+        if continuity_lines:
+            lines.extend(continuity_lines)
         return "\n".join(lines)
 
     @staticmethod
-    def inspect_special_location_text(location_id: str, location: dict, history_flags: dict | None = None) -> str:
+    def inspect_special_location_text(
+        location_id: str,
+        location: dict,
+        history_flags: dict | None = None,
+        location_context: dict | None = None,
+    ) -> str:
         name = location.get("name", "Unknown")
         description = location.get("description", "There is nothing notable here.")
         history_flags = history_flags or {}
+        location_context = location_context or {}
 
         if location_id == "old_watchtower":
             if history_flags.get("watchtower_cleared"):
-                return (
+                text = (
                     f"You inspect {name}.\n"
                     f"{description}\n"
                     "The broken stair and wind-cut parapet feel less threatening now that the slime has been cleared away. "
                     "Only old watch-post scars remain: tally marks, rain-dark stone, and the sense that this ruin still wants to keep watch."
                 )
-            return (
+                continuity = Narrator._location_continuity_lines(location_context, inspect_mode=True)
+                if continuity:
+                    text += "\n" + "\n".join(continuity)
+                return text
+            text = (
                 f"You inspect {name}.\n"
                 f"{description}\n"
                 "Weather-worn arrow slits still face the old road, where watchfires once warned the village of raiders and winter beasts. "
                 "Along the inner stair, faded tally marks and a half-buried captain's sigil hint that the final garrison held this post longer than anyone remembers."
             )
+            continuity = Narrator._location_continuity_lines(location_context, inspect_mode=True)
+            if continuity:
+                text += "\n" + "\n".join(continuity)
+            return text
 
         if location_id == "ruined_shrine":
             if history_flags.get("sigil_quest_completed"):
-                return (
+                text = (
                     f"You inspect {name}.\n"
                     f"{description}\n"
                     "The shrine now feels settled rather than haunted. With the sigil delivered and its story preserved, "
                     "the ruined stones read like memory instead of warning."
                 )
+                continuity = Narrator._location_continuity_lines(location_context, inspect_mode=True)
+                if continuity:
+                    text += "\n" + "\n".join(continuity)
+                return text
             if history_flags.get("shrine_guardian_defeated"):
-                return (
+                text = (
                     f"You inspect {name}.\n"
                     f"{description}\n"
                     "The shrine's cold tension has broken into a solemn quiet, as if the stones themselves have finally exhaled. "
                     "Where a guardian once waited in judgment, only drifting ash, cracked runes, and the memory of an old vow remain."
                 )
-            return (
+                continuity = Narrator._location_continuity_lines(location_context, inspect_mode=True)
+                if continuity:
+                    text += "\n" + "\n".join(continuity)
+                return text
+            text = (
                 f"You inspect {name}.\n"
                 f"{description}\n"
                 "Moss-choked altar stones circle a blackened basin where offerings once burned through the night, and the air carries a cold, metallic stillness. "
                 "Across the fallen lintel, fragments of prayer-runes repeat one surviving promise: a guardian would wake if the sacred boundary was broken."
             )
+            continuity = Narrator._location_continuity_lines(location_context, inspect_mode=True)
+            if continuity:
+                text += "\n" + "\n".join(continuity)
+            return text
 
-        return Narrator.inspect_location_text(location, location_id, history_flags)
+        return Narrator.inspect_location_text(location, location_id, history_flags, location_context=location_context)
 
     @staticmethod
     def inspect_item_text(item_name: str, item_type: str, description: str, source: str) -> str:
@@ -491,47 +669,49 @@ class Narrator:
         return f"You inspect {npc_name} in {location_name}."
 
     @staticmethod
-    def ask_text(npc_id: str, topic: str, history_flags: dict | None = None) -> str:
+    def ask_text(npc_id: str, topic: str, history_flags: dict | None = None, npc_memory: dict | None = None) -> str:
         topic_normalized = " ".join(topic.strip().lower().split())
         history_flags = history_flags or {}
+        npc_memory = npc_memory or {}
+        reply_prefix = Narrator._npc_memory_reply_prefix(npc_id, npc_memory)
 
         if npc_id == "elder":
             if any(word in topic_normalized for word in ["forest", "woods", "trees"]):
                 if history_flags.get("shrine_guardian_defeated"):
-                    return (
+                    return reply_prefix + (
                         'The Elder looks toward the deeper woods. "You felt it too. The forest still keeps its secrets, '
                         'but the old pressure around the shrine has lifted."'
                     )
                 if history_flags.get("forest_path_cleared"):
-                    return (
+                    return reply_prefix + (
                         'The Elder nods once. "The forest path is steadier now because you acted. '
                         'Safety begins with one cleared road."'
                     )
-                return (
+                return reply_prefix + (
                     'The Elder nods slowly. "The forest rewards patience. '
                     'Watch your path, and you will return."'
                 )
             if any(word in topic_normalized for word in ["danger", "risk", "monster"]):
                 if history_flags.get("shrine_guardian_defeated"):
-                    return (
+                    return reply_prefix + (
                         'The Elder lowers his voice. "You have already faced what waited deeper than most dare go. '
                         'Do not let one great victory teach you carelessness."'
                     )
-                return (
+                return reply_prefix + (
                     'The Elder lowers his voice. "Danger grows when pride grows. '
                     'Prepare, then act."'
                 )
             if any(word in topic_normalized for word in ["watchtower", "tower", "road"]):
                 if history_flags.get("watchtower_sweep_completed"):
-                    return (
+                    return reply_prefix + (
                         'The Elder allows himself a rare smile. "The watchtower is quiet again. '
                         'That old road may serve the village a while longer."'
                     )
                 if history_flags.get("forest_path_cleared"):
-                    return (
+                    return reply_prefix + (
                         'The Elder glances toward the road. "The path is better than it was, but the watchtower still deserves caution."'
                     )
-            return (
+            return reply_prefix + (
                 f'The Elder considers your question about "{topic.strip()}". '
                 '"Steady choices carry you farther than hurried ones."'
             )
@@ -539,36 +719,46 @@ class Narrator:
         if npc_id == "merchant":
             if any(word in topic_normalized for word in ["supply", "supplies", "stock", "goods"]):
                 if history_flags.get("watchtower_sweep_completed"):
-                    return (
+                    return reply_prefix + (
                         'The Merchant taps a fresh bundle. "If the watchtower road stays quiet, stock should move more reliably. '
                         'That means fewer shortages for everyone."'
                     )
-                return (
+                return reply_prefix + (
                     'The Merchant taps a crate. "Supplies are simple today: '
                     'Potion, 5 gold. Reliable and affordable."'
                 )
             if any(word in topic_normalized for word in ["price", "cost", "gold"]):
+                if int(npc_memory.get("trust", 0)) >= 10:
+                    return reply_prefix + (
+                        'The Merchant smiles more easily than before. "I keep fair prices, and I do a little better for people who have earned trust. '
+                        'Reliable trade should reward reliable company."'
+                    )
+                if int(npc_memory.get("trust", 0)) <= -10 or int(npc_memory.get("harmed", 0)) > int(npc_memory.get("helped", 0)):
+                    return reply_prefix + (
+                        'The Merchant keeps her tone measured. "Prices stay clear when trust does not. '
+                        'Coin first, confidence later."'
+                    )
                 if history_flags.get("forest_path_cleared"):
-                    return (
+                    return reply_prefix + (
                         'The Merchant smiles. "Safer roads help prices stay fair. '
                         'A Potion is still 5 gold, and I would like to keep it that way."'
                     )
-                return (
+                return reply_prefix + (
                     'The Merchant smiles. "I keep fair prices. A Potion is 5 gold, '
                     'and every coin should matter."'
                 )
             if any(word in topic_normalized for word in ["sigil", "shrine", "guardian"]):
                 if history_flags.get("carrying_guardian_sigil"):
-                    return (
+                    return reply_prefix + (
                         'The Merchant keeps her voice low. "That sigil is worth more as a story than as coin. '
                         'People will remember who brought it out of the shrine."'
                     )
                 if history_flags.get("shrine_guardian_defeated"):
-                    return (
+                    return reply_prefix + (
                         'The Merchant raises her brows. "Word of the shrine is already spreading. '
                         'Proof or not, people can tell something changed in the woods."'
                     )
-            return (
+            return reply_prefix + (
                 f'The Merchant considers your question about "{topic.strip()}". '
                 '"Good planning is better than expensive mistakes."'
             )
@@ -576,19 +766,19 @@ class Narrator:
         if npc_id == "scout":
             if any(word in topic_normalized for word in ["watchtower", "tower", "road", "tracks"]):
                 if history_flags.get("watchtower_cleared"):
-                    return (
+                    return reply_prefix + (
                         'The Scout points to chipped stone. "After the clearing, movement dropped, but not to zero. '
                         'I need a clean sample to confirm what passed through here."'
                     )
-                return (
+                return reply_prefix + (
                     'The Scout keeps his voice low. "The tower sees too much road, and right now none of it feels safe."'
                 )
             if any(word in topic_normalized for word in ["slime", "gel", "sample"]):
-                return (
+                return reply_prefix + (
                     'The Scout nods. "Slime gel tells us what kind of nest we are dealing with. '
                     'Bring a sample and we can close this report properly."'
                 )
-            return (
+            return reply_prefix + (
                 f'The Scout considers your question about "{topic.strip()}". '
                 '"Good reports come from clear details and patient observation."'
             )
@@ -596,27 +786,47 @@ class Narrator:
         if npc_id == "caretaker":
             if any(word in topic_normalized for word in ["shrine", "runes", "altar"]):
                 if history_flags.get("shrine_guardian_defeated"):
-                    return (
+                    return reply_prefix + (
                         'The Caretaker rests a hand on the stone. "Now that the guardian is gone, we can finally read this place openly."'
                     )
-                return (
+                return reply_prefix + (
                     'The Caretaker whispers, "The shrine speaks in fragments. Read too quickly, and you miss the warning in the gaps."'
                 )
             if any(word in topic_normalized for word in ["sigil", "guardian"]):
                 if history_flags.get("carrying_guardian_sigil"):
-                    return (
+                    return reply_prefix + (
                         'The Caretaker nods toward your pack. "That sigil is not merely loot. '
                         'Delivered properly, it becomes a record instead of a trophy."'
                     )
-                return (
+                return reply_prefix + (
                     'The Caretaker says, "The sigil matters because it proves what happened here, not because it shines."'
                 )
-            return (
+            return reply_prefix + (
                 f'The Caretaker considers your question about "{topic.strip()}". '
                 '"History survives when someone chooses to preserve it."'
             )
 
-        return f"{npc_id.title()} has nothing to say about that right now."
+        return reply_prefix + f"{npc_id.title()} has nothing to say about that right now."
+
+    @staticmethod
+    def _npc_memory_reply_prefix(npc_id: str, npc_memory: dict) -> str:
+        if not isinstance(npc_memory, dict):
+            return ""
+
+        npc_name = str(npc_memory.get("npc_name", npc_id.replace("_", " ").title())).strip() or npc_id.replace("_", " ").title()
+        trust = int(npc_memory.get("trust", 0))
+        helped = int(npc_memory.get("helped", 0))
+        harmed = int(npc_memory.get("harmed", 0))
+        quests_completed = int(npc_memory.get("quests_completed", 0))
+        faction_name = str(npc_memory.get("faction_name", "")).strip()
+
+        if trust <= -20 or harmed > helped:
+            return f"{npc_name} answers with visible reserve. "
+        if trust >= 20 or quests_completed > 0 or helped > harmed:
+            if faction_name and faction_name != "Unaffiliated":
+                return f"{npc_name} answers more openly, clearly remembering your standing with {faction_name}. "
+            return f"{npc_name} answers more openly, clearly remembering how you have dealt with them before. "
+        return ""
 
     @staticmethod
     def recap_text(
@@ -631,6 +841,7 @@ class Narrator:
         demo_complete: bool,
         event_counts: dict,
         recent_events: list[dict],
+        event_memory: dict | None,
         chapter_progress: dict,
         character_context: dict | None = None,
         location_context: dict | None = None,
@@ -639,6 +850,7 @@ class Narrator:
         character_context = character_context or {}
         location_context = location_context or {}
         history_flags = history_flags or {}
+        event_memory = event_memory or {}
         lines = [
             "Adventure Recap",
             f"Hero: {player_name}",
@@ -676,10 +888,10 @@ class Narrator:
         else:
             lines.append("Completed quests: none")
 
-        lines.append(f"Current chapter: {chapter_progress.get('title', 'Chapter 1: Forest Roads')}")
+        lines.append(f"Current arc: {chapter_progress.get('title', 'Arc 1: Village Roads')}")
         chapter_note = chapter_progress.get("note")
         if chapter_note:
-            lines.append(f"Chapter focus: {chapter_note}")
+            lines.append(f"Arc focus: {chapter_note}")
 
         turn_line = Narrator._campaign_turn_line(history_flags)
         if turn_line:
@@ -693,6 +905,10 @@ class Narrator:
             f"{event_counts.get('minibosses_defeated', 0)} minibosses, "
             f"{event_counts.get('important_items_acquired', 0)} important items."
         )
+        memory_lines = Narrator._event_memory_lines(event_memory)
+        if memory_lines:
+            lines.append("Longer memory:")
+            lines.extend(f"- {line}" for line in memory_lines)
         if recent_events:
             lines.append("Recent moments:")
             for event in recent_events:
@@ -711,6 +927,7 @@ class Narrator:
         shrine_guardian_status: str | None,
         event_counts: dict,
         recent_events: list[dict],
+        event_memory: dict | None,
         chapter_progress: dict,
         character_context: dict | None = None,
         location_context: dict | None = None,
@@ -719,17 +936,18 @@ class Narrator:
         character_context = character_context or {}
         location_context = location_context or {}
         history_flags = history_flags or {}
+        event_memory = event_memory or {}
         lines = [
             "Story So Far",
             f"{player_name} is currently in {location_name}. The campaign is unfolding one clear step at a time.",
-            f"Current chapter: {chapter_progress.get('title', 'Chapter 1: Forest Roads')}",
+            f"Current arc: {chapter_progress.get('title', 'Arc 1: Village Roads')}",
         ]
         character_hook = Narrator._character_hook(character_context)
         if character_hook:
             lines.append(character_hook)
         chapter_note = chapter_progress.get("note")
         if chapter_note:
-            lines.append(f"Chapter focus: {chapter_note}")
+            lines.append(f"Arc focus: {chapter_note}")
 
         region = str(location_context.get("region", "")).strip()
         if region:
@@ -769,8 +987,14 @@ class Narrator:
             "Recorded milestones: "
             f"{event_counts.get('locations_visited', 0)} places charted, "
             f"{event_counts.get('enemies_defeated', 0)} enemies defeated, "
-            f"{event_counts.get('quests_completed', 0)} quests completed."
+            f"{event_counts.get('quests_completed', 0)} quests completed, "
+            f"{event_counts.get('world_states_started', 0)} world shifts begun, "
+            f"{event_counts.get('world_states_cleared', 0)} settled."
         )
+        memory_lines = Narrator._event_memory_lines(event_memory)
+        if memory_lines:
+            lines.append("Campaign memory:")
+            lines.extend(f"- {line}" for line in memory_lines)
         if recent_events:
             lines.append("Recent timeline:")
             for event in recent_events:
@@ -808,11 +1032,78 @@ class Narrator:
         return "Campaign turn: the opening roads are still testing what kind of adventurer you intend to become."
 
     @staticmethod
-    def history_text(events: list[dict]) -> str:
+    def _event_memory_lines(event_memory: dict) -> list[str]:
+        if not isinstance(event_memory, dict):
+            return []
+
+        lines = []
+        visited = [entry.get("name", "") for entry in event_memory.get("visited_locations", [])[:3] if isinstance(entry, dict)]
+        if visited:
+            lines.append("Road walked: " + ", ".join(visited) + ".")
+
+        victories = [entry.get("name", "") for entry in event_memory.get("defeated_enemies", [])[:3] if isinstance(entry, dict)]
+        if victories:
+            lines.append("Known victories: " + ", ".join(victories) + ".")
+
+        quests = [entry.get("name", "") for entry in event_memory.get("completed_quests", [])[:3] if isinstance(entry, dict)]
+        if quests:
+            lines.append("Finished work: " + ", ".join(quests) + ".")
+
+        items = [entry.get("name", "") for entry in event_memory.get("important_items_acquired", [])[:2] if isinstance(entry, dict)]
+        if items:
+            lines.append("Important finds: " + ", ".join(items) + ".")
+
+        started = [entry.get("name", "") for entry in event_memory.get("world_states_started", [])[:2] if isinstance(entry, dict)]
+        cleared = [entry.get("name", "") for entry in event_memory.get("world_states_cleared", [])[:2] if isinstance(entry, dict)]
+        if started or cleared:
+            parts = []
+            if started:
+                parts.append("troubled by " + ", ".join(started))
+            if cleared:
+                parts.append("settled after " + ", ".join(cleared))
+            lines.append("World memory: " + "; ".join(parts) + ".")
+
+        return lines
+
+    @staticmethod
+    def _location_continuity_lines(location_context: dict, inspect_mode: bool = False) -> list[str]:
+        if not isinstance(location_context, dict):
+            return []
+
+        lines = []
+        visit_count = int(location_context.get("visit_count", 0) or 0)
+        if visit_count > 1:
+            if inspect_mode:
+                lines.append(f"You recognize this place from {visit_count} visits already recorded in your journey.")
+            else:
+                lines.append(f"Memory: you have passed through here {visit_count} times.")
+
+        defeated_here = [str(name) for name in location_context.get("defeated_enemies_here", []) if str(name).strip()]
+        if defeated_here:
+            lines.append("Local memory: you have already beaten " + ", ".join(defeated_here[:2]) + " here.")
+
+        minibosses_here = [str(name) for name in location_context.get("minibosses_here", []) if str(name).strip()]
+        if minibosses_here:
+            lines.append("Major memory: " + ", ".join(minibosses_here[:1]) + " fell here.")
+
+        cleared_here = [str(name) for name in location_context.get("world_states_cleared_here", []) if str(name).strip()]
+        if cleared_here:
+            lines.append("The area still carries the aftermath of " + ", ".join(cleared_here[:2]) + ".")
+
+        return lines
+
+    @staticmethod
+    def history_text(events: list[dict], event_memory: dict | None = None) -> str:
         if not events:
             return "History\nNo important events recorded yet."
 
-        lines = ["History", "Timeline of important events:"]
+        event_memory = event_memory or {}
+        lines = ["History"]
+        memory_lines = Narrator._event_memory_lines(event_memory)
+        if memory_lines:
+            lines.append("Remembered milestones:")
+            lines.extend(f"- {line}" for line in memory_lines)
+        lines.append("Timeline of important events:")
         for event in events:
             index = event.get("index", "?")
             lines.append(f"{index}. {Narrator._event_line(event)}")
@@ -867,10 +1158,16 @@ class Narrator:
 
         if event_type == "quest_completed":
             quest = details.get("quest_title", details.get("quest_id", "Unknown quest"))
+            location = details.get("location_name", details.get("location_id", ""))
+            if location:
+                return f"Completed quest: {quest} at {location}."
             return f"Completed quest: {quest}."
 
         if event_type == "quest_accepted":
             quest = details.get("quest_title", details.get("quest_id", "Unknown quest"))
+            location = details.get("location_name", details.get("location_id", ""))
+            if location:
+                return f"Accepted quest: {quest} at {location}."
             return f"Accepted quest: {quest}."
 
         if event_type == "miniboss_defeated":
@@ -880,7 +1177,10 @@ class Narrator:
         if event_type == "important_item_acquired":
             item = details.get("item_name", details.get("item_id", "Unknown item"))
             source = details.get("source")
+            location = details.get("location_name", details.get("location_id", ""))
             if source:
+                if location:
+                    return f"Acquired important item: {item} at {location} ({source})."
                 return f"Acquired important item: {item} ({source})."
             return f"Acquired important item: {item}."
 
@@ -1064,7 +1364,7 @@ class Narrator:
 
     @staticmethod
     def action_router_fallback_text(text: str, detail: str) -> str:
-        return f'You try to "{text}", but {detail}'
+        return f'You try to "{text}", but {detail} Nothing changes yet.'
 
     @staticmethod
     def _location_memory_note(location_id: str, history_flags: dict, inspect_mode: bool) -> str:

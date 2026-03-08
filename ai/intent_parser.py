@@ -52,9 +52,30 @@ class IntentParser:
     GREET_PREFIXES = ("greet ", "hello ", "hi ", "wave to ", "say hello to ", "say hi to ")
     GREET_FILLERS = {"all", "everybody", "everyone", "folks", "friend", "friends", "there"}
     LISTEN_PREFIXES = ("listen for ", "listen to ", "listen ", "hear ")
-    MOVE_PREFIXES = ("go to ", "go ", "travel to ", "travel ", "head to ", "walk to ", "move to ", "enter ")
-    FIGHT_PREFIXES = ("attack ", "fight ", "strike ", "hit ", "kill ")
-    TAKE_PREFIXES = ("pick up ", "take ", "grab ", "loot ")
+    MOVE_PREFIXES = (
+        "go to ",
+        "go toward ",
+        "go towards ",
+        "go into ",
+        "go ",
+        "travel to ",
+        "travel toward ",
+        "travel towards ",
+        "travel into ",
+        "travel ",
+        "head to ",
+        "head toward ",
+        "head towards ",
+        "walk to ",
+        "walk toward ",
+        "walk towards ",
+        "move to ",
+        "move toward ",
+        "move towards ",
+        "enter ",
+    )
+    FIGHT_PREFIXES = ("attack ", "fight ", "strike ", "hit ", "kill ", "engage ", "swing at ")
+    TAKE_PREFIXES = ("pick up ", "pick ", "take ", "grab ", "loot ", "collect ")
     USE_PREFIXES = ("drink ", "use ", "equip ", "wield ", "consume ", "quaff ")
     RESTRICTED_EXACT = {
         "buy",
@@ -261,9 +282,30 @@ class IntentParser:
     @classmethod
     def _clean_action_target(cls, text: str) -> str:
         cleaned = cls._clean_fragment(text)
-        for prefix in ("to ", "toward ", "towards ", "into ", "at "):
+        cleaned = cls._strip_trailing_phrases(cleaned)
+        for prefix in ("to ", "toward ", "towards ", "into ", "at ", "up ", "down "):
             if cleaned.startswith(prefix):
-                return cls._strip_leading_article(cleaned[len(prefix):].strip())
+                return cls._strip_trailing_phrases(cls._strip_leading_article(cleaned[len(prefix):].strip()))
+        return cleaned
+
+    @classmethod
+    def _strip_trailing_phrases(cls, text: str) -> str:
+        cleaned = text.strip()
+        for suffix in (
+            " up",
+            " out",
+            " now",
+            " please",
+            " for me",
+            " on me",
+            " on myself",
+            " myself",
+        ):
+            if cleaned.endswith(suffix):
+                cleaned = cleaned[: -len(suffix)].strip()
+        for prefix in ("my ", "our "):
+            if cleaned.startswith(prefix):
+                cleaned = cleaned[len(prefix):].strip()
         return cleaned
 
     @staticmethod

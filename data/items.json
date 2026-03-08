@@ -2,6 +2,8 @@
   "potion": {
     "name": "Potion",
     "type": "consumable",
+    "rarity": "common",
+    "tier": 1,
     "description": "A small bottle that restores health.",
     "effect": "heal_10",
     "price": 5
@@ -9,6 +11,8 @@
   "herb": {
     "name": "Herb",
     "type": "consumable",
+    "rarity": "common",
+    "tier": 1,
     "description": "A common medicinal plant gathered near town.",
     "effect": "heal_5",
     "price": 3
@@ -16,6 +20,8 @@
   "bandage": {
     "name": "Bandage",
     "type": "consumable",
+    "rarity": "common",
+    "tier": 1,
     "description": "A tidy strip of cloth stitched from traveler gear.",
     "effect": "heal_3",
     "price": 2
@@ -23,6 +29,8 @@
   "ration": {
     "name": "Travel Ration",
     "type": "consumable",
+    "rarity": "common",
+    "tier": 1,
     "description": "Dried fruit, bread, and salted meat packed for the road.",
     "effect": "heal_4",
     "price": 4
@@ -30,6 +38,8 @@
   "greater_potion": {
     "name": "Greater Potion",
     "type": "consumable",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A stronger tonic kept behind better counters and bought by people expecting real danger.",
     "effect": "heal_12",
     "price": 10
@@ -37,6 +47,8 @@
   "mana_tonic": {
     "name": "Mana Tonic",
     "type": "consumable",
+    "rarity": "common",
+    "tier": 1,
     "description": "A bright tonic that steadies the mind and restores focus.",
     "effect": "focus_5",
     "price": 8
@@ -44,6 +56,8 @@
   "focus_draught": {
     "name": "Focus Draught",
     "type": "consumable",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A more refined focus tonic sold by practiced arcanists.",
     "effect": "focus_8",
     "price": 13
@@ -51,6 +65,8 @@
   "healing_potion": {
     "name": "Healing Potion",
     "type": "consumable",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A stronger red tonic sold to people who expect real wounds rather than bad luck.",
     "effect": "heal_12",
     "price": 9
@@ -58,6 +74,8 @@
   "bread_ration": {
     "name": "Bread Ration",
     "type": "consumable",
+    "rarity": "common",
+    "tier": 1,
     "description": "Dark bread, cured cheese, and salted scraps wrapped for a day on the road.",
     "effect": "heal_4",
     "price": 2
@@ -65,6 +83,8 @@
   "bandage_kit": {
     "name": "Bandage Kit",
     "type": "consumable",
+    "rarity": "common",
+    "tier": 2,
     "description": "A tighter roll of cloth, salve, and pins packed for more serious field treatment.",
     "effect": "heal_6",
     "price": 5
@@ -72,239 +92,412 @@
   "torch_bundle": {
     "name": "Torch Bundle",
     "type": "utility",
+    "rarity": "common",
+    "tier": 1,
     "description": "A tied set of road torches kept dry for caves, cellars, and late travel.",
     "price": 4
   },
   "rusty_sword": {
     "name": "Rusty Sword",
     "type": "weapon",
+    "rarity": "common",
+    "tier": 1,
     "description": "An old blade with chipped edges, but still useful.",
     "effect": "attack_plus_2",
+    "attack_bonus": 2,
     "attack_stat": "strength",
     "price": 7
   },
   "iron_sword": {
     "name": "Iron Sword",
     "type": "weapon",
+    "rarity": "common",
+    "tier": 2,
     "description": "A straight, dependable sword balanced for everyday fighting.",
     "effect": "attack_plus_3",
+    "attack_bonus": 3,
     "attack_stat": "strength",
+    "skill_bonuses": {"swordsmanship": 1},
     "price": 15
   },
   "war_axe": {
     "name": "War Axe",
     "type": "weapon",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A better-forged axe with the weight and edge to matter when the swing lands cleanly.",
     "effect": "attack_plus_4",
+    "attack_bonus": 4,
     "attack_stat": "strength",
+    "stat_bonuses": {"strength": 1},
     "price": 18
   },
   "battle_axe": {
     "name": "Battle Axe",
     "type": "weapon",
+    "rarity": "rare",
+    "tier": 3,
     "description": "A broad-headed axe that hits hard when the swing lands cleanly.",
-    "effect": "attack_plus_4",
+    "effect": "attack_plus_5",
+    "attack_bonus": 5,
     "attack_stat": "strength",
-    "price": 20
+    "stat_bonuses": {"strength": 1},
+    "skill_bonuses": {"swordsmanship": 1},
+    "price": 24
   },
   "spear": {
     "name": "Spear",
     "type": "weapon",
+    "rarity": "common",
+    "tier": 1,
     "description": "A simple ash-wood spear valued for reach and reliability.",
     "effect": "attack_plus_3",
+    "attack_bonus": 3,
     "attack_stat": "strength",
     "price": 14
   },
   "hunting_spear": {
     "name": "Hunting Spear",
     "type": "weapon",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A balanced spear meant for boar, wolves, and anything else best discouraged before it closes.",
     "effect": "attack_plus_4",
+    "attack_bonus": 4,
     "attack_stat": "strength",
+    "skill_bonuses": {"defense": 1},
     "price": 16
+  },
+  "barbed_spear": {
+    "name": "Barbed Spear",
+    "type": "weapon",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "A hunting spear with a vicious head, taken from something that meant to keep it.",
+    "effect": "attack_plus_5",
+    "attack_bonus": 5,
+    "attack_stat": "strength",
+    "stat_bonuses": {"strength": 1},
+    "price": 0
   },
   "short_bow": {
     "name": "Short Bow",
     "type": "weapon",
+    "rarity": "common",
+    "tier": 1,
     "description": "A practical bow for hunters and scouts moving through tight ground.",
     "effect": "attack_plus_2",
+    "attack_bonus": 2,
     "attack_stat": "agility",
+    "skill_bonuses": {"archery": 1},
     "price": 12
   },
   "hunting_bow": {
     "name": "Hunting Bow",
     "type": "weapon",
+    "rarity": "common",
+    "tier": 2,
     "description": "A stronger bow that rewards a steady hand and open sight lines.",
     "effect": "attack_plus_3",
+    "attack_bonus": 3,
     "attack_stat": "agility",
+    "skill_bonuses": {"archery": 1},
     "price": 18
   },
   "longbow": {
     "name": "Longbow",
     "type": "weapon",
+    "rarity": "uncommon",
+    "tier": 3,
     "description": "A taller bow built for a patient draw and harder range than quick forest shooting.",
     "effect": "attack_plus_4",
+    "attack_bonus": 4,
     "attack_stat": "agility",
+    "skill_bonuses": {"archery": 1},
+    "crit_bonus": 1,
     "price": 19
   },
   "dagger": {
     "name": "Dagger",
     "type": "weapon",
+    "rarity": "common",
+    "tier": 1,
     "description": "A narrow knife made for quick work, close timing, and travelers who dislike empty belts.",
     "effect": "attack_plus_2",
+    "attack_bonus": 2,
     "attack_stat": "agility",
+    "skill_bonuses": {"stealth": 1},
+    "crit_bonus": 1,
     "price": 8
+  },
+  "road_knife": {
+    "name": "Road Knife",
+    "type": "weapon",
+    "rarity": "common",
+    "tier": 1,
+    "description": "A quick-drawn knife favored by robbers who expect their work to stay up close.",
+    "effect": "attack_plus_2",
+    "attack_bonus": 2,
+    "attack_stat": "agility",
+    "crit_bonus": 1
+  },
+  "ritual_knife": {
+    "name": "Ritual Knife",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "tier": 2,
+    "description": "A blackened ceremonial blade still sharp enough to be dangerous in plain hands.",
+    "effect": "attack_plus_3",
+    "attack_bonus": 3,
+    "attack_stat": "agility",
+    "spell_power_bonus": 1
+  },
+  "raider_sabre": {
+    "name": "Raider Sabre",
+    "type": "weapon",
+    "rarity": "uncommon",
+    "tier": 2,
+    "description": "A fast road blade stripped from a raider who meant to keep using it.",
+    "attack_bonus": 4,
+    "attack_stat": "agility",
+    "skill_bonuses": {"swordsmanship": 1},
+    "crit_bonus": 1
   },
   "apprentice_staff": {
     "name": "Apprentice Staff",
     "type": "weapon",
+    "rarity": "common",
+    "tier": 1,
     "description": "A rune-bound staff made to help novice casters keep their focus.",
     "effect": "attack_plus_2",
+    "attack_bonus": 2,
     "attack_stat": "mind",
+    "skill_bonuses": {"spellcasting": 1},
     "price": 16
   },
   "spell_focus": {
     "name": "Spell Focus",
     "type": "weapon",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A warded focus rod that trades reach for steadier arcane alignment in cramped spaces.",
-    "effect": "attack_plus_1",
+    "effect": "attack_plus_2",
+    "attack_bonus": 2,
     "attack_stat": "mind",
+    "stat_bonuses": {"mind": 1},
+    "skill_bonuses": {"spellcasting": 1},
     "price": 12
+  },
+  "ember_focus": {
+    "name": "Ember Focus",
+    "type": "weapon",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "A heat-darkened focus rod recovered from shrine corruption, steadier and harsher than novice tools.",
+    "attack_bonus": 3,
+    "attack_stat": "mind",
+    "stat_bonuses": {"mind": 1},
+    "skill_bonuses": {"spellcasting": 2},
+    "spell_power_bonus": 1
   },
   "novice_grimoire": {
     "name": "Novice Grimoire",
     "type": "gear",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A stitched training book of basic wards, copied cantrips, and margin notes from safer hands.",
+    "skill_bonuses": {"lore": 1, "spellcasting": 1},
     "price": 14
   },
   "padded_coat": {
     "name": "Padded Coat",
     "type": "armor",
+    "rarity": "common",
+    "tier": 1,
     "description": "Layered cloth meant to stop bruising, soften falls, and make a bad blow slightly less bad.",
     "effect": "defense_plus_1",
+    "defense_bonus": 1,
     "price": 8
   },
   "leather_armor": {
     "name": "Leather Armor",
     "type": "armor",
+    "rarity": "common",
+    "tier": 2,
     "description": "Worked leather hardened for the road, light enough to move in and honest enough to trust.",
     "effect": "defense_plus_2",
+    "defense_bonus": 2,
+    "dodge_bonus": 1,
     "price": 14
   },
   "chain_vest": {
     "name": "Chain Vest",
     "type": "armor",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A sleeveless mesh of linked iron rings that gives real protection without full soldier weight.",
     "effect": "defense_plus_2",
+    "defense_bonus": 2,
+    "skill_bonuses": {"defense": 1},
     "price": 19
   },
   "iron_shield": {
     "name": "Iron Shield",
     "type": "armor",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A compact shield strapped for road use, counted here as protection more than ornament.",
     "effect": "defense_plus_2",
+    "defense_bonus": 2,
+    "skill_bonuses": {"defense": 1},
     "price": 17
   },
   "leather_vest": {
     "name": "Leather Vest",
     "type": "armor",
+    "rarity": "common",
+    "tier": 1,
     "description": "Layered leather that turns glancing blows into bruises instead of worse.",
     "effect": "defense_plus_1",
+    "defense_bonus": 1,
+    "dodge_bonus": 1,
     "price": 10
   },
   "iron_mail": {
     "name": "Iron Mail",
     "type": "armor",
+    "rarity": "uncommon",
+    "tier": 3,
     "description": "Linked iron rings that add real protection at the cost of weight.",
-    "effect": "defense_plus_2",
-    "price": 18
+    "effect": "defense_plus_3",
+    "defense_bonus": 3,
+    "stat_bonuses": {"endurance": 1},
+    "price": 22
   },
   "warded_cloak": {
     "name": "Warded Cloak",
     "type": "armor",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "A dark cloak sewn with quiet sigils that blunt both fear and force.",
     "effect": "defense_plus_2",
+    "defense_bonus": 2,
+    "skill_bonuses": {"lore": 1},
+    "magic_guard_bonus": 1,
     "price": 17
   },
-  "road_knife": {
-    "name": "Road Knife",
-    "type": "weapon",
-    "description": "A quick-drawn knife favored by robbers who expect their work to stay up close.",
-    "effect": "attack_plus_2",
-    "attack_stat": "agility"
+  "wolfhide_vest": {
+    "name": "Wolfhide Vest",
+    "type": "armor",
+    "rarity": "uncommon",
+    "tier": 2,
+    "description": "A fitted vest of hard-cured wolfhide that keeps the wearer light on rough ground.",
+    "defense_bonus": 2,
+    "skill_bonuses": {"survival": 1},
+    "dodge_bonus": 1
   },
-  "ritual_knife": {
-    "name": "Ritual Knife",
-    "type": "weapon",
-    "description": "A blackened ceremonial blade still sharp enough to be dangerous in plain hands.",
-    "effect": "attack_plus_2",
-    "attack_stat": "agility"
+  "spider_silk_cloak": {
+    "name": "Spider Silk Cloak",
+    "type": "armor",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "A remarkably light cloak stitched from giant spider silk, quiet in motion and hard to pin down.",
+    "defense_bonus": 1,
+    "skill_bonuses": {"stealth": 1},
+    "dodge_bonus": 2
   },
-  "barbed_spear": {
-    "name": "Barbed Spear",
-    "type": "weapon",
-    "description": "A hunting spear with a vicious head, taken from something that meant to keep it.",
-    "effect": "attack_plus_3",
-    "attack_stat": "strength"
+  "guardian_plate": {
+    "name": "Guardian Plate",
+    "type": "armor",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "Heavy shrine-forged plates recovered from a fallen guardian, stubbornly hard to shift once set.",
+    "defense_bonus": 3,
+    "stat_bonuses": {"endurance": 1},
+    "skill_bonuses": {"defense": 1}
   },
   "slime_gel": {
     "name": "Slime Gel",
     "type": "loot",
+    "rarity": "common",
+    "tier": 1,
     "description": "Sticky residue collected from a defeated slime."
   },
   "wolf_pelt": {
     "name": "Wolf Pelt",
     "type": "loot",
+    "rarity": "common",
+    "tier": 1,
     "description": "A rough pelt taken from a forest wolf."
   },
   "wolf_fang": {
     "name": "Wolf Fang",
     "type": "loot",
+    "rarity": "common",
+    "tier": 1,
     "description": "A long yellowed fang prized by hunters who want proof of a hard kill."
   },
   "guardian_sigil": {
     "name": "Guardian Sigil",
     "type": "loot",
+    "rarity": "rare",
+    "tier": 3,
     "description": "A carved stone sigil taken from the Shrine Guardian."
   },
   "spider_silk": {
     "name": "Spider Silk",
     "type": "loot",
+    "rarity": "uncommon",
+    "tier": 2,
     "description": "Strong silver-white thread cut from a giant spider's webbing."
   },
   "bone_charm": {
     "name": "Bone Charm",
     "type": "loot",
+    "rarity": "common",
+    "tier": 2,
     "description": "A splintered charm carried by a restless skeleton."
   },
   "cultist_seal": {
     "name": "Cultist Seal",
     "type": "loot",
+    "rarity": "common",
+    "tier": 2,
     "description": "A wax-marked seal taken from a cultist courier."
   },
   "stolen_satchel": {
     "name": "Stolen Satchel",
     "type": "loot",
+    "rarity": "common",
+    "tier": 1,
     "description": "A weathered satchel that still carries someone else's initials."
   },
   "raider_badge": {
     "name": "Raider Badge",
     "type": "loot",
+    "rarity": "common",
+    "tier": 2,
     "description": "A bent token worn by road raiders to mark who they answer to."
   },
   "shrine_ash": {
     "name": "Shrine Ash",
     "type": "loot",
+    "rarity": "common",
+    "tier": 2,
     "description": "Cold grey ash clinging to a fading trace of shrine corruption."
   },
   "boar_tusk": {
     "name": "Boar Tusk",
     "type": "loot",
+    "rarity": "common",
+    "tier": 2,
     "description": "A heavy curved tusk chipped from a forest boar built to charge through brush."
   },
   "troll_tusk": {
     "name": "Troll Tusk",
     "type": "loot",
+    "rarity": "uncommon",
+    "tier": 3,
     "description": "A heavy tusk chipped from a cave troll's jaw."
   },
   "sealed_letter": {

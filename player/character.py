@@ -17,27 +17,39 @@ class Character:
     DEFAULT_STATS: ClassVar[dict[str, int]] = {
         "strength": 10,
         "agility": 10,
-        "mind": 10,
         "vitality": 10,
+        "endurance": 10,
+        "mind": 10,
+        "wisdom": 10,
+        "charisma": 10,
+        "luck": 10,
     }
     DEFAULT_SKILLS: ClassVar[dict[str, int]] = {
-        "athletics": 0,
+        "swordsmanship": 0,
+        "archery": 0,
+        "defense": 0,
+        "spellcasting": 0,
+        "stealth": 0,
         "survival": 0,
         "lore": 0,
         "persuasion": 0,
-        "arcana": 0,
-        "stealth": 0,
     }
     SKILL_STAT_MAP: ClassVar[dict[str, str]] = {
-        "athletics": "strength",
-        "survival": "vitality",
-        "lore": "mind",
-        "persuasion": "mind",
-        "arcana": "mind",
+        "swordsmanship": "strength",
+        "archery": "agility",
+        "defense": "endurance",
+        "spellcasting": "mind",
         "stealth": "agility",
+        "survival": "wisdom",
+        "lore": "wisdom",
+        "persuasion": "charisma",
+        "athletics": "endurance",
+        "arcana": "mind",
         "lockpicking": "agility",
     }
     SKILL_ALIASES: ClassVar[dict[str, str]] = {
+        "athletics": "defense",
+        "arcana": "spellcasting",
         "lockpicking": "stealth",
     }
     ABILITY_ALIASES: ClassVar[dict[str, str]] = {
@@ -74,134 +86,134 @@ class Character:
         "human": {
             "name": "Human",
             "lore": "Humans spread along the roads between village and town, known less for one gift than for surviving change faster than anyone expects.",
-            "stats": {"strength": 1, "mind": 1},
+            "stats": {"strength": 1, "charisma": 1},
             "skills": {"persuasion": 1},
             "gold": 2,
-            "summary": "+1 Strength, +1 Mind, +1 Persuasion, +2 Gold",
+            "summary": "+1 Strength, +1 Charisma, +1 Persuasion, +2 Gold",
         },
         "elf": {
             "name": "Elf",
             "lore": "Elves keep long memory and sharp senses, moving through old woodland paths with a patience most younger peoples never quite learn.",
-            "stats": {"agility": 1, "mind": 1},
-            "skills": {"stealth": 1, "survival": 1},
+            "stats": {"agility": 2, "wisdom": 1},
+            "skills": {"archery": 1, "stealth": 1},
             "focus": 1,
-            "summary": "+1 Agility, +1 Mind, +1 Stealth, +1 Survival, +1 Focus",
+            "summary": "+2 Agility, +1 Wisdom, +1 Archery, +1 Stealth, +1 Focus",
         },
         "dwarf": {
             "name": "Dwarf",
             "lore": "Dwarves are people of stonework, forge smoke, and plain promises, carrying a reputation for endurance that can feel like stubbornness from the outside.",
-            "stats": {"strength": 1, "vitality": 2},
+            "stats": {"strength": 1, "vitality": 1, "endurance": 1},
             "max_hp": 2,
-            "skills": {"athletics": 1},
-            "summary": "+1 Strength, +2 Vitality, +2 Max HP, +1 Athletics",
+            "skills": {"defense": 1},
+            "summary": "+1 Strength, +1 Vitality, +1 Endurance, +2 Max HP, +1 Defense",
         },
         "ashenborn": {
             "name": "Ashenborn",
             "lore": "Ashenborn descend from lands touched by old fire and sacred collapse, marked by restless instincts and an uneasy closeness to forgotten power.",
-            "stats": {"agility": 1, "mind": 1},
-            "skills": {"arcana": 1, "stealth": 1},
+            "stats": {"mind": 1, "wisdom": 1, "luck": 1},
+            "skills": {"spellcasting": 1, "stealth": 1},
             "focus": 1,
-            "summary": "+1 Agility, +1 Mind, +1 Arcana, +1 Stealth, +1 Focus",
+            "summary": "+1 Mind, +1 Wisdom, +1 Luck, +1 Spellcasting, +1 Stealth, +1 Focus",
         },
     }
     CLASSES: ClassVar[dict[str, dict]] = {
         "warrior": {
             "name": "Warrior",
             "lore": "Warriors are taught that fear can be survived if the stance holds, the line stays steady, and the work gets finished.",
-            "stats": {"strength": 2, "vitality": 1},
+            "stats": {"strength": 2, "vitality": 1, "endurance": 1},
             "max_hp": 3,
             "base_attack": 1,
-            "skills": {"athletics": 1},
+            "skills": {"swordsmanship": 2, "defense": 1},
             "abilities": ["power_strike", "guard_stance"],
             "items": ["rusty_sword", "leather_vest", "bandage"],
             "equip": "rusty_sword",
             "equip_armor": "leather_vest",
-            "summary": "+2 Strength, +1 Vitality, +3 Max HP, +1 Attack, +1 Athletics, Power Strike, Guard Stance, Rusty Sword, Leather Vest, Bandage",
+            "summary": "+2 Strength, +1 Vitality, +1 Endurance, +3 Max HP, +1 Attack, +2 Swordsmanship, +1 Defense, Power Strike, Guard Stance, Rusty Sword, Leather Vest, Bandage",
         },
         "ranger": {
             "name": "Ranger",
             "lore": "Rangers live by noticing the bent grass, the wrong birdsong, and the shape of danger before it reaches sword range.",
-            "stats": {"agility": 2, "vitality": 1},
-            "skills": {"survival": 1, "stealth": 1},
+            "stats": {"agility": 2, "endurance": 1, "luck": 1},
+            "skills": {"archery": 2, "survival": 1, "stealth": 1},
             "abilities": ["aimed_shot", "track_prey"],
             "items": ["short_bow", "herb", "bandage"],
             "equip": "short_bow",
-            "summary": "+2 Agility, +1 Vitality, +1 Survival, +1 Stealth, Aimed Shot, Track Prey, Short Bow, Herb, Bandage",
+            "summary": "+2 Agility, +1 Endurance, +1 Luck, +2 Archery, +1 Survival, +1 Stealth, Aimed Shot, Track Prey, Short Bow, Herb, Bandage",
         },
         "mage": {
             "name": "Mage",
             "lore": "Mages learn restraint before power, trained to keep thought, symbol, and will aligned before they dare call on force.",
-            "stats": {"mind": 3},
-            "skills": {"lore": 1, "arcana": 2},
+            "stats": {"mind": 2, "wisdom": 2},
+            "skills": {"spellcasting": 2, "lore": 1},
             "focus": 4,
             "abilities": ["firebolt", "frost_shard", "healing_light"],
             "items": ["apprentice_staff", "mana_tonic", "potion"],
             "equip": "apprentice_staff",
-            "summary": "+3 Mind, +1 Lore, +2 Arcana, +4 Focus, Firebolt, Frost Shard, Healing Light, Apprentice Staff, Mana Tonic, Potion",
+            "summary": "+2 Mind, +2 Wisdom, +2 Spellcasting, +1 Lore, +4 Focus, Firebolt, Frost Shard, Healing Light, Apprentice Staff, Mana Tonic, Potion",
         },
         "rogue": {
             "name": "Rogue",
             "lore": "Rogues survive in the spaces between law and trouble, relying on timing, nerve, and knowing which risk is worth taking.",
-            "stats": {"agility": 2, "mind": 1},
-            "skills": {"stealth": 2, "persuasion": 1},
+            "stats": {"agility": 2, "charisma": 1, "luck": 1},
+            "skills": {"stealth": 2, "persuasion": 1, "swordsmanship": 1},
             "gold": 3,
             "abilities": ["backstab", "smoke_step"],
             "items": ["road_knife", "bandage"],
             "equip": "road_knife",
-            "summary": "+2 Agility, +1 Mind, +2 Stealth, +1 Persuasion, +3 Gold, Backstab, Smoke Step, Road Knife, Bandage",
+            "summary": "+2 Agility, +1 Charisma, +1 Luck, +2 Stealth, +1 Persuasion, +1 Swordsmanship, +3 Gold, Backstab, Smoke Step, Road Knife, Bandage",
         },
     }
     BACKGROUNDS: ClassVar[dict[str, dict]] = {
         "village_born": {
             "name": "Village-born",
             "lore": "You were raised where everyone notices who returns at dusk, and where every lost road or failed harvest becomes everybody's problem.",
-            "stats": {"vitality": 1},
+            "stats": {"vitality": 1, "charisma": 1},
             "skills": {"persuasion": 1},
             "gold": 4,
             "items": ["ration"],
             "faction_reputation": {"merchant_guild": 2},
-            "summary": "+1 Vitality, +1 Persuasion, +4 Gold, Travel Ration, +2 Merchant Guild reputation",
+            "summary": "+1 Vitality, +1 Charisma, +1 Persuasion, +4 Gold, Travel Ration, +2 Merchant Guild reputation",
         },
         "watcher": {
             "name": "Watcher",
             "lore": "You learned early to read road dust, tree lines, and distant movement, because warning a settlement half a minute sooner can matter.",
-            "stats": {"agility": 1},
-            "skills": {"athletics": 1, "survival": 1},
+            "stats": {"agility": 1, "wisdom": 1},
+            "skills": {"archery": 1, "survival": 1},
             "items": ["ration"],
             "faction_reputation": {"kingdom_guard": 3},
-            "summary": "+1 Agility, +1 Athletics, +1 Survival, Travel Ration, +3 Kingdom Guard reputation",
+            "summary": "+1 Agility, +1 Wisdom, +1 Archery, +1 Survival, Travel Ration, +3 Kingdom Guard reputation",
         },
         "shrine_touched": {
             "name": "Shrine-touched",
             "lore": "Something in the old shrines answered you once, and ever since then ruined altars and sacred marks have felt a little too familiar.",
-            "stats": {"mind": 1},
-            "skills": {"lore": 1, "arcana": 1},
+            "stats": {"mind": 1, "wisdom": 1},
+            "skills": {"lore": 1, "spellcasting": 1},
             "focus": 1,
             "items": ["mana_tonic"],
             "faction_reputation": {"shrine_keepers": 3},
-            "summary": "+1 Mind, +1 Lore, +1 Arcana, +1 Focus, Mana Tonic, +3 Shrine Keepers reputation",
+            "summary": "+1 Mind, +1 Wisdom, +1 Lore, +1 Spellcasting, +1 Focus, Mana Tonic, +3 Shrine Keepers reputation",
         },
         "wanderer": {
             "name": "Wanderer",
             "lore": "You belong more to the road than to any one roof, shaped by crossings, campfires, and the habit of leaving before luck turns.",
-            "stats": {"agility": 1},
+            "stats": {"endurance": 1, "luck": 1},
             "skills": {"survival": 1, "stealth": 1},
             "items": ["herb", "ration"],
             "faction_reputation": {"forest_clans": 3},
-            "summary": "+1 Agility, +1 Survival, +1 Stealth, Herb, Travel Ration, +3 Forest Clans reputation",
+            "summary": "+1 Endurance, +1 Luck, +1 Survival, +1 Stealth, Herb, Travel Ration, +3 Forest Clans reputation",
         },
     }
     LEVEL_GROWTH: ClassVar[dict[str, list[dict[str, int]]]] = {
-        "warrior": [{"strength": 1}, {"vitality": 1}],
-        "ranger": [{"agility": 1}, {"vitality": 1}],
-        "mage": [{"mind": 1}, {"mind": 1, "vitality": 1}],
-        "rogue": [{"agility": 1}, {"mind": 1}],
+        "warrior": [{"strength": 1}, {"vitality": 1}, {"endurance": 1}],
+        "ranger": [{"agility": 1}, {"endurance": 1}, {"luck": 1}],
+        "mage": [{"mind": 1}, {"wisdom": 1}, {"mind": 1, "wisdom": 1}],
+        "rogue": [{"agility": 1}, {"charisma": 1}, {"luck": 1}],
     }
     LEVEL_SKILL_GROWTH: ClassVar[dict[str, list[str]]] = {
-        "warrior": ["athletics", "survival"],
-        "ranger": ["survival", "stealth"],
-        "mage": ["arcana", "lore"],
-        "rogue": ["stealth", "persuasion"],
+        "warrior": ["swordsmanship", "defense"],
+        "ranger": ["archery", "survival", "stealth"],
+        "mage": ["spellcasting", "lore"],
+        "rogue": ["stealth", "persuasion", "swordsmanship"],
     }
 
     name: str = "Hero"
@@ -359,6 +371,21 @@ class Character:
         return (max(1, int(value)) - 10) // 2
 
     @classmethod
+    def _max_hp_bonus_for_stats(cls, stats: dict[str, int] | None) -> int:
+        normalized = cls._normalized_stats(stats)
+        vitality_mod = max(0, cls._stat_modifier_for_value(normalized.get("vitality", 10)))
+        endurance_mod = max(0, cls._stat_modifier_for_value(normalized.get("endurance", 10)))
+        return (vitality_mod * 2) + endurance_mod
+
+    @classmethod
+    def _focus_bonus_for_stats(cls, stats: dict[str, int] | None) -> int:
+        normalized = cls._normalized_stats(stats)
+        mind_mod = max(0, cls._stat_modifier_for_value(normalized.get("mind", 10)))
+        wisdom_mod = max(0, cls._stat_modifier_for_value(normalized.get("wisdom", 10)))
+        endurance_mod = max(0, cls._stat_modifier_for_value(normalized.get("endurance", 10)))
+        return mind_mod + wisdom_mod + (endurance_mod // 2)
+
+    @classmethod
     def creation_options(cls, category: str) -> list[dict]:
         catalog = cls._catalog(category)
         return [
@@ -514,15 +541,13 @@ class Character:
 
     def _apply_stat_resource_bonuses(self, previous_stats: dict[str, int] | None = None) -> None:
         previous_stats = self._normalized_stats(previous_stats)
-        old_vitality_mod = self._stat_modifier_for_value(previous_stats.get("vitality", 10))
-        new_vitality_mod = self.stat_modifier("vitality")
-        old_mind_mod = self._stat_modifier_for_value(previous_stats.get("mind", 10))
-        new_mind_mod = self.stat_modifier("mind")
+        old_hp_bonus = self._max_hp_bonus_for_stats(previous_stats)
+        new_hp_bonus = self._max_hp_bonus_for_stats(self.stats)
+        old_focus_bonus = self._focus_bonus_for_stats(previous_stats)
+        new_focus_bonus = self._focus_bonus_for_stats(self.stats)
 
-        if new_vitality_mod > old_vitality_mod:
-            self.max_hp += new_vitality_mod - old_vitality_mod
-        if new_mind_mod > old_mind_mod:
-            self.max_focus += new_mind_mod - old_mind_mod
+        self.max_hp = max(1, self.max_hp + (new_hp_bonus - old_hp_bonus))
+        self.max_focus = max(0, self.max_focus + (new_focus_bonus - old_focus_bonus))
 
     @classmethod
     def creation_summary(cls, category: str, value: str) -> str:
@@ -558,6 +583,7 @@ class Character:
             "prepared_ability_summary": self.combat_boost_summary,
             "stats": dict(self.stats),
             "skills": {skill_name: self.skill_value(skill_name) for skill_name in self.DEFAULT_SKILLS},
+            "skill_proficiencies": {skill_name: self.skill_proficiency(skill_name) for skill_name in self.DEFAULT_SKILLS},
             "abilities": list(self.abilities),
         }
 
@@ -608,8 +634,57 @@ class Character:
         normalized = self._normalize_key(stat_name)
         return max(1, int(self.stats.get(normalized, self.DEFAULT_STATS.get(normalized, 10))))
 
+    def effective_stat_value(self, stat_name: str, items_data: dict | None = None) -> int:
+        normalized = self._normalize_key(stat_name)
+        base_value = self.stat_value(normalized)
+        if not items_data:
+            return base_value
+        return max(1, base_value + self.equipped_stat_bonus(items_data, normalized))
+
     def stat_modifier(self, stat_name: str) -> int:
         return (self.stat_value(stat_name) - 10) // 2
+
+    def effective_stat_modifier(self, stat_name: str, items_data: dict | None = None) -> int:
+        return (self.effective_stat_value(stat_name, items_data) - 10) // 2
+
+    def equipped_item_ids(self) -> list[str]:
+        item_ids = []
+        for item_id in (self.equipped_weapon, self.equipped_armor):
+            if item_id and item_id in self.inventory and item_id not in item_ids:
+                item_ids.append(item_id)
+        return item_ids
+
+    def equipped_items(self, items_data: dict) -> list[dict]:
+        return [items_data.get(item_id, {}) for item_id in self.equipped_item_ids()]
+
+    def equipped_numeric_bonus(self, items_data: dict, bonus_key: str) -> int:
+        total = 0
+        for item_id in self.equipped_item_ids():
+            item = items_data.get(item_id, {})
+            total += self._safe_int(item.get(bonus_key), 0)
+        return total
+
+    def equipped_stat_bonus(self, items_data: dict, stat_name: str) -> int:
+        normalized = self._normalize_key(stat_name)
+        total = 0
+        for item_id in self.equipped_item_ids():
+            item = items_data.get(item_id, {})
+            bonuses = item.get("stat_bonuses", {})
+            if not isinstance(bonuses, dict):
+                continue
+            total += self._safe_int(bonuses.get(normalized), 0)
+        return total
+
+    def equipped_skill_bonus(self, items_data: dict, skill_name: str) -> int:
+        normalized = self._normalize_skill_key(skill_name)
+        total = 0
+        for item_id in self.equipped_item_ids():
+            item = items_data.get(item_id, {})
+            bonuses = item.get("skill_bonuses", {})
+            if not isinstance(bonuses, dict):
+                continue
+            total += self._safe_int(bonuses.get(normalized), 0)
+        return total
 
     def attack_stat_name(self, items_data: dict) -> str:
         if self.equipped_weapon and self.equipped_weapon in self.inventory:
@@ -619,6 +694,23 @@ class Character:
                 return configured
         class_id = self.normalize_choice("class", self.player_class)
         return self.CLASS_ATTACK_STATS.get(class_id, "strength")
+
+    def weapon_skill_name(self, items_data: dict) -> str:
+        if self.equipped_weapon and self.equipped_weapon in self.inventory:
+            weapon_id = self._normalize_key(self.equipped_weapon)
+            weapon = items_data.get(weapon_id, {})
+            attack_stat = self._normalize_key(weapon.get("attack_stat", ""))
+            if attack_stat == "mind":
+                return "spellcasting"
+            if "bow" in weapon_id:
+                return "archery"
+            return "swordsmanship"
+        class_id = self.normalize_choice("class", self.player_class)
+        if class_id == "ranger":
+            return "archery"
+        if class_id == "mage":
+            return "spellcasting"
+        return "swordsmanship"
 
     @classmethod
     def _item_effect_bonus(cls, item_data: dict, prefix: str) -> int:
@@ -634,38 +726,75 @@ class Character:
         if not self.equipped_weapon or self.equipped_weapon not in self.inventory:
             return 0
         weapon = items_data.get(self.equipped_weapon, {})
+        explicit_bonus = self._safe_int(weapon.get("attack_bonus"), 0)
+        if explicit_bonus:
+            return explicit_bonus
         return self._item_effect_bonus(weapon, "attack_plus_")
 
     def armor_bonus(self, items_data: dict) -> int:
         if not self.equipped_armor or self.equipped_armor not in self.inventory:
             return 0
         armor = items_data.get(self.equipped_armor, {})
+        explicit_bonus = self._safe_int(armor.get("defense_bonus"), 0)
+        if explicit_bonus:
+            return explicit_bonus
         return self._item_effect_bonus(armor, "defense_plus_")
 
-    def spell_power(self) -> int:
-        return max(0, self.stat_modifier("mind") + (self.skill_proficiency("arcana") // 2) + self.combat_boosts["spell_bonus"])
+    def spell_power(self, items_data: dict | None = None) -> int:
+        return max(
+            0,
+            self.effective_stat_modifier("mind", items_data)
+            + max(0, self.effective_stat_modifier("wisdom", items_data))
+            + (self.skill_proficiency("spellcasting", items_data) // 2)
+            + self.equipped_numeric_bonus(items_data or {}, "spell_power_bonus")
+            + self.combat_boosts["spell_bonus"],
+        )
 
-    def healing_power(self) -> int:
-        return max(0, self.stat_modifier("mind") + (self.skill_proficiency("lore") // 2) + self.combat_boosts["heal_bonus"])
+    def healing_power(self, items_data: dict | None = None) -> int:
+        return max(
+            0,
+            max(0, self.effective_stat_modifier("wisdom", items_data))
+            + (self.skill_proficiency("lore", items_data) // 2)
+            + (self.skill_proficiency("spellcasting", items_data) // 2)
+            + self.equipped_numeric_bonus(items_data or {}, "healing_power_bonus")
+            + self.combat_boosts["heal_bonus"],
+        )
 
-    def resilience_value(self) -> int:
-        return max(0, self.stat_modifier("vitality")) + (self.skill_proficiency("athletics") // 2)
-
-    def dodge_score(self) -> int:
+    def magic_guard(self, items_data: dict | None = None) -> int:
         return (
-            max(0, self.stat_modifier("agility"))
-            + (self.skill_proficiency("stealth") // 2)
+            max(0, self.effective_stat_modifier("wisdom", items_data))
+            + (self.skill_proficiency("lore", items_data) // 2)
+            + self.equipped_numeric_bonus(items_data or {}, "magic_guard_bonus")
+        )
+
+    def resilience_value(self, items_data: dict | None = None) -> int:
+        return (
+            max(0, self.effective_stat_modifier("vitality", items_data))
+            + max(0, self.effective_stat_modifier("endurance", items_data))
+            + (self.skill_proficiency("defense", items_data) // 2)
+            + (max(0, self.effective_stat_modifier("wisdom", items_data)) // 2)
+        )
+
+    def dodge_score(self, items_data: dict | None = None) -> int:
+        return (
+            max(0, self.effective_stat_modifier("agility", items_data))
+            + (self.skill_proficiency("stealth", items_data) // 2)
+            + self.equipped_numeric_bonus(items_data or {}, "dodge_bonus")
             + self.combat_boosts["dodge_bonus"]
         )
 
-    def dodge_chance(self) -> int:
-        return min(35, self.dodge_score() * 5)
+    def dodge_chance(self, items_data: dict | None = None) -> int:
+        return min(30, (self.dodge_score(items_data) * 4) + max(0, self.effective_stat_modifier("luck", items_data)))
 
     def crit_chance(self, items_data: dict | None = None, stat_name: str = "") -> int:
         attack_stat = stat_name or self.attack_stat_name(items_data or {})
-        agility_bonus = max(0, self.stat_modifier("agility"))
-        attack_bonus = max(0, self.stat_modifier(attack_stat))
-        return min(30, 5 + ((agility_bonus + attack_bonus) * 5) + self.combat_boosts["crit_bonus"])
+        agility_bonus = max(0, self.effective_stat_modifier("agility", items_data))
+        attack_bonus = max(0, self.effective_stat_modifier(attack_stat, items_data))
+        luck_bonus = max(0, self.effective_stat_modifier("luck", items_data))
+        return min(
+            25,
+            4 + (agility_bonus * 2) + (attack_bonus * 2) + luck_bonus + self.equipped_numeric_bonus(items_data or {}, "crit_bonus") + self.combat_boosts["crit_bonus"],
+        )
 
     def crit_threshold(self, items_data: dict | None = None, stat_name: str = "") -> int:
         chance = self.crit_chance(items_data or {}, stat_name=stat_name)
@@ -678,25 +807,29 @@ class Character:
         return damage + max(2, damage // 2)
 
     def carry_capacity(self) -> int:
-        return 8 + (max(0, self.stat_modifier("strength")) * 2) + max(0, self.stat_modifier("vitality")) + self.level
+        return 8 + (max(0, self.stat_modifier("strength")) * 2) + max(0, self.stat_modifier("endurance")) + self.level
 
     def attack_roll_modifier(self, items_data: dict, stat_name: str = "", bonus: int = 0) -> int:
         attack_stat = stat_name or self.attack_stat_name(items_data)
+        attack_skill = self.weapon_skill_name(items_data)
         return max(
             1,
             self.base_attack
             + self.weapon_bonus(items_data)
-            + max(0, self.stat_modifier(attack_stat))
+            + max(0, self.effective_stat_modifier(attack_stat, items_data))
+            + (self.skill_proficiency(attack_skill, items_data) // 2)
             + self.combat_boosts["attack_bonus"]
             + int(bonus),
         )
 
     def attack_value(self, items_data: dict) -> int:
         attack_stat = self.attack_stat_name(items_data)
+        attack_skill = self.weapon_skill_name(items_data)
         attack = (
             self.base_attack
             + self.weapon_bonus(items_data)
-            + max(0, self.stat_modifier(attack_stat))
+            + max(0, self.effective_stat_modifier(attack_stat, items_data))
+            + (self.skill_proficiency(attack_skill, items_data) // 2)
             + self.combat_boosts["damage_bonus"]
         )
         return max(1, attack)
@@ -704,24 +837,29 @@ class Character:
     def defense_value(self, items_data: dict) -> int:
         defense = (
             10
-            + max(0, self.stat_modifier("vitality"))
+            + max(0, self.effective_stat_modifier("endurance", items_data))
             + self.armor_bonus(items_data)
-            + self.dodge_score()
+            + (self.skill_proficiency("defense", items_data) // 2)
+            + self.dodge_score(items_data)
+            + (self.magic_guard(items_data) // 2)
             + self.combat_boosts["defense_bonus"]
         )
         return max(1, defense)
 
-    def skill_proficiency(self, skill_name: str) -> int:
+    def skill_proficiency(self, skill_name: str, items_data: dict | None = None) -> int:
         normalized = self._normalize_skill_key(skill_name)
-        return max(0, int(self.skills.get(normalized, 0)))
+        total = max(0, int(self.skills.get(normalized, 0)))
+        if items_data:
+            total += self.equipped_skill_bonus(items_data, normalized)
+        return max(0, total)
 
-    def skill_value(self, skill_name: str) -> int:
+    def skill_value(self, skill_name: str, items_data: dict | None = None) -> int:
         normalized = self._normalize_key(skill_name)
         mapped_skill = self._normalize_skill_key(normalized)
         if mapped_skill not in self.DEFAULT_SKILLS and normalized not in self.SKILL_STAT_MAP:
             return 0
         stat_name = self.SKILL_STAT_MAP.get(normalized, self.SKILL_STAT_MAP.get(mapped_skill, "mind"))
-        return self.skill_proficiency(mapped_skill) + self.stat_modifier(stat_name)
+        return self.skill_proficiency(mapped_skill, items_data) + self.effective_stat_modifier(stat_name, items_data)
 
     def apply_combat_boost(self, name: str, summary: str = "", **changes: int) -> None:
         boosts = dict(self.combat_boosts)
@@ -743,17 +881,23 @@ class Character:
 
     def derived_stats(self, items_data: dict) -> dict[str, int | str]:
         attack_stat = self.attack_stat_name(items_data)
+        weapon_skill = self.weapon_skill_name(items_data)
         return {
+            "max_hp": self.max_hp,
+            "mana": self.max_focus,
+            "focus": self.max_focus,
             "attack": self.attack_value(items_data),
             "accuracy": self.attack_roll_modifier(items_data),
             "defense": self.defense_value(items_data),
-            "dodge_chance": self.dodge_chance(),
+            "dodge_chance": self.dodge_chance(items_data),
             "crit_chance": self.crit_chance(items_data),
-            "resilience": self.resilience_value(),
-            "spell_power": self.spell_power(),
-            "healing_power": self.healing_power(),
+            "resilience": self.resilience_value(items_data),
+            "spell_power": self.spell_power(items_data),
+            "healing_power": self.healing_power(items_data),
+            "magic_guard": self.magic_guard(items_data),
             "carry_capacity": self.carry_capacity(),
             "attack_stat": attack_stat.title(),
+            "weapon_skill": weapon_skill.title(),
         }
 
     @staticmethod
@@ -837,7 +981,7 @@ class Character:
 
     def _level_skill_pattern(self) -> list[str]:
         class_id = self.normalize_choice("class", self.player_class)
-        return self.LEVEL_SKILL_GROWTH.get(class_id, ["survival"])
+        return self.LEVEL_SKILL_GROWTH.get(class_id, ["defense"])
 
     def gain_xp(self, amount: int) -> list[dict]:
         amount = max(0, int(amount))
@@ -908,6 +1052,175 @@ class Character:
             if isinstance(details, dict) and details.get(detail_key) == detail_value:
                 return True
         return False
+
+    @staticmethod
+    def _append_memory_entry(entries: list[dict], seen: set[str], entry_id: str, entry_name: str) -> None:
+        normalized_id = str(entry_id).strip().lower()
+        if not normalized_id or normalized_id in seen:
+            return
+        seen.add(normalized_id)
+        entries.append({"id": normalized_id, "name": str(entry_name).strip() or normalized_id.replace("_", " ").title()})
+
+    def event_memory(self) -> dict:
+        memory = {
+            "counts": {
+                "locations_visited": 0,
+                "enemies_defeated": 0,
+                "quests_completed": 0,
+                "minibosses_defeated": 0,
+                "important_items_acquired": 0,
+                "world_states_started": 0,
+                "world_states_cleared": 0,
+            },
+            "visited_locations": [],
+            "defeated_enemies": [],
+            "completed_quests": [],
+            "minibosses_defeated": [],
+            "important_items_acquired": [],
+            "world_states_started": [],
+            "world_states_cleared": [],
+            "recent_events": [dict(event) for event in self.event_log[-5:] if isinstance(event, dict)],
+            "latest_event": dict(self.event_log[-1]) if self.event_log else None,
+        }
+
+        seen = {
+            "visited_locations": set(),
+            "defeated_enemies": set(),
+            "completed_quests": set(),
+            "minibosses_defeated": set(),
+            "important_items_acquired": set(),
+            "world_states_started": set(),
+            "world_states_cleared": set(),
+        }
+
+        for event in self.event_log:
+            if not isinstance(event, dict):
+                continue
+            event_type = str(event.get("type", "")).strip().lower()
+            details = event.get("details", {})
+            if not isinstance(details, dict):
+                details = {}
+
+            if event_type == "location_visited":
+                memory["counts"]["locations_visited"] += 1
+                self._append_memory_entry(
+                    memory["visited_locations"],
+                    seen["visited_locations"],
+                    details.get("location_id", ""),
+                    details.get("location_name", details.get("location_id", "")),
+                )
+            elif event_type == "enemy_defeated":
+                memory["counts"]["enemies_defeated"] += 1
+                self._append_memory_entry(
+                    memory["defeated_enemies"],
+                    seen["defeated_enemies"],
+                    details.get("enemy_id", ""),
+                    details.get("enemy_name", details.get("enemy_id", "")),
+                )
+            elif event_type == "quest_completed":
+                memory["counts"]["quests_completed"] += 1
+                self._append_memory_entry(
+                    memory["completed_quests"],
+                    seen["completed_quests"],
+                    details.get("quest_id", ""),
+                    details.get("quest_title", details.get("quest_id", "")),
+                )
+            elif event_type == "miniboss_defeated":
+                memory["counts"]["minibosses_defeated"] += 1
+                self._append_memory_entry(
+                    memory["minibosses_defeated"],
+                    seen["minibosses_defeated"],
+                    details.get("enemy_id", ""),
+                    details.get("enemy_name", details.get("enemy_id", "")),
+                )
+            elif event_type == "important_item_acquired":
+                memory["counts"]["important_items_acquired"] += 1
+                self._append_memory_entry(
+                    memory["important_items_acquired"],
+                    seen["important_items_acquired"],
+                    details.get("item_id", ""),
+                    details.get("item_name", details.get("item_id", "")),
+                )
+            elif event_type == "world_state_started":
+                memory["counts"]["world_states_started"] += 1
+                self._append_memory_entry(
+                    memory["world_states_started"],
+                    seen["world_states_started"],
+                    details.get("state_id", ""),
+                    details.get("event_name", details.get("state_id", "")),
+                )
+            elif event_type == "world_state_cleared":
+                memory["counts"]["world_states_cleared"] += 1
+                self._append_memory_entry(
+                    memory["world_states_cleared"],
+                    seen["world_states_cleared"],
+                    details.get("state_id", ""),
+                    details.get("event_name", details.get("state_id", "")),
+                )
+
+        return memory
+
+    def location_event_memory(self, location_id: str) -> dict:
+        normalized_location = self._normalize_key(location_id)
+        memory = {
+            "visit_count": 0,
+            "defeated_enemies": [],
+            "minibosses_defeated": [],
+            "world_states_started": [],
+            "world_states_cleared": [],
+            "recent_events": [],
+        }
+        seen = {
+            "defeated_enemies": set(),
+            "minibosses_defeated": set(),
+            "world_states_started": set(),
+            "world_states_cleared": set(),
+        }
+
+        for event in self.event_log:
+            if not isinstance(event, dict):
+                continue
+            event_type = str(event.get("type", "")).strip().lower()
+            details = event.get("details", {})
+            if not isinstance(details, dict):
+                details = {}
+            if self._normalize_key(details.get("location_id", "")) != normalized_location:
+                continue
+
+            memory["recent_events"].append(dict(event))
+            if event_type == "location_visited":
+                memory["visit_count"] += 1
+            elif event_type == "enemy_defeated":
+                self._append_memory_entry(
+                    memory["defeated_enemies"],
+                    seen["defeated_enemies"],
+                    details.get("enemy_id", ""),
+                    details.get("enemy_name", details.get("enemy_id", "")),
+                )
+            elif event_type == "miniboss_defeated":
+                self._append_memory_entry(
+                    memory["minibosses_defeated"],
+                    seen["minibosses_defeated"],
+                    details.get("enemy_id", ""),
+                    details.get("enemy_name", details.get("enemy_id", "")),
+                )
+            elif event_type == "world_state_started":
+                self._append_memory_entry(
+                    memory["world_states_started"],
+                    seen["world_states_started"],
+                    details.get("state_id", ""),
+                    details.get("event_name", details.get("state_id", "")),
+                )
+            elif event_type == "world_state_cleared":
+                self._append_memory_entry(
+                    memory["world_states_cleared"],
+                    seen["world_states_cleared"],
+                    details.get("state_id", ""),
+                    details.get("event_name", details.get("state_id", "")),
+                )
+
+        memory["recent_events"] = memory["recent_events"][-3:]
+        return memory
 
     def to_dict(self) -> dict:
         return {
@@ -991,7 +1304,16 @@ class Character:
             bio=bio,
         )
 
-        stats = cls._normalized_stats(data.get("stats", fallback_profile.stats))
+        stats_raw = data.get("stats", {})
+        if isinstance(stats_raw, dict):
+            merged_stats = dict(fallback_profile.stats)
+            for stat_name, amount in stats_raw.items():
+                normalized_stat = cls._normalize_key(stat_name)
+                if normalized_stat in merged_stats:
+                    merged_stats[normalized_stat] = max(1, cls._safe_int(amount, merged_stats[normalized_stat]))
+            stats = cls._normalized_stats(merged_stats)
+        else:
+            stats = dict(fallback_profile.stats)
 
         skills_raw = data.get("skills", {})
         if isinstance(skills_raw, dict):
@@ -1011,6 +1333,9 @@ class Character:
             if starter_ability not in abilities:
                 abilities.append(starter_ability)
 
+        if "max_hp" not in data:
+            max_hp = fallback_profile.max_hp
+            hp = max_hp
         if "max_focus" not in data:
             max_focus = fallback_profile.max_focus
             focus = max_focus

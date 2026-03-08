@@ -36,6 +36,14 @@ class FactionEngine:
             return "friendly"
         return "allied"
 
+    @staticmethod
+    def tier_guide() -> str:
+        return "hostile <= -60 | disliked -59 to -20 | neutral -19 to 19 | friendly 20 to 59 | allied >= 60"
+
+    def standing_text(self, player: Character, faction_id: str) -> str:
+        score = player.reputation_value(faction_id)
+        return f"{score} ({self.tier_name(score)})"
+
     def ensure_player_state(self, player: Character) -> None:
         for faction_id in self.factions:
             if faction_id not in player.faction_reputation:
@@ -62,19 +70,17 @@ class FactionEngine:
 
     def reputation_lines(self, player: Character) -> list[str]:
         self.ensure_player_state(player)
-        lines = ["Reputation"]
+        lines = ["Reputation", "Tiers: " + self.tier_guide()]
         for faction_id in self.factions:
-            score = player.reputation_value(faction_id)
-            lines.append(f"- {self.faction_name(faction_id)}: {score} ({self.tier_name(score)})")
+            lines.append(f"- {self.faction_name(faction_id)}: {self.standing_text(player, faction_id)}")
         return lines
 
     def faction_lines(self, player: Character) -> list[str]:
         self.ensure_player_state(player)
-        lines = ["Factions"]
+        lines = ["Factions", "Tiers: " + self.tier_guide()]
         for faction_id in self.factions:
-            score = player.reputation_value(faction_id)
             lines.append(
-                f"- {self.faction_name(faction_id)}: {score} ({self.tier_name(score)}) | "
+                f"- {self.faction_name(faction_id)}: {self.standing_text(player, faction_id)} | "
                 f"{self.faction_description(faction_id)}"
             )
         return lines
@@ -119,8 +125,7 @@ class FactionEngine:
             notes.append("They have not forgotten the harm you caused.")
         notes.append(f"Trust: {self.tier_name(trust)}.")
         if faction_id:
-            rep = player.reputation_value(faction_id)
-            notes.append(f"{self.faction_name(faction_id)} standing: {self.tier_name(rep)}.")
+            notes.append(f"{self.faction_name(faction_id)} standing: {self.standing_text(player, faction_id)}.")
         return " ".join(notes)
 
     def service_access(self, player: Character, faction_id: str, npc_id: str | None = None) -> tuple[bool, str]:
@@ -135,6 +140,7 @@ class FactionEngine:
     def price_for_service(self, player: Character, faction_id: str, npc_id: str | None, base_cost: int) -> int:
         rep = player.reputation_value(faction_id)
         trust = player.npc_trust(npc_id) if npc_id else 0
+        charisma = player.stat_modifier("charisma")
         multiplier = 1.0
 
         if rep >= 60:
@@ -153,6 +159,15 @@ class FactionEngine:
         elif trust <= -40:
             multiplier += 0.15
         elif trust <= -10:
+            multiplier += 0.05
+
+        if charisma >= 2:
+            multiplier -= 0.10
+        elif charisma >= 1:
+            multiplier -= 0.05
+        elif charisma <= -2:
+            multiplier += 0.10
+        elif charisma <= -1:
             multiplier += 0.05
 
         return max(1, int(round(int(base_cost) * multiplier)))

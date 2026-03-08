@@ -1,0 +1,55 @@
+{
+  "arc_1_village_roads": {
+    "index": 1,
+    "title": "Arc 1: Village Roads",
+    "note": "Secure the nearby roads and prove you can keep the frontier moving.",
+    "tone": "grounded",
+    "scene_focus": "The dangers still feel local, practical, and close to home."
+  },
+  "arc_2_watchtower_and_shrine": {
+    "index": 2,
+    "title": "Arc 2: Watchtower and Shrine",
+    "note": "Push toward the watchtower routes and old shrine lands where older threats begin to show themselves.",
+    "tone": "uneasy",
+    "scene_focus": "Ruins, shrine stones, and older dangers now carry more weight than simple road trouble.",
+    "requires_any": [
+      {"type": "quest_completed", "quest_id": "q001_clear_forest_path"},
+      {"type": "quest_completed", "quest_id": "q003_watchtower_threat"},
+      {"type": "location_visited", "location_id": "old_watchtower"},
+      {"type": "location_visited", "location_id": "ruined_shrine"}
+    ]
+  },
+  "arc_3_greyhaven_tensions": {
+    "index": 3,
+    "title": "Arc 3: Greyhaven Tensions",
+    "note": "Merchant pressure, guard interests, and widening road politics begin to shape every decision.",
+    "tone": "strained",
+    "scene_focus": "The frontier no longer feels isolated; larger powers are leaning on every route and bargain.",
+    "requires_all": [
+      {"type": "location_visited", "location_id": "town_gate"}
+    ],
+    "requires_any": [
+      {"type": "reputation_at_least", "faction": "kingdom_guard", "value": 6},
+      {"type": "reputation_at_least", "faction": "merchant_guild", "value": 6},
+      {"type": "quest_completed", "quest_id": "q013_badges_for_the_watch"},
+      {"type": "quest_completed", "quest_id": "q015_tusk_for_the_forge"}
+    ]
+  },
+  "arc_4_cult_of_ash_rising": {
+    "index": 4,
+    "title": "Arc 4: Cult of Ash Rising",
+    "note": "Cult pressure moves from rumor to open threat as corrupted relics and ash-marked enemies gather force.",
+    "tone": "ominous",
+    "scene_focus": "Even quiet places now feel shadowed by a larger cult threat pressing into the world.",
+    "requires_all": [
+      {"type": "location_visited", "location_id": "ruined_shrine"}
+    ],
+    "requires_any": [
+      {"type": "miniboss_defeated", "enemy_id": "shrine_guardian"},
+      {"type": "important_item_acquired", "item_id": "guardian_sigil"},
+      {"type": "inventory_has_item", "item_id": "cultist_seal"},
+      {"type": "reputation_at_least", "faction": "shrine_keepers", "value": 12},
+      {"type": "quest_completed", "quest_id": "q014_ashes_for_stonewatch"}
+    ]
+  }
+}
