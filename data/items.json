@@ -433,6 +433,20 @@
     "tier": 1,
     "description": "Sticky residue collected from a defeated slime."
   },
+  "herb_bundle": {
+    "name": "Herb Bundle",
+    "type": "loot",
+    "rarity": "common",
+    "tier": 1,
+    "description": "A twine-tied bundle of gathered herbs kept for poultices, tinctures, and careful field work."
+  },
+  "iron_scrap": {
+    "name": "Iron Scrap",
+    "type": "loot",
+    "rarity": "common",
+    "tier": 1,
+    "description": "Useful bits of scavenged iron good enough for patchwork smithing and rough fittings."
+  },
   "wolf_pelt": {
     "name": "Wolf Pelt",
     "type": "loot",

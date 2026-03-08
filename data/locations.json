@@ -72,7 +72,7 @@
       "river": "river_crossing"
     },
     "enemies": ["slime"],
-    "items": ["herb"],
+    "items": ["herb", "herb_bundle"],
     "npcs": [],
     "encounters": [
       {"type": "enemy", "target": "goblin", "weight": 30},
@@ -141,7 +141,7 @@
       "camp": "bandit_camp"
     },
     "enemies": ["dire_wolf"],
-    "items": ["herb"],
+    "items": ["herb", "herb_bundle"],
     "npcs": [],
     "encounters": [
       {"type": "enemy", "target": "dire_wolf", "weight": 35},
@@ -255,7 +255,7 @@
       "cave": "whispering_cave"
     },
     "enemies": ["shrine_guardian", "ash_wisp"],
-    "items": ["herb"],
+    "items": ["herb", "herb_bundle"],
     "npcs": ["caretaker"],
     "encounters": [
       {"type": "enemy", "target": "cultist", "weight": 30},
@@ -295,7 +295,7 @@
       "coast": "stormbreak_cliffs"
     },
     "enemies": [],
-    "items": ["herb"],
+    "items": ["herb", "herb_bundle"],
     "npcs": ["ferryman"],
     "encounters": [
       {"type": "enemy", "target": "thief", "weight": 25},

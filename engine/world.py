@@ -68,6 +68,7 @@ class World:
         self.locations = self._load_json(base / "locations.json")
         self.enemies = self._load_json(base / "enemies.json")
         self.items = self._load_json(base / "items.json")
+        self.recipes = self._load_json(base / "recipes.json")
         self.npcs = self._load_json(base / "npcs.json")
         self.quests = self._load_json(base / "quests.json")
         self.factions = self._load_json(base / "factions.json")

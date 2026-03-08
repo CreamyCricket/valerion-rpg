@@ -222,6 +222,7 @@ class Character:
         "epic": 3,
         "relic": 4,
     }
+    STARTING_RECIPES: ClassVar[list[str]] = ["field_bandage", "torch_bundle"]
 
     name: str = "Hero"
     gender: str = "Other"
@@ -237,6 +238,7 @@ class Character:
     level: int = 1
     xp: int = 0
     inventory: list[str] = field(default_factory=list)
+    known_recipes: list[str] = field(default_factory=list)
     item_upgrades: dict[str, int] = field(default_factory=dict)
     equipped_weapon: Optional[str] = None
     equipped_armor: Optional[str] = None
@@ -273,6 +275,7 @@ class Character:
         self.combat_boost_name = self._clean_text(self.combat_boost_name, default="", max_length=60)
         self.combat_boost_summary = self._clean_text(self.combat_boost_summary, default="", max_length=140)
         self.inventory = [str(item_id).strip().lower() for item_id in self.inventory if str(item_id).strip()]
+        self.known_recipes = self._normalized_known_recipes(self.known_recipes)
         self.item_upgrades = self._normalized_item_upgrades(self.item_upgrades, self.inventory)
         self.equipped_weapon = str(self.equipped_weapon).strip().lower() if self.equipped_weapon else None
         self.equipped_armor = str(self.equipped_armor).strip().lower() if self.equipped_armor else None
@@ -347,6 +350,16 @@ class Character:
                 ability_key = cls.ABILITY_ALIASES.get(ability_key, ability_key)
                 if ability_key and ability_key not in normalized:
                     normalized.append(ability_key)
+        return normalized
+
+    @classmethod
+    def _normalized_known_recipes(cls, recipe_ids: list | None) -> list[str]:
+        normalized = []
+        if isinstance(recipe_ids, list):
+            for recipe_id in recipe_ids:
+                recipe_key = cls._normalize_key(recipe_id)
+                if recipe_key and recipe_key not in normalized:
+                    normalized.append(recipe_key)
         return normalized
 
     @classmethod
@@ -508,6 +521,7 @@ class Character:
         self.base_attack = 3
         self.gold = 0
         self.inventory = []
+        self.known_recipes = list(self.STARTING_RECIPES)
         self.equipped_weapon = None
         self.equipped_armor = None
         self.stats = dict(self.DEFAULT_STATS)
@@ -1354,6 +1368,7 @@ class Character:
             "xp": self.xp,
             "gold": self.gold,
             "inventory": list(self.inventory),
+            "known_recipes": list(self.known_recipes),
             "item_upgrades": dict(self.item_upgrades),
             "equipped_weapon": self.equipped_weapon,
             "equipped_armor": self.equipped_armor,
@@ -1427,6 +1442,7 @@ class Character:
             background=background,
             bio=bio,
         )
+        known_recipes = cls._normalized_known_recipes(data.get("known_recipes", fallback_profile.known_recipes))
 
         stats_raw = data.get("stats", {})
         if isinstance(stats_raw, dict):
@@ -1528,6 +1544,7 @@ class Character:
             level=level,
             xp=xp,
             inventory=inventory,
+            known_recipes=known_recipes,
             item_upgrades=item_upgrades,
             equipped_weapon=equipped_weapon,
             equipped_armor=equipped_armor,

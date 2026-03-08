@@ -1,0 +1,94 @@
+{
+  "field_bandage": {
+    "name": "Field Bandage Kit",
+    "output": "bandage_kit",
+    "output_count": 1,
+    "station": "field",
+    "materials": {
+      "herb_bundle": 1
+    },
+    "gold": 1
+  },
+  "torch_bundle": {
+    "name": "Bound Torch Bundle",
+    "output": "torch_bundle",
+    "output_count": 1,
+    "station": "field",
+    "materials": {
+      "spider_silk": 1,
+      "iron_scrap": 1
+    },
+    "gold": 2
+  },
+  "healing_potion": {
+    "name": "Healing Draught",
+    "output": "healing_potion",
+    "output_count": 1,
+    "station": "alchemy",
+    "learn_at": ["alchemy"],
+    "materials": {
+      "slime_gel": 1,
+      "herb_bundle": 1
+    },
+    "gold": 4
+  },
+  "focus_draught": {
+    "name": "Ash Focus Draught",
+    "output": "focus_draught",
+    "output_count": 1,
+    "station": "alchemy",
+    "learn_at": ["alchemy"],
+    "materials": {
+      "shrine_ash": 1,
+      "herb_bundle": 1
+    },
+    "gold": 6
+  },
+  "spell_focus": {
+    "name": "Set Spell Focus",
+    "output": "spell_focus",
+    "output_count": 1,
+    "station": "alchemy",
+    "learn_at": ["alchemy"],
+    "materials": {
+      "shrine_ash": 1,
+      "iron_scrap": 1
+    },
+    "gold": 8
+  },
+  "iron_sword": {
+    "name": "Forge Iron Sword",
+    "output": "iron_sword",
+    "output_count": 1,
+    "station": "forge",
+    "learn_at": ["forge"],
+    "materials": {
+      "iron_scrap": 2
+    },
+    "gold": 8
+  },
+  "padded_coat": {
+    "name": "Forge Padded Coat",
+    "output": "padded_coat",
+    "output_count": 1,
+    "station": "forge",
+    "learn_at": ["forge"],
+    "materials": {
+      "wolf_pelt": 1,
+      "spider_silk": 1
+    },
+    "gold": 7
+  },
+  "wolfhide_vest": {
+    "name": "Forge Wolfhide Vest",
+    "output": "wolfhide_vest",
+    "output_count": 1,
+    "station": "forge",
+    "learn_at": ["forge"],
+    "materials": {
+      "wolf_pelt": 2,
+      "iron_scrap": 1
+    },
+    "gold": 10
+  }
+}

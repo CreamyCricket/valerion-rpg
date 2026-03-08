@@ -12,7 +12,7 @@
     "attack": 2,
     "behavior": "defensive",
     "xp": 40,
-    "loot": ["slime_gel"]
+    "loot": ["slime_gel", "herb_bundle"]
   },
   "wolf": {
     "name": "Wild Wolf",
@@ -102,7 +102,7 @@
     "attack": 3,
     "behavior": "defensive",
     "xp": 80,
-    "loot": ["bone_charm"]
+    "loot": ["bone_charm", "iron_scrap"]
   },
   "cultist": {
     "name": "Cultist",
@@ -182,7 +182,7 @@
     "behavior": "cowardly",
     "faction": "thieves_circle",
     "xp": 62,
-    "loot": ["road_knife"]
+    "loot": ["road_knife", "iron_scrap"]
   },
   "cave_troll": {
     "name": "Cave Troll",
@@ -212,7 +212,7 @@
     "attack": 2,
     "behavior": "cowardly",
     "xp": 50,
-    "loot": ["bandage"]
+    "loot": ["bandage", "iron_scrap"]
   },
   "bandit": {
     "name": "Road Bandit",
@@ -228,7 +228,7 @@
     "behavior": "aggressive",
     "faction": "thieves_circle",
     "xp": 70,
-    "loot": ["potion"]
+    "loot": ["potion", "iron_scrap"]
   },
   "bandit_raider": {
     "name": "Bandit Raider",
@@ -244,7 +244,7 @@
     "behavior": "aggressive",
     "faction": "thieves_circle",
     "xp": 88,
-    "loot": ["raider_badge", "ration", "raider_sabre"]
+    "loot": ["raider_badge", "ration", "raider_sabre", "iron_scrap"]
   },
   "shrine_guardian": {
     "name": "Shrine Guardian",

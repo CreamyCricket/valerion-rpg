@@ -374,7 +374,7 @@
     },
     "reward": {
       "gold": 16,
-      "items": ["novice_grimoire"]
+      "items": ["novice_grimoire", "herb_bundle"]
     }
   },
   "q015_tusk_for_the_forge": {
@@ -397,7 +397,7 @@
     },
     "reward": {
       "gold": 10,
-      "items": ["hunting_spear"]
+      "items": ["hunting_spear", "iron_scrap"]
     }
   },
   "q016_holdfast_raiders": {

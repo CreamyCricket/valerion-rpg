@@ -9,6 +9,7 @@ from engine.action_router import ActionRouter
 from engine.abilities import AbilityEngine
 from engine.campaign import CampaignEngine
 from engine.combat import CombatEngine
+from engine.crafting import CraftingEngine
 from engine.dice import DiceEngine
 from engine.encounters import EncounterEngine
 from engine.factions import FactionEngine
@@ -22,6 +23,15 @@ class Game:
     """Engine-first RPG core: tracks locations, inventory, quests, events, and persistence."""
     SAVE_FILE = "savegame.json"
     SAFE_REST_LOCATIONS = {"village_square", "shop", "inn"}
+    CRAFTING_STATIONS = {
+        "shop": {"alchemy"},
+        "blacksmith": {"forge"},
+        "weapon_shop": {"forge"},
+        "mage_shop": {"alchemy"},
+        "town_shrine": {"alchemy"},
+        "ruined_shrine": {"alchemy"},
+        "ironridge_forge": {"forge"},
+    }
     IMPORTANT_ITEM_IDS = {"rusty_sword", "wolf_pelt", "guardian_sigil"}
     TALKABLE_NPCS = {
         "elder": "Elder",
@@ -71,6 +81,8 @@ class Game:
         "do",
         "buy",
         "sell",
+        "recipes",
+        "craft",
         "upgrade",
         "save",
         "load",
@@ -104,6 +116,7 @@ class Game:
         self.encounters = EncounterEngine()
         self.factions = FactionEngine(self.world.factions)
         self.campaign = CampaignEngine(self.world.arcs)
+        self.crafting = CraftingEngine()
         self.inventory = InventoryEngine()
         self.quests = QuestEngine(self.world.quests, self.world.items)
         self.intent_parser = IntentParser()
@@ -1050,6 +1063,10 @@ class Game:
             return self._cmd_buy(arg)
         if command == "sell":
             return self._cmd_sell(arg)
+        if command == "recipes":
+            return self._cmd_recipes()
+        if command == "craft":
+            return self._cmd_craft(arg)
         if command == "upgrade":
             return self._cmd_upgrade(arg)
         if command == "save":
@@ -1230,6 +1247,7 @@ class Game:
             return "\n".join(lines)
         scene_context = self._build_scene_context()
         lines.extend(self.scene_composer.compose_entry_lines(scene_context))
+        lines.extend(self._learn_available_recipes())
         lines.append(self._cmd_look())
         quest_messages = self.quests.on_location_enter(self.player, self.current_location, self.inventory)
         lines.extend(quest_messages)
@@ -2574,6 +2592,22 @@ class Game:
             lines.append(f"- {label}: {self.inventory.upgrade_cost_text(self.player, item_id, self.world.items)}")
         return lines
 
+    def _current_crafting_stations(self) -> set[str]:
+        stations = {"field"}
+        stations.update(self.CRAFTING_STATIONS.get(self.current_location, set()))
+        return stations
+
+    def _learn_available_recipes(self) -> list[str]:
+        learned = self.crafting.learn_recipes_for_stations(
+            self.player,
+            self.world.recipes,
+            self._current_crafting_stations(),
+        )
+        if not learned:
+            return []
+        learned_names = [self.crafting.recipe_name(recipe_id, self.world.recipes, self.world.items) for recipe_id in learned]
+        return ["You pick up a few workable recipes here: " + ", ".join(learned_names) + "."]
+
     def _cmd_buy(self, arg: str) -> str:
         shops = self._local_shop_npcs()
         if not shops:
@@ -2714,6 +2748,59 @@ class Game:
             return "\n".join(lines)
         return message
 
+    def _cmd_recipes(self) -> str:
+        lines = []
+        lines.extend(self._learn_available_recipes())
+        lines.extend(
+            self.crafting.recipes_lines(
+                self.player,
+                self.world.recipes,
+                self.world.items,
+                self._current_crafting_stations(),
+            )
+        )
+        return "\n".join(lines)
+
+    def _cmd_craft(self, arg: str) -> str:
+        learned_lines = self._learn_available_recipes()
+        if not arg:
+            recipe_lines = self.crafting.recipes_lines(
+                self.player,
+                self.world.recipes,
+                self.world.items,
+                self._current_crafting_stations(),
+            )
+            return "\n".join(learned_lines + recipe_lines)
+
+        recipe_id = self.crafting.resolve_recipe(self.player, arg, self.world.recipes, self.world.items)
+        if not recipe_id:
+            recipe_lines = self.crafting.recipes_lines(
+                self.player,
+                self.world.recipes,
+                self.world.items,
+                self._current_crafting_stations(),
+            )
+            return f"You do not know a recipe for '{arg}'.\n" + "\n".join(recipe_lines)
+
+        crafted, message, output_item_id = self.crafting.craft(
+            self.player,
+            recipe_id,
+            self.world.recipes,
+            self.world.items,
+            self._current_crafting_stations(),
+        )
+        if not crafted:
+            return message
+
+        lines = learned_lines + [message]
+        if output_item_id:
+            self._record_important_item_acquired(output_item_id, source="crafting")
+            lines.extend(self.quests.on_item_obtained(self.player, output_item_id))
+        extra_lines = self._post_action_world_tick("craft")
+        if extra_lines:
+            lines.extend(extra_lines)
+        return "\n".join(lines)
+
     def _cmd_upgrade(self, arg: str) -> str:
         if not arg:
             lines = self._upgradable_inventory_lines()
@@ -2774,6 +2861,7 @@ class Game:
         self.encounters = EncounterEngine()
         self.factions = FactionEngine(self.world.factions)
         self.campaign = CampaignEngine(self.world.arcs)
+        self.crafting = CraftingEngine()
         self.inventory = InventoryEngine()
         self.quests = QuestEngine(self.world.quests, self.world.items)
 
@@ -2825,6 +2913,8 @@ class Game:
             "free text          - You can also type lines like 'look around', 'go to the forest', or 'attack the slime'.\n"
             "buy <item>         - Purchase from a local vendor in your current location.\n"
             "sell <item>        - Sell a carried item to a willing local vendor.\n"
+            "recipes            - Review known crafting recipes and their costs.\n"
+            "craft <item>       - Craft a known recipe if you have materials and the right workspace.\n"
             "upgrade <item>     - Improve a carried weapon, armor piece, or supported accessory.\n"
             "\n"
             "inventory          - See HP, focus, carry load, carried items, and gear.\n"
