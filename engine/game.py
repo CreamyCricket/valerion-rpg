@@ -44,6 +44,7 @@ class Game:
         "fight",
         "take",
         "inventory",
+        "gear",
         "character",
         "sheet",
         "stats",
@@ -70,6 +71,7 @@ class Game:
         "do",
         "buy",
         "sell",
+        "upgrade",
         "save",
         "load",
         "help",
@@ -996,6 +998,8 @@ class Game:
             return self._cmd_take(arg)
         if command == "inventory":
             return self._cmd_inventory()
+        if command == "gear":
+            return self._cmd_gear()
         if command in {"character", "sheet"}:
             return self._cmd_character()
         if command == "stats":
@@ -1046,6 +1050,8 @@ class Game:
             return self._cmd_buy(arg)
         if command == "sell":
             return self._cmd_sell(arg)
+        if command == "upgrade":
+            return self._cmd_upgrade(arg)
         if command == "save":
             return self._cmd_save()
         if command == "load":
@@ -1129,19 +1135,19 @@ class Game:
 
         inventory_item_id = self.inventory.find_item_in_inventory(self.player, self.world.items, query)
         if inventory_item_id:
-            item = self.world.items.get(inventory_item_id, {})
-            item_name = self.world.item_name(inventory_item_id)
-            item_type = item.get("type", "unknown")
-            description = item.get("description", "No details are known about this item yet.")
-            return Narrator.inspect_item_text(item_name, item_type, description, "your backpack")
+            return "\n".join(self.inventory.inspect_item_lines(self.player, inventory_item_id, self.world.items, "your backpack"))
 
         location_item_id = self.world.find_item_at_location(self.current_location, query)
         if location_item_id:
-            item = self.world.items.get(location_item_id, {})
-            item_name = self.world.item_name(location_item_id)
-            item_type = item.get("type", "unknown")
-            description = item.get("description", "No details are known about this item yet.")
-            return Narrator.inspect_item_text(item_name, item_type, description, "the ground here")
+            return "\n".join(
+                self.inventory.inspect_item_lines(
+                    self.player,
+                    location_item_id,
+                    self.world.items,
+                    "the ground here",
+                    include_upgrade_state=False,
+                )
+            )
 
         npc_id = self._find_visible_npc_at_location(self.current_location, query)
         if npc_id:
@@ -1351,6 +1357,19 @@ class Game:
         lines.extend(self.inventory.inventory_lines(self.player, self.world.items))
         return "\n".join(lines)
 
+    def _cmd_gear(self) -> str:
+        lines = self.inventory.gear_lines(self.player, self.world.items)
+        lines.append(
+            "Build impact: "
+            f"Attack {self.player.attack_value(self.world.items)} | "
+            f"Defense {self.player.defense_value(self.world.items)} | "
+            f"Spell {self.player.spell_power(self.world.items)} | "
+            f"Crit {self.player.crit_chance(self.world.items)}% | "
+            f"Dodge {self.player.dodge_chance(self.world.items)}%"
+        )
+        lines.append("Use 'upgrade <item>' to improve a favored piece of gear.")
+        return "\n".join(lines)
+
     def _cmd_character(self) -> str:
         context = self.character_context()
         context["level"] = self.player.level
@@ -1368,13 +1387,25 @@ class Game:
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
         equipped_weapon = "none"
         if self.player.equipped_weapon:
-            equipped_weapon = self.world.item_name(self.player.equipped_weapon)
+            equipped_weapon = self.inventory.item_label(
+                self.player.equipped_weapon,
+                self.world.items,
+                self.player.item_upgrade_level(self.player.equipped_weapon, self.world.items),
+            )
         equipped_armor = "none"
         if getattr(self.player, "equipped_armor", None):
-            equipped_armor = self.world.item_name(self.player.equipped_armor)
+            equipped_armor = self.inventory.item_label(
+                self.player.equipped_armor,
+                self.world.items,
+                self.player.item_upgrade_level(self.player.equipped_armor, self.world.items),
+            )
         equipped_accessory = "none"
         if getattr(self.player, "equipped_accessory", None):
-            equipped_accessory = self.world.item_name(self.player.equipped_accessory)
+            equipped_accessory = self.inventory.item_label(
+                self.player.equipped_accessory,
+                self.world.items,
+                self.player.item_upgrade_level(self.player.equipped_accessory, self.world.items),
+            )
 
         active_quest_summary = "None"
         next_objective = self.quests.next_objective(self.player, campaign_context=self.arc_context())
@@ -1452,7 +1483,11 @@ class Game:
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
         equipped_weapon = "none"
         if self.player.equipped_weapon:
-            equipped_weapon = self.world.item_name(self.player.equipped_weapon)
+            equipped_weapon = self.inventory.item_label(
+                self.player.equipped_weapon,
+                self.world.items,
+                self.player.item_upgrade_level(self.player.equipped_weapon, self.world.items),
+            )
 
         campaign_context = self.arc_context()
         quest_summary = self.quests.recap_summary(self.player, campaign_context=campaign_context)
@@ -1625,9 +1660,33 @@ class Game:
         }
         summary["inventory"] = [self.world.item_name(item_id) for item_id in self.player.inventory]
         summary["abilities"] = [self._ability_name(ability_id) for ability_id in self.player.abilities]
-        summary["equipped_weapon"] = self.world.item_name(self.player.equipped_weapon) if self.player.equipped_weapon else ""
-        summary["equipped_armor"] = self.world.item_name(self.player.equipped_armor) if self.player.equipped_armor else ""
-        summary["equipped_accessory"] = self.world.item_name(self.player.equipped_accessory) if self.player.equipped_accessory else ""
+        summary["equipped_weapon"] = (
+            self.inventory.item_label(
+                self.player.equipped_weapon,
+                self.world.items,
+                self.player.item_upgrade_level(self.player.equipped_weapon, self.world.items),
+            )
+            if self.player.equipped_weapon
+            else ""
+        )
+        summary["equipped_armor"] = (
+            self.inventory.item_label(
+                self.player.equipped_armor,
+                self.world.items,
+                self.player.item_upgrade_level(self.player.equipped_armor, self.world.items),
+            )
+            if self.player.equipped_armor
+            else ""
+        )
+        summary["equipped_accessory"] = (
+            self.inventory.item_label(
+                self.player.equipped_accessory,
+                self.world.items,
+                self.player.item_upgrade_level(self.player.equipped_accessory, self.world.items),
+            )
+            if self.player.equipped_accessory
+            else ""
+        )
         summary["race_lore"] = Character.creation_lore("race", self.player.race)
         summary["class_lore"] = Character.creation_lore("class", self.player.player_class)
         summary["background_lore"] = Character.creation_lore("background", self.player.background)
@@ -2500,6 +2559,21 @@ class Game:
                 break
         return lines
 
+    def _upgradable_inventory_lines(self) -> list[str]:
+        lines = []
+        seen = set()
+        for item_id in self.player.inventory:
+            if item_id in seen:
+                continue
+            seen.add(item_id)
+            item = self.world.items.get(item_id, {})
+            max_level = self.player.max_item_upgrade_level(item)
+            if max_level <= 0:
+                continue
+            label = self.inventory.item_label(item_id, self.world.items, self.player.item_upgrade_level(item_id, self.world.items))
+            lines.append(f"- {label}: {self.inventory.upgrade_cost_text(self.player, item_id, self.world.items)}")
+        return lines
+
     def _cmd_buy(self, arg: str) -> str:
         shops = self._local_shop_npcs()
         if not shops:
@@ -2640,6 +2714,26 @@ class Game:
             return "\n".join(lines)
         return message
 
+    def _cmd_upgrade(self, arg: str) -> str:
+        if not arg:
+            lines = self._upgradable_inventory_lines()
+            if not lines:
+                return "You are not carrying any gear that can be upgraded right now."
+            lines.append("Use 'upgrade <item>' to improve a weapon, armor piece, or supported accessory.")
+            return "Upgrade Options\n" + "\n".join(lines)
+
+        item_id = self.inventory.find_item_in_inventory(self.player, self.world.items, arg)
+        if not item_id:
+            return f"You do not have '{arg}'."
+
+        upgraded, message = self.inventory.upgrade_item(self.player, item_id, self.world.items)
+        if not upgraded:
+            return message
+
+        lines = [message]
+        lines.extend(self.quests.on_item_obtained(self.player, item_id))
+        return "\n".join(lines)
+
     def _save_data(self) -> dict:
         return {
             "player": self.player.to_dict(),
@@ -2718,7 +2812,7 @@ class Game:
         return (
             "Valerion Commands\n"
             "look               - Describe the current location.\n"
-            "inspect <target>   - Focus on an item, NPC, or your surroundings.\n"
+            "inspect <target>   - Focus on an item, NPC, or your surroundings, including item upgrade details.\n"
             "search <target>    - List visible items, enemies, NPCs, and exits.\n"
             "map                - Outline every location and its exits.\n"
             "move <exit>        - Travel to a connected area (e.g. move forest).\n"
@@ -2731,8 +2825,10 @@ class Game:
             "free text          - You can also type lines like 'look around', 'go to the forest', or 'attack the slime'.\n"
             "buy <item>         - Purchase from a local vendor in your current location.\n"
             "sell <item>        - Sell a carried item to a willing local vendor.\n"
+            "upgrade <item>     - Improve a carried weapon, armor piece, or supported accessory.\n"
             "\n"
             "inventory          - See HP, focus, carry load, carried items, and gear.\n"
+            "gear               - Show equipped items, upgrade levels, and build impact.\n"
             "character          - Show a compact full character sheet.\n"
             "sheet              - Alias for `character`.\n"
             "stats              - Snapshot core stats, derived combat values, and quest focus.\n"

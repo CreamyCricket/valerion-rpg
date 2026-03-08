@@ -3,6 +3,7 @@ from player.character import Character
 
 class InventoryEngine:
     SHOP_PRICES = {"potion": 5}
+    RARITY_COST_STEPS = {"common": 0, "uncommon": 1, "rare": 2, "epic": 3, "relic": 4}
 
     """Manages deterministic add/use behavior without hidden randomness."""
 
@@ -59,13 +60,14 @@ class InventoryEngine:
         return parts
 
     @classmethod
-    def item_label(cls, item_id: str, items_data: dict) -> str:
+    def item_label(cls, item_id: str, items_data: dict, upgrade_level: int = 0) -> str:
         item = items_data.get(item_id, {})
         item_name = item.get("name", cls._fallback_name(item_id))
         rarity = cls.item_rarity(item)
         tier = str(item.get("tier", "")).strip()
         tier_text = f" T{tier}" if tier else ""
-        return f"{item_name} [{rarity}{tier_text}]"
+        upgrade_text = f" +{int(upgrade_level)}" if int(upgrade_level) > 0 else ""
+        return f"{item_name}{upgrade_text} [{rarity}{tier_text}]"
 
     @classmethod
     def item_shop_line(cls, item_id: str, items_data: dict, price: int) -> str:
@@ -74,6 +76,100 @@ class InventoryEngine:
         bonus_parts = cls.item_bonus_parts(item)
         bonus_text = " | " + ", ".join(bonus_parts) if bonus_parts else ""
         return f"- {cls.item_label(item_id, items_data)} ({item_type}){bonus_text} - {price} gold"
+
+    @staticmethod
+    def _upgrade_material_count(item: dict) -> int:
+        material_id = str(item.get("upgrade_material", "")).strip().lower()
+        if not material_id:
+            return 0
+        return max(1, int(item.get("upgrade_material_count", 1)))
+
+    @classmethod
+    def upgrade_cost(cls, player: Character, item_id: str, items_data: dict) -> dict | None:
+        item = items_data.get(item_id, {})
+        max_level = player.max_item_upgrade_level(item)
+        if max_level <= 0:
+            return None
+
+        current_level = player.item_upgrade_level(item_id, items_data)
+        if current_level >= max_level:
+            return None
+
+        next_level = current_level + 1
+        rarity_key = str(item.get("rarity", "common")).strip().lower()
+        rarity_step = int(cls.RARITY_COST_STEPS.get(rarity_key, 0))
+        tier = max(1, int(item.get("tier", 1)))
+        gold_cost = max(8, (6 + (tier * 4) + (rarity_step * 6)) * next_level)
+        material_id = str(item.get("upgrade_material", "")).strip().lower()
+        material_count = cls._upgrade_material_count(item)
+
+        return {
+            "current_level": current_level,
+            "next_level": next_level,
+            "max_level": max_level,
+            "gold": gold_cost,
+            "material_id": material_id,
+            "material_count": material_count,
+        }
+
+    @classmethod
+    def upgrade_cost_text(cls, player: Character, item_id: str, items_data: dict) -> str:
+        cost = cls.upgrade_cost(player, item_id, items_data)
+        if not cost:
+            item = items_data.get(item_id, {})
+            if player.max_item_upgrade_level(item) <= 0:
+                return "This item cannot be upgraded."
+            return "This item is already at its upgrade cap."
+
+        parts = [f"{cost['gold']} gold"]
+        if cost["material_id"] and cost["material_count"] > 0:
+            material_name = items_data.get(cost["material_id"], {}).get("name", cls._fallback_name(cost["material_id"]))
+            parts.append(f"{cost['material_count']} {material_name}")
+        return ", ".join(parts)
+
+    def gear_lines(self, player: Character, items_data: dict) -> list[str]:
+        lines = ["Gear"]
+        slots = [
+            ("Weapon", player.equipped_weapon),
+            ("Armor", getattr(player, "equipped_armor", None)),
+            ("Accessory", getattr(player, "equipped_accessory", None)),
+        ]
+        for slot_name, item_id in slots:
+            if not item_id:
+                lines.append(f"{slot_name}: none")
+                continue
+            effective_item = player.effective_item_data(item_id, items_data)
+            label = self.item_label(item_id, items_data, player.item_upgrade_level(item_id, items_data))
+            bonus_parts = self.item_bonus_parts(effective_item)
+            bonus_text = " | " + ", ".join(bonus_parts) if bonus_parts else ""
+            cost_text = self.upgrade_cost_text(player, item_id, items_data)
+            lines.append(f"{slot_name}: {label}{bonus_text}")
+            lines.append(f"Upgrade: {cost_text}")
+        return lines
+
+    def inspect_item_lines(self, player: Character, item_id: str, items_data: dict, source: str, include_upgrade_state: bool = True) -> list[str]:
+        base_item = items_data.get(item_id, {})
+        upgrade_level = player.item_upgrade_level(item_id, items_data) if include_upgrade_state else 0
+        effective_item = player.effective_item_data(item_id, items_data) if include_upgrade_state and item_id in player.inventory else dict(base_item)
+        item_name = self.item_label(item_id, items_data, upgrade_level)
+        item_type = effective_item.get("type", base_item.get("type", "unknown"))
+        description = effective_item.get("description", base_item.get("description", "No details are known about this item yet."))
+        lines = [
+            f"You inspect {item_name} ({item_type}).",
+            str(description),
+            f"Found: {source}.",
+        ]
+        bonus_parts = self.item_bonus_parts(effective_item)
+        if bonus_parts:
+            lines.append("Bonuses: " + ", ".join(bonus_parts))
+        max_level = player.max_item_upgrade_level(base_item)
+        if include_upgrade_state and max_level > 0:
+            current_level = upgrade_level
+            lines.append(f"Upgrade level: +{current_level}/{max_level}")
+            lines.append("Next upgrade: " + self.upgrade_cost_text(player, item_id, items_data))
+        elif max_level > 0:
+            lines.append(f"Upgrade cap: +{max_level}")
+        return lines
 
     def find_item_in_inventory(self, player: Character, items_data: dict, query: str) -> str | None:
         query = query.strip().lower()
@@ -89,8 +185,8 @@ class InventoryEngine:
 
         lines = ["Backpack:"]
         for index, item_id in enumerate(player.inventory, start=1):
-            item = items_data.get(item_id, {})
-            item_name = self.item_label(item_id, items_data)
+            item = player.effective_item_data(item_id, items_data)
+            item_name = self.item_label(item_id, items_data, player.item_upgrade_level(item_id, items_data))
             item_type = item.get("type", "unknown")
             bonus_parts = self.item_bonus_parts(item)
             equipped_tags = []
@@ -105,20 +201,20 @@ class InventoryEngine:
             lines.append(f"{index}. {item_name} ({item_type}){equipped_tag}{bonus_text}")
         equipped_name = "none"
         if player.equipped_weapon:
-            equipped_name = self.item_label(player.equipped_weapon, items_data)
+            equipped_name = self.item_label(player.equipped_weapon, items_data, player.item_upgrade_level(player.equipped_weapon, items_data))
         equipped_armor_name = "none"
         if getattr(player, "equipped_armor", None):
-            equipped_armor_name = self.item_label(player.equipped_armor, items_data)
+            equipped_armor_name = self.item_label(player.equipped_armor, items_data, player.item_upgrade_level(player.equipped_armor, items_data))
         equipped_accessory_name = "none"
         if getattr(player, "equipped_accessory", None):
-            equipped_accessory_name = self.item_label(player.equipped_accessory, items_data)
+            equipped_accessory_name = self.item_label(player.equipped_accessory, items_data, player.item_upgrade_level(player.equipped_accessory, items_data))
         lines.append(f"Equipped weapon: {equipped_name}")
         lines.append(f"Equipped armor: {equipped_armor_name}")
         lines.append(f"Equipped accessory: {equipped_accessory_name}")
         return lines
 
     def use_item(self, player: Character, item_id: str, items_data: dict) -> str:
-        item = items_data.get(item_id, {})
+        item = player.effective_item_data(item_id, items_data) if item_id in player.inventory else items_data.get(item_id, {})
         item_name = item.get("name", self._fallback_name(item_id))
         item_type = item.get("type", "")
         effect = item.get("effect", "")
@@ -163,7 +259,7 @@ class InventoryEngine:
             attack_value = player.attack_value(items_data)
             bonus_parts = self.item_bonus_parts(item)
             bonus_text = " Bonuses: " + ", ".join(bonus_parts) + "." if bonus_parts else ""
-            return f"You equipped {self.item_label(item_id, items_data)}. Attack is now {attack_value}.{bonus_text}"
+            return f"You equipped {self.item_label(item_id, items_data, player.item_upgrade_level(item_id, items_data))}. Attack is now {attack_value}.{bonus_text}"
 
         if item_type == "armor":
             if getattr(player, "equipped_armor", None) == item_id:
@@ -173,7 +269,7 @@ class InventoryEngine:
             defense_value = player.defense_value(items_data)
             bonus_parts = self.item_bonus_parts(item)
             bonus_text = " Bonuses: " + ", ".join(bonus_parts) + "." if bonus_parts else ""
-            return f"You equipped {self.item_label(item_id, items_data)}. Defense is now {defense_value}.{bonus_text}"
+            return f"You equipped {self.item_label(item_id, items_data, player.item_upgrade_level(item_id, items_data))}. Defense is now {defense_value}.{bonus_text}"
 
         if item_type in {"gear", "accessory"}:
             if getattr(player, "equipped_accessory", None) == item_id:
@@ -182,7 +278,7 @@ class InventoryEngine:
             bonus_parts = self.item_bonus_parts(item)
             bonus_text = " Bonuses: " + ", ".join(bonus_parts) + "." if bonus_parts else ""
             focus_text = f" Focus {player.focus}/{player.max_focus}."
-            return f"You equipped {self.item_label(item_id, items_data)}.{bonus_text}{focus_text}"
+            return f"You equipped {self.item_label(item_id, items_data, player.item_upgrade_level(item_id, items_data))}.{bonus_text}{focus_text}"
 
         return f"{item_name} is not a usable item."
 
@@ -248,11 +344,50 @@ class InventoryEngine:
         item_name = items_data.get(item_id, {}).get("name", self._fallback_name(item_id))
 
         player.inventory.remove(item_id)
-        if player.equipped_weapon == item_id:
+        still_has_copy = item_id in player.inventory
+        if player.equipped_weapon == item_id and not still_has_copy:
             player.equipped_weapon = None
-        if getattr(player, "equipped_armor", None) == item_id:
+        if getattr(player, "equipped_armor", None) == item_id and not still_has_copy:
             player.equipped_armor = None
-        if getattr(player, "equipped_accessory", None) == item_id:
+        if getattr(player, "equipped_accessory", None) == item_id and not still_has_copy:
             player.equipped_accessory = None
+        if not still_has_copy:
+            player.set_item_upgrade_level(item_id, 0)
         player.gold += value
         return True, f"{buyer_name}: Bought 1 {item_name} for {value} gold. Gold now: {player.gold}."
+
+    def upgrade_item(self, player: Character, item_id: str, items_data: dict) -> tuple[bool, str]:
+        if item_id not in player.inventory:
+            return False, "You do not have that item."
+        if item_id not in items_data:
+            return False, "That item does not exist."
+
+        item = items_data.get(item_id, {})
+        cost = self.upgrade_cost(player, item_id, items_data)
+        if cost is None:
+            if player.max_item_upgrade_level(item) <= 0:
+                return False, "That item cannot be upgraded."
+            return False, "That item is already at its upgrade cap."
+
+        if player.gold < cost["gold"]:
+            return False, f"You need {cost['gold']} gold to upgrade {self.item_label(item_id, items_data, player.item_upgrade_level(item_id, items_data))}."
+
+        material_id = cost["material_id"]
+        material_count = int(cost["material_count"])
+        if material_id and material_count > 0 and player.inventory.count(material_id) < material_count:
+            material_name = items_data.get(material_id, {}).get("name", self._fallback_name(material_id))
+            return False, f"You need {material_count} {material_name} to upgrade this item."
+
+        player.gold -= cost["gold"]
+        for _ in range(material_count):
+            if material_id in player.inventory:
+                player.inventory.remove(material_id)
+        player.set_item_upgrade_level(item_id, cost["next_level"], items_data)
+        effective_item = player.effective_item_data(item_id, items_data)
+        bonus_parts = self.item_bonus_parts(effective_item)
+        bonus_text = " New bonuses: " + ", ".join(bonus_parts) + "." if bonus_parts else ""
+        return (
+            True,
+            f"Upgraded {self.item_label(item_id, items_data, cost['next_level'])} for {cost['gold']} gold."
+            f"{bonus_text} Gold left: {player.gold}.",
+        )

@@ -143,6 +143,7 @@
     "attack_stat": "strength",
     "stat_bonuses": {"strength": 1},
     "skill_bonuses": {"swordsmanship": 1},
+    "upgrade_material": "troll_tusk",
     "price": 24
   },
   "spear": {
@@ -178,6 +179,7 @@
     "attack_bonus": 5,
     "attack_stat": "strength",
     "stat_bonuses": {"strength": 1},
+    "upgrade_material": "boar_tusk",
     "price": 0
   },
   "short_bow": {
@@ -261,7 +263,8 @@
     "attack_bonus": 4,
     "attack_stat": "agility",
     "skill_bonuses": {"swordsmanship": 1},
-    "crit_bonus": 1
+    "crit_bonus": 1,
+    "upgrade_material": "raider_badge"
   },
   "apprentice_staff": {
     "name": "Apprentice Staff",
@@ -298,7 +301,8 @@
     "attack_stat": "mind",
     "stat_bonuses": {"mind": 1},
     "skill_bonuses": {"spellcasting": 2},
-    "spell_power_bonus": 1
+    "spell_power_bonus": 1,
+    "upgrade_material": "shrine_ash"
   },
   "novice_grimoire": {
     "name": "Novice Grimoire",
@@ -307,6 +311,8 @@
     "tier": 2,
     "description": "A stitched training book of basic wards, copied cantrips, and margin notes from safer hands.",
     "skill_bonuses": {"lore": 1, "spellcasting": 1},
+    "upgrade_bonus": {"skill_bonuses": {"spellcasting": 1}},
+    "upgrade_material": "cultist_seal",
     "price": 14
   },
   "padded_coat": {
@@ -394,7 +400,8 @@
     "description": "A fitted vest of hard-cured wolfhide that keeps the wearer light on rough ground.",
     "defense_bonus": 2,
     "skill_bonuses": {"survival": 1},
-    "dodge_bonus": 1
+    "dodge_bonus": 1,
+    "upgrade_material": "wolf_pelt"
   },
   "spider_silk_cloak": {
     "name": "Spider Silk Cloak",
@@ -404,7 +411,8 @@
     "description": "A remarkably light cloak stitched from giant spider silk, quiet in motion and hard to pin down.",
     "defense_bonus": 1,
     "skill_bonuses": {"stealth": 1},
-    "dodge_bonus": 2
+    "dodge_bonus": 2,
+    "upgrade_material": "spider_silk"
   },
   "guardian_plate": {
     "name": "Guardian Plate",
@@ -414,7 +422,9 @@
     "description": "Heavy shrine-forged plates recovered from a fallen guardian, stubbornly hard to shift once set.",
     "defense_bonus": 3,
     "stat_bonuses": {"endurance": 1},
-    "skill_bonuses": {"defense": 1}
+    "skill_bonuses": {"defense": 1},
+    "upgrade_material": "bone_charm",
+    "upgrade_material_count": 2
   },
   "slime_gel": {
     "name": "Slime Gel",

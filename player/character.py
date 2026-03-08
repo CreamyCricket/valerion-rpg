@@ -215,6 +215,13 @@ class Character:
         "mage": ["spellcasting", "lore"],
         "rogue": ["stealth", "persuasion", "swordsmanship"],
     }
+    ITEM_UPGRADE_CAPS: ClassVar[dict[str, int]] = {
+        "common": 2,
+        "uncommon": 2,
+        "rare": 3,
+        "epic": 3,
+        "relic": 4,
+    }
 
     name: str = "Hero"
     gender: str = "Other"
@@ -230,6 +237,7 @@ class Character:
     level: int = 1
     xp: int = 0
     inventory: list[str] = field(default_factory=list)
+    item_upgrades: dict[str, int] = field(default_factory=dict)
     equipped_weapon: Optional[str] = None
     equipped_armor: Optional[str] = None
     equipped_accessory: Optional[str] = None
@@ -265,6 +273,7 @@ class Character:
         self.combat_boost_name = self._clean_text(self.combat_boost_name, default="", max_length=60)
         self.combat_boost_summary = self._clean_text(self.combat_boost_summary, default="", max_length=140)
         self.inventory = [str(item_id).strip().lower() for item_id in self.inventory if str(item_id).strip()]
+        self.item_upgrades = self._normalized_item_upgrades(self.item_upgrades, self.inventory)
         self.equipped_weapon = str(self.equipped_weapon).strip().lower() if self.equipped_weapon else None
         self.equipped_armor = str(self.equipped_armor).strip().lower() if self.equipped_armor else None
         self.equipped_accessory = str(self.equipped_accessory).strip().lower() if self.equipped_accessory else None
@@ -364,6 +373,22 @@ class Character:
                         "source": cls._normalize_key(entry.get("source", "loot")) or "loot",
                     }
                 )
+        return normalized
+
+    @classmethod
+    def _normalized_item_upgrades(cls, item_upgrades: dict | None, inventory: list[str] | None = None) -> dict[str, int]:
+        normalized = {}
+        allowed = {str(item_id).strip().lower() for item_id in (inventory or []) if str(item_id).strip()}
+        if isinstance(item_upgrades, dict):
+            for item_id, level in item_upgrades.items():
+                normalized_item = cls._normalize_key(item_id)
+                if not normalized_item:
+                    continue
+                if inventory is not None and normalized_item not in allowed:
+                    continue
+                normalized_level = max(0, cls._safe_int(level, 0))
+                if normalized_level > 0:
+                    normalized[normalized_item] = normalized_level
         return normalized
 
     @staticmethod
@@ -655,12 +680,102 @@ class Character:
         return item_ids
 
     def equipped_items(self, items_data: dict) -> list[dict]:
-        return [items_data.get(item_id, {}) for item_id in self.equipped_item_ids()]
+        return [self.effective_item_data(item_id, items_data) for item_id in self.equipped_item_ids()]
+
+    @classmethod
+    def item_upgrade_profile(cls, item_data: dict) -> dict:
+        if not isinstance(item_data, dict):
+            return {}
+
+        explicit = item_data.get("upgrade_bonus", {})
+        if isinstance(explicit, dict) and explicit:
+            profile = {}
+            for key, value in explicit.items():
+                normalized_key = cls._normalize_key(key)
+                if normalized_key in {"stat_bonuses", "skill_bonuses"} and isinstance(value, dict):
+                    profile[normalized_key] = {
+                        cls._normalize_skill_key(sub_key) if normalized_key == "skill_bonuses" else cls._normalize_key(sub_key): int(amount)
+                        for sub_key, amount in value.items()
+                        if int(amount)
+                    }
+                else:
+                    profile[normalized_key] = int(value)
+            return profile
+
+        item_type = cls._normalize_key(item_data.get("type", ""))
+        if item_type == "weapon":
+            return {"attack_bonus": 1}
+        if item_type == "armor":
+            return {"defense_bonus": 1}
+        return {}
+
+    @classmethod
+    def max_item_upgrade_level(cls, item_data: dict) -> int:
+        profile = cls.item_upgrade_profile(item_data)
+        if not profile:
+            return 0
+        rarity = cls._normalize_key(item_data.get("rarity", "common"))
+        return max(0, int(cls.ITEM_UPGRADE_CAPS.get(rarity, 2)))
+
+    def item_upgrade_level(self, item_id: str, items_data: dict | None = None) -> int:
+        normalized_item = self._normalize_key(item_id)
+        level = max(0, self._safe_int(self.item_upgrades.get(normalized_item), 0))
+        if items_data and normalized_item in items_data:
+            level = min(level, self.max_item_upgrade_level(items_data.get(normalized_item, {})))
+        return level
+
+    def set_item_upgrade_level(self, item_id: str, level: int, items_data: dict | None = None) -> None:
+        normalized_item = self._normalize_key(item_id)
+        normalized_level = max(0, self._safe_int(level, 0))
+        if items_data and normalized_item in items_data:
+            normalized_level = min(normalized_level, self.max_item_upgrade_level(items_data.get(normalized_item, {})))
+        if normalized_level <= 0:
+            self.item_upgrades.pop(normalized_item, None)
+            return
+        self.item_upgrades[normalized_item] = normalized_level
+
+    def effective_item_data(self, item_id: str, items_data: dict) -> dict:
+        normalized_item = self._normalize_key(item_id)
+        base_item = dict(items_data.get(normalized_item, {}))
+        if not base_item:
+            return {}
+
+        upgrade_level = self.item_upgrade_level(normalized_item, items_data)
+        if upgrade_level <= 0:
+            return base_item
+
+        profile = self.item_upgrade_profile(base_item)
+        if not profile:
+            return base_item
+
+        for key, per_level in profile.items():
+            if key == "stat_bonuses" and isinstance(per_level, dict):
+                existing = dict(base_item.get("stat_bonuses", {}))
+                for stat_name, amount in per_level.items():
+                    existing[stat_name] = self._safe_int(existing.get(stat_name), 0) + (int(amount) * upgrade_level)
+                base_item["stat_bonuses"] = existing
+                continue
+            if key == "skill_bonuses" and isinstance(per_level, dict):
+                existing = dict(base_item.get("skill_bonuses", {}))
+                for skill_name, amount in per_level.items():
+                    normalized_skill = self._normalize_skill_key(skill_name)
+                    existing[normalized_skill] = self._safe_int(existing.get(normalized_skill), 0) + (int(amount) * upgrade_level)
+                base_item["skill_bonuses"] = existing
+                continue
+
+            existing_value = self._safe_int(base_item.get(key), 0)
+            if key == "attack_bonus" and not existing_value:
+                existing_value = self._item_effect_bonus(base_item, "attack_plus_")
+            elif key == "defense_bonus" and not existing_value:
+                existing_value = self._item_effect_bonus(base_item, "defense_plus_")
+            base_item[key] = existing_value + (int(per_level) * upgrade_level)
+
+        return base_item
 
     def equipped_numeric_bonus(self, items_data: dict, bonus_key: str) -> int:
         total = 0
         for item_id in self.equipped_item_ids():
-            item = items_data.get(item_id, {})
+            item = self.effective_item_data(item_id, items_data)
             total += self._safe_int(item.get(bonus_key), 0)
         return total
 
@@ -668,7 +783,7 @@ class Character:
         normalized = self._normalize_key(stat_name)
         total = 0
         for item_id in self.equipped_item_ids():
-            item = items_data.get(item_id, {})
+            item = self.effective_item_data(item_id, items_data)
             bonuses = item.get("stat_bonuses", {})
             if not isinstance(bonuses, dict):
                 continue
@@ -679,7 +794,7 @@ class Character:
         normalized = self._normalize_skill_key(skill_name)
         total = 0
         for item_id in self.equipped_item_ids():
-            item = items_data.get(item_id, {})
+            item = self.effective_item_data(item_id, items_data)
             bonuses = item.get("skill_bonuses", {})
             if not isinstance(bonuses, dict):
                 continue
@@ -725,7 +840,7 @@ class Character:
     def weapon_bonus(self, items_data: dict) -> int:
         if not self.equipped_weapon or self.equipped_weapon not in self.inventory:
             return 0
-        weapon = items_data.get(self.equipped_weapon, {})
+        weapon = self.effective_item_data(self.equipped_weapon, items_data)
         explicit_bonus = self._safe_int(weapon.get("attack_bonus"), 0)
         if explicit_bonus:
             return explicit_bonus
@@ -734,7 +849,7 @@ class Character:
     def armor_bonus(self, items_data: dict) -> int:
         if not self.equipped_armor or self.equipped_armor not in self.inventory:
             return 0
-        armor = items_data.get(self.equipped_armor, {})
+        armor = self.effective_item_data(self.equipped_armor, items_data)
         explicit_bonus = self._safe_int(armor.get("defense_bonus"), 0)
         if explicit_bonus:
             return explicit_bonus
@@ -1239,6 +1354,7 @@ class Character:
             "xp": self.xp,
             "gold": self.gold,
             "inventory": list(self.inventory),
+            "item_upgrades": dict(self.item_upgrades),
             "equipped_weapon": self.equipped_weapon,
             "equipped_armor": self.equipped_armor,
             "equipped_accessory": self.equipped_accessory,
@@ -1276,6 +1392,7 @@ class Character:
 
         inventory_raw = data.get("inventory", [])
         inventory = [str(item_id) for item_id in inventory_raw] if isinstance(inventory_raw, list) else []
+        item_upgrades = cls._normalized_item_upgrades(data.get("item_upgrades", {}), inventory)
 
         equipped_weapon = data.get("equipped_weapon")
         if equipped_weapon is not None:
@@ -1411,6 +1528,7 @@ class Character:
             level=level,
             xp=xp,
             inventory=inventory,
+            item_upgrades=item_upgrades,
             equipped_weapon=equipped_weapon,
             equipped_armor=equipped_armor,
             equipped_accessory=equipped_accessory,
