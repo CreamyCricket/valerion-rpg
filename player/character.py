@@ -89,9 +89,10 @@ class Character:
             "base_attack": 1,
             "skills": {"athletics": 1},
             "abilities": ["second_wind"],
-            "items": ["rusty_sword", "bandage"],
+            "items": ["rusty_sword", "leather_vest", "bandage"],
             "equip": "rusty_sword",
-            "summary": "+2 Strength, +1 Vitality, +3 Max HP, +1 Attack, Second Wind, Rusty Sword, Bandage",
+            "equip_armor": "leather_vest",
+            "summary": "+2 Strength, +1 Vitality, +3 Max HP, +1 Attack, +1 Athletics, Second Wind, Rusty Sword, Leather Vest, Bandage",
         },
         "ranger": {
             "name": "Ranger",
@@ -99,8 +100,9 @@ class Character:
             "stats": {"agility": 2, "vitality": 1},
             "skills": {"survival": 1, "stealth": 1},
             "abilities": ["aimed_shot"],
-            "items": ["herb", "bandage"],
-            "summary": "+2 Agility, +1 Vitality, +1 Survival, +1 Stealth, Aimed Shot, Herb, Bandage",
+            "items": ["short_bow", "herb", "bandage"],
+            "equip": "short_bow",
+            "summary": "+2 Agility, +1 Vitality, +1 Survival, +1 Stealth, Aimed Shot, Short Bow, Herb, Bandage",
         },
         "mage": {
             "name": "Mage",
@@ -109,8 +111,9 @@ class Character:
             "skills": {"lore": 1, "arcana": 2},
             "focus": 4,
             "abilities": ["spark", "mend"],
-            "items": ["potion"],
-            "summary": "+3 Mind, +1 Lore, +2 Arcana, +4 Focus, Spark, Mend, Potion",
+            "items": ["apprentice_staff", "mana_tonic", "potion"],
+            "equip": "apprentice_staff",
+            "summary": "+3 Mind, +1 Lore, +2 Arcana, +4 Focus, Spark, Mend, Apprentice Staff, Mana Tonic, Potion",
         },
         "rogue": {
             "name": "Rogue",
@@ -119,8 +122,9 @@ class Character:
             "skills": {"stealth": 2, "persuasion": 1},
             "gold": 3,
             "abilities": ["cunning_strike"],
-            "items": ["bandage"],
-            "summary": "+2 Agility, +1 Mind, +2 Stealth, +1 Persuasion, +3 Gold, Cunning Strike, Bandage",
+            "items": ["road_knife", "bandage"],
+            "equip": "road_knife",
+            "summary": "+2 Agility, +1 Mind, +2 Stealth, +1 Persuasion, +3 Gold, Cunning Strike, Road Knife, Bandage",
         },
     }
     BACKGROUNDS: ClassVar[dict[str, dict]] = {
@@ -129,17 +133,19 @@ class Character:
             "lore": "You were raised where everyone notices who returns at dusk, and where every lost road or failed harvest becomes everybody's problem.",
             "stats": {"vitality": 1},
             "skills": {"persuasion": 1},
-            "gold": 5,
+            "gold": 4,
+            "items": ["ration"],
             "faction_reputation": {"merchant_guild": 2},
-            "summary": "+1 Vitality, +1 Persuasion, +5 Gold, +2 Merchant Guild reputation",
+            "summary": "+1 Vitality, +1 Persuasion, +4 Gold, Travel Ration, +2 Merchant Guild reputation",
         },
         "watcher": {
             "name": "Watcher",
             "lore": "You learned early to read road dust, tree lines, and distant movement, because warning a settlement half a minute sooner can matter.",
             "stats": {"agility": 1},
             "skills": {"athletics": 1, "survival": 1},
+            "items": ["ration"],
             "faction_reputation": {"kingdom_guard": 3},
-            "summary": "+1 Agility, +1 Athletics, +1 Survival, +3 Kingdom Guard reputation",
+            "summary": "+1 Agility, +1 Athletics, +1 Survival, Travel Ration, +3 Kingdom Guard reputation",
         },
         "shrine_touched": {
             "name": "Shrine-touched",
@@ -147,17 +153,18 @@ class Character:
             "stats": {"mind": 1},
             "skills": {"lore": 1, "arcana": 1},
             "focus": 1,
+            "items": ["mana_tonic"],
             "faction_reputation": {"shrine_keepers": 3},
-            "summary": "+1 Mind, +1 Lore, +1 Arcana, +1 Focus, +3 Shrine Keepers reputation",
+            "summary": "+1 Mind, +1 Lore, +1 Arcana, +1 Focus, Mana Tonic, +3 Shrine Keepers reputation",
         },
         "wanderer": {
             "name": "Wanderer",
             "lore": "You belong more to the road than to any one roof, shaped by crossings, campfires, and the habit of leaving before luck turns.",
             "stats": {"agility": 1},
             "skills": {"survival": 1, "stealth": 1},
-            "items": ["herb"],
+            "items": ["herb", "ration"],
             "faction_reputation": {"forest_clans": 3},
-            "summary": "+1 Agility, +1 Survival, +1 Stealth, Herb, +3 Forest Clans reputation",
+            "summary": "+1 Agility, +1 Survival, +1 Stealth, Herb, Travel Ration, +3 Forest Clans reputation",
         },
     }
     LEVEL_GROWTH: ClassVar[dict[str, list[dict[str, int]]]] = {
@@ -291,6 +298,28 @@ class Character:
         ]
 
     @classmethod
+    def creation_option_details(cls, category: str, value: str) -> dict:
+        normalized = cls.normalize_choice(category, value)
+        option = cls._catalog(category).get(normalized, {})
+        return {
+            "id": normalized,
+            "name": str(option.get("name", normalized.replace("_", " ").title())),
+            "lore": str(option.get("lore", "")),
+            "summary": str(option.get("summary", "")),
+            "stats": {str(key): int(amount) for key, amount in option.get("stats", {}).items()},
+            "skills": {str(key): int(amount) for key, amount in option.get("skills", {}).items()},
+            "items": [str(item_id) for item_id in option.get("items", [])],
+            "abilities": [str(ability_id) for ability_id in option.get("abilities", [])],
+            "gold": int(option.get("gold", 0)),
+            "max_hp": int(option.get("max_hp", 0)),
+            "focus": int(option.get("focus", 0)),
+            "base_attack": int(option.get("base_attack", 0)),
+            "faction_reputation": {
+                str(key): int(amount) for key, amount in option.get("faction_reputation", {}).items()
+            },
+        }
+
+    @classmethod
     def option_name(cls, category: str, value: str) -> str:
         normalized = cls._normalize_key(value)
         catalog = cls._catalog(category)
@@ -401,6 +430,9 @@ class Character:
         equip_item = self._normalize_key(template.get("equip", ""))
         if equip_item and equip_item in self.inventory:
             self.equipped_weapon = equip_item
+        equip_armor = self._normalize_key(template.get("equip_armor", ""))
+        if equip_armor and equip_armor in self.inventory:
+            self.equipped_armor = equip_armor
 
     @classmethod
     def creation_summary(cls, category: str, value: str) -> str:
@@ -422,15 +454,43 @@ class Character:
             "class": self.player_class,
             "background": self.background,
             "bio": self.bio,
+            "race_summary": self.creation_summary("race", self.race),
+            "class_summary": self.creation_summary("class", self.player_class),
+            "background_summary": self.creation_summary("background", self.background),
             "max_hp": self.max_hp,
             "max_focus": self.max_focus,
             "base_attack": self.base_attack,
             "defense": 10,
             "gold": self.gold,
+            "equipped_weapon": self.equipped_weapon.replace("_", " ").title() if self.equipped_weapon else "",
+            "equipped_armor": self.equipped_armor.replace("_", " ").title() if self.equipped_armor else "",
             "stats": dict(self.stats),
             "skills": {skill_name: self.skill_value(skill_name) for skill_name in self.DEFAULT_SKILLS},
             "abilities": list(self.abilities),
         }
+
+    @classmethod
+    def creation_preview(cls, profile: dict | None) -> dict:
+        profile = profile or {}
+        character = cls.create_from_profile(
+            name=str(profile.get("name", "Hero")),
+            gender=str(profile.get("gender", "other")),
+            race=str(profile.get("race", "human")),
+            player_class=str(profile.get("player_class", "warrior")),
+            background=str(profile.get("background", "village_born")),
+            bio=str(profile.get("bio", "")),
+        )
+        summary = character.character_summary()
+        summary["inventory"] = [item_id.replace("_", " ").title() for item_id in character.inventory]
+        summary["abilities"] = [ability_id.replace("_", " ").title() for ability_id in character.abilities]
+        summary["attack"] = character.base_attack
+        summary["race_lore"] = cls.creation_lore("race", character.race)
+        summary["class_lore"] = cls.creation_lore("class", character.player_class)
+        summary["background_lore"] = cls.creation_lore("background", character.background)
+        summary["race_details"] = cls.creation_option_details("race", character.race)
+        summary["class_details"] = cls.creation_option_details("class", character.player_class)
+        summary["background_details"] = cls.creation_option_details("background", character.background)
+        return summary
 
     def is_alive(self) -> bool:
         return self.hp > 0

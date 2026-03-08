@@ -1358,6 +1358,8 @@ class Game:
         summary["attack"] = self.player.attack_value(self.world.items)
         summary["inventory"] = [self.world.item_name(item_id) for item_id in self.player.inventory]
         summary["abilities"] = [self._ability_name(ability_id) for ability_id in self.player.abilities]
+        summary["equipped_weapon"] = self.world.item_name(self.player.equipped_weapon) if self.player.equipped_weapon else ""
+        summary["equipped_armor"] = self.world.item_name(self.player.equipped_armor) if self.player.equipped_armor else ""
         summary["race_lore"] = Character.creation_lore("race", self.player.race)
         summary["class_lore"] = Character.creation_lore("class", self.player.player_class)
         summary["background_lore"] = Character.creation_lore("background", self.player.background)

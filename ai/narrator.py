@@ -28,8 +28,11 @@ class Narrator:
             f"Name: {character_context.get('name', 'Hero')}",
             f"Gender: {character_context.get('gender', 'Other')}",
             f"Race: {character_context.get('race', 'Human')}",
+            f"Race bonus: {character_context.get('race_summary', 'None')}",
             f"Class: {character_context.get('class', 'Warrior')}",
+            f"Class bonus: {character_context.get('class_summary', 'None')}",
             f"Background: {character_context.get('background', 'Village-born')}",
+            f"Background bonus: {character_context.get('background_summary', 'None')}",
             f"Starting HP: {character_context.get('max_hp', 20)}",
             f"Starting Focus: {character_context.get('max_focus', 6)}",
             f"Starting Attack: {character_context.get('attack', character_context.get('base_attack', 3))}",
@@ -49,6 +52,10 @@ class Narrator:
             lines.append("Starting gear: " + ", ".join(inventory))
         else:
             lines.append("Starting gear: none")
+        if character_context.get("equipped_weapon"):
+            lines.append("Equipped weapon: " + str(character_context.get("equipped_weapon")))
+        if character_context.get("equipped_armor"):
+            lines.append("Equipped armor: " + str(character_context.get("equipped_armor")))
         abilities = character_context.get("abilities", [])
         if isinstance(abilities, list) and abilities:
             lines.append("Starting abilities: " + ", ".join(str(name) for name in abilities))

@@ -5,15 +5,21 @@ from engine.game import Game
 from player.character import Character
 
 
-def prompt_player_name() -> str:
-    print("Enter your hero name (press Enter for Hero):")
+def prompt_text(message: str, default: str = "", max_length: int = 180) -> str:
+    print(message)
     try:
-        raw_name = input("> ")
+        raw_value = input("> ")
     except (EOFError, KeyboardInterrupt):
-        return "Hero"
+        return default
 
-    name = raw_name.strip()
-    return name if name else "Hero"
+    value = " ".join(raw_value.strip().split())
+    if not value:
+        return default
+    return value[:max_length]
+
+
+def prompt_player_name() -> str:
+    return prompt_text("Enter your hero name (press Enter for Hero):", default="Hero", max_length=40)
 
 
 def prompt_choice(label: str, options: list[dict]) -> str:
@@ -49,29 +55,52 @@ def prompt_choice(label: str, options: list[dict]) -> str:
 
 
 def prompt_optional_bio() -> str:
-    print("Optional short bio (press Enter to skip, max 180 characters):")
-    try:
-        raw_bio = input("> ")
-    except (EOFError, KeyboardInterrupt):
-        return ""
-    return raw_bio.strip()[:180]
+    return prompt_text("Optional short bio (press Enter to skip, max 180 characters):", default="", max_length=180)
+
+
+def print_creation_preview(profile: dict) -> None:
+    preview_game = Game(
+        data_dir="data",
+        player_name=str(profile.get("name", "Hero")),
+        character_profile=profile,
+    )
+    preview = preview_game.character_context()
+    print("\nCurrent build:")
+    print(Narrator.character_creation_text(preview))
+
+
+def prompt_creation_review() -> str:
+    print("\nConfirm this character? confirm | restart | cancel")
+    while True:
+        try:
+            choice = input("> ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            return "cancel"
+
+        if choice in {"", "confirm"}:
+            return "confirm"
+        if choice in {"restart", "cancel"}:
+            return choice
+        print("Invalid option. Choose: confirm, restart, or cancel.")
 
 
 def prompt_character_creation() -> dict:
-    name = prompt_player_name()
-    gender = prompt_choice("gender", Character.gender_options())
-    race = prompt_choice("race", Character.creation_options("race"))
-    player_class = prompt_choice("class", Character.creation_options("class"))
-    background = prompt_choice("background", Character.creation_options("background"))
-    bio = prompt_optional_bio()
-    return {
-        "name": name,
-        "gender": gender,
-        "race": race,
-        "player_class": player_class,
-        "background": background,
-        "bio": bio,
-    }
+    while True:
+        profile = {
+            "name": prompt_player_name(),
+            "gender": prompt_choice("gender", Character.gender_options()),
+            "race": prompt_choice("race", Character.creation_options("race")),
+            "player_class": prompt_choice("class", Character.creation_options("class")),
+            "background": prompt_choice("background", Character.creation_options("background")),
+            "bio": prompt_optional_bio(),
+        }
+
+        print_creation_preview(profile)
+        review_choice = prompt_creation_review()
+        if review_choice == "confirm":
+            return profile
+        if review_choice == "cancel":
+            return {}
 
 
 def start_menu() -> str:
@@ -99,6 +128,9 @@ def main() -> None:
     character_profile = None
     if choice == "new":
         character_profile = prompt_character_creation()
+        if not character_profile:
+            print("Character creation cancelled.")
+            return
 
     game = Game(data_dir="data", player_name=(character_profile or {}).get("name", "Hero"), character_profile=character_profile)
     print(Narrator.intro())
