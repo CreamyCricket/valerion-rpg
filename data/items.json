@@ -431,28 +431,32 @@
     "type": "loot",
     "rarity": "common",
     "tier": 1,
-    "description": "Sticky residue collected from a defeated slime."
+    "description": "Sticky residue collected from a defeated slime.",
+    "price": 3
   },
   "herb_bundle": {
     "name": "Herb Bundle",
     "type": "loot",
     "rarity": "common",
     "tier": 1,
-    "description": "A twine-tied bundle of gathered herbs kept for poultices, tinctures, and careful field work."
+    "description": "A twine-tied bundle of gathered herbs kept for poultices, tinctures, and careful field work.",
+    "price": 3
   },
   "iron_scrap": {
     "name": "Iron Scrap",
     "type": "loot",
     "rarity": "common",
     "tier": 1,
-    "description": "Useful bits of scavenged iron good enough for patchwork smithing and rough fittings."
+    "description": "Useful bits of scavenged iron good enough for patchwork smithing and rough fittings.",
+    "price": 4
   },
   "wolf_pelt": {
     "name": "Wolf Pelt",
     "type": "loot",
     "rarity": "common",
     "tier": 1,
-    "description": "A rough pelt taken from a forest wolf."
+    "description": "A rough pelt taken from a forest wolf.",
+    "price": 4
   },
   "wolf_fang": {
     "name": "Wolf Fang",
@@ -473,7 +477,8 @@
     "type": "loot",
     "rarity": "uncommon",
     "tier": 2,
-    "description": "Strong silver-white thread cut from a giant spider's webbing."
+    "description": "Strong silver-white thread cut from a giant spider's webbing.",
+    "price": 6
   },
   "bone_charm": {
     "name": "Bone Charm",
@@ -508,7 +513,8 @@
     "type": "loot",
     "rarity": "common",
     "tier": 2,
-    "description": "Cold grey ash clinging to a fading trace of shrine corruption."
+    "description": "Cold grey ash clinging to a fading trace of shrine corruption.",
+    "price": 5
   },
   "boar_tusk": {
     "name": "Boar Tusk",

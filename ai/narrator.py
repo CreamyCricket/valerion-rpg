@@ -221,6 +221,14 @@ class Narrator:
         if state_lines:
             lines.append("Area state: " + ", ".join(state_lines))
 
+        services = [str(service) for service in location_context.get("services", []) if str(service).strip()]
+        if services:
+            lines.append("Services here: " + ", ".join(services))
+
+        economy_note = str(location_context.get("economy_note", "")).strip()
+        if economy_note:
+            lines.append("Economy: " + economy_note)
+
         dungeon_lines = Narrator._dungeon_lines(location_context)
         if dungeon_lines:
             lines.extend(dungeon_lines)
@@ -520,6 +528,12 @@ class Narrator:
         continuity_lines = Narrator._location_continuity_lines(location_context, inspect_mode=True)
         if continuity_lines:
             lines.extend(continuity_lines)
+        services = [str(service) for service in location_context.get("services", []) if str(service).strip()]
+        if services:
+            lines.append("Services here: " + ", ".join(services))
+        economy_note = str(location_context.get("economy_note", "")).strip()
+        if economy_note:
+            lines.append("Economy: " + economy_note)
         dungeon_lines = Narrator._dungeon_lines(location_context, inspect_mode=True)
         if dungeon_lines:
             lines.extend(dungeon_lines)

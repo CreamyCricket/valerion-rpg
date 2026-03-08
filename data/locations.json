@@ -500,6 +500,8 @@
     "description": "Stonewatch's gate rises in pale blockwork above the road, built to welcome trade while making trouble slow itself down.",
     "region": "Stonewatch",
     "lore": "Stonewatch holds because caravans, patrols, pilgrims, and hunters all need the same wall, the same market, and the same rules at the end of a long road.",
+    "services": ["travel control", "guard watch", "town entry"],
+    "economy_note": "Caravan tolls, gate checks, and road safety all start here.",
     "connected_locations": {
       "village": "village_square",
       "market": "market_square",
@@ -519,6 +521,8 @@
     "description": "Stonewatch's market square is tight with awnings, handcarts, and callers who know the road well enough to price it by the mile.",
     "region": "Stonewatch",
     "lore": "The square is where forest goods become town coin, where travelers overhear their next lead, and where Stonewatch proves it is more than a checkpoint with walls.",
+    "services": ["buy", "sell", "materials", "quest leads"],
+    "economy_note": "The square sets the town's mood: food, salvage, and rumor all change hands here first.",
     "connected_locations": {
       "gate": "town_gate",
       "blacksmith": "blacksmith",
@@ -542,6 +546,8 @@
     "description": "Heat, hammer-song, and iron filings fill the forge, where practical work is stacked in racks before it ever reaches a display wall.",
     "region": "Stonewatch",
     "lore": "Stonewatch's smiths live on road demand: nails for wagons, rivets for armor, and hard promises about which steel will still hold after a bad week.",
+    "services": ["buy", "sell", "upgrade", "forge crafting"],
+    "economy_note": "The forge turns salvaged iron and hard coin into gear people trust on the road.",
     "connected_locations": {
       "square": "market_square"
     },
@@ -559,6 +565,8 @@
     "description": "Quiet shelves of glass, vellum, and warded tools keep the mage shop feeling more measured than grand, with every item set where careless hands cannot reach it first.",
     "region": "Stonewatch",
     "lore": "Stonewatch's arcane trade stays modest on purpose: enough to arm novices, mend field kits, and keep the shrine orders supplied without pretending the frontier is a college.",
+    "services": ["buy", "sell", "upgrade", "alchemy crafting"],
+    "economy_note": "Arcane work here is practical frontier trade, not ornament: tonics, foci, and careful reagents.",
     "connected_locations": {
       "square": "market_square"
     },
@@ -576,6 +584,8 @@
     "description": "Racks of bows, spears, and field blades line a narrow room built for hunters, scouts, and travelers who expect the road to argue back.",
     "region": "Stonewatch",
     "lore": "The weapon shop survives by outfitting people who need clean range, quick reach, or something cheap enough to risk on uncertain roads.",
+    "services": ["buy", "sell", "upgrade"],
+    "economy_note": "This shop trades in reach, timing, and gear light enough to carry through bad country.",
     "connected_locations": {
       "square": "market_square"
     },
@@ -593,6 +603,8 @@
     "description": "Warm light, stew steam, and tired voices make the inn feel like the first room in miles where nobody needs to keep moving.",
     "region": "Stonewatch",
     "lore": "Road towns are measured by their inns as much as their walls, and Stonewatch keeps one good enough that caravans plan around it.",
+    "services": ["rest", "buy", "sell"],
+    "economy_note": "Beds, hot meals, and safe nights keep caravans spending coin in town instead of pushing on hungry.",
     "connected_locations": {
       "square": "market_square"
     },
@@ -613,6 +625,8 @@
     "description": "A compact stone shrine stands off the market lane, quiet enough to gather breath without pretending the road beyond its walls has gone anywhere.",
     "region": "Stonewatch",
     "lore": "Stonewatch's shrine is less grand than old woodland sanctums, but it remains where guards, traders, and pilgrims all come to steady themselves before the next road.",
+    "services": ["alchemy crafting", "quest turn-ins", "guidance"],
+    "economy_note": "Pilgrims and guards leave offerings here, and the shrine quietly feeds the town's arcane supply lines.",
     "connected_locations": {
       "square": "market_square"
     },
@@ -630,6 +644,8 @@
     "description": "Open racks, chalk boards, and bundled kit line the barracks hall where Stonewatch turns road worry into patrols and supply counts.",
     "region": "Stonewatch",
     "lore": "The barracks keep Stonewatch honest: not a grand fortress, but a working watch-post where discipline means the roads still function tomorrow.",
+    "services": ["buy", "sell", "watch contracts"],
+    "economy_note": "Patrol supplies, levy accounts, and frontier contracts pass through the barracks before they reach the roads.",
     "connected_locations": {
       "gate": "town_gate",
       "square": "market_square",

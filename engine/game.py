@@ -32,6 +32,14 @@ class Game:
         "ruined_shrine": {"alchemy"},
         "ironridge_forge": {"forge"},
     }
+    UPGRADE_SERVICE_NPCS = {"blacksmith", "fletcher", "arcanist", "forgemistress"}
+    CRAFTING_SERVICE_NPCS = {
+        "merchant": "alchemy",
+        "blacksmith": "forge",
+        "arcanist": "alchemy",
+        "shrine_caretaker": "alchemy",
+        "forgemistress": "forge",
+    }
     IMPORTANT_ITEM_IDS = {"rusty_sword", "wolf_pelt", "guardian_sigil"}
     TALKABLE_NPCS = {
         "elder": "Elder",
@@ -1612,6 +1620,8 @@ class Game:
             "dungeon_loot_band": dungeon.get("loot_band", ""),
             "dungeon_event_risk": dungeon.get("event_risk", ""),
             "npcs": self._visible_npc_names_at_location(self.current_location),
+            "services": [str(service) for service in location.get("services", []) if str(service).strip()],
+            "economy_note": str(location.get("economy_note", "")).strip(),
             "visit_count": location_memory.get("visit_count", 0),
             "defeated_enemies_here": [entry.get("name", "") for entry in location_memory.get("defeated_enemies", [])],
             "minibosses_here": [entry.get("name", "") for entry in location_memory.get("minibosses_defeated", [])],
@@ -2232,8 +2242,14 @@ class Game:
             services.append(
                 f"standing {self.factions.faction_name(faction_id)} {self.factions.standing_text(self.player, faction_id)}"
             )
+            services.append(self.factions.service_terms_text(self.player, faction_id, npc_id))
         if isinstance(stock, list) and stock:
             services.append("buy, sell")
+        if npc_id in self.UPGRADE_SERVICE_NPCS:
+            services.append("upgrade")
+        craft_station = self.CRAFTING_SERVICE_NPCS.get(npc_id, "")
+        if craft_station and craft_station in self._current_crafting_stations():
+            services.append(f"craft ({craft_station})")
 
         location = self.world.get_location(self.current_location)
         rest_npc = str(location.get("rest_npc", "")).strip().lower()
@@ -2554,6 +2570,7 @@ class Game:
             lines.append(
                 f"Standing: {self.factions.faction_name(faction_id)} {self.factions.standing_text(self.player, faction_id)}"
             )
+            lines.append(f"Terms: {self.factions.service_terms_text(self.player, faction_id, shop['npc_id'])}")
         for item_id in shop["stock"]:
             base_cost = self.inventory.item_price(item_id, self.world.items)
             price = self.factions.price_for_service(self.player, shop["faction"], shop["npc_id"], base_cost)

@@ -137,7 +137,7 @@ class FactionEngine:
             return False, "Service denied: that NPC does not trust you enough."
         return True, ""
 
-    def price_for_service(self, player: Character, faction_id: str, npc_id: str | None, base_cost: int) -> int:
+    def _service_multiplier(self, player: Character, faction_id: str, npc_id: str | None = None) -> float:
         rep = player.reputation_value(faction_id)
         trust = player.npc_trust(npc_id) if npc_id else 0
         charisma = player.stat_modifier("charisma")
@@ -169,6 +169,23 @@ class FactionEngine:
             multiplier += 0.10
         elif charisma <= -1:
             multiplier += 0.05
+
+        return multiplier
+
+    def service_terms_text(self, player: Character, faction_id: str, npc_id: str | None = None) -> str:
+        multiplier = self._service_multiplier(player, faction_id, npc_id)
+        if multiplier <= 0.8:
+            return "discounted terms"
+        if multiplier < 1.0:
+            return "favorable terms"
+        if multiplier == 1.0:
+            return "standard terms"
+        if multiplier <= 1.2:
+            return "wary markup"
+        return "hard markup"
+
+    def price_for_service(self, player: Character, faction_id: str, npc_id: str | None, base_cost: int) -> int:
+        multiplier = self._service_multiplier(player, faction_id, npc_id)
 
         return max(1, int(round(int(base_cost) * multiplier)))
 
