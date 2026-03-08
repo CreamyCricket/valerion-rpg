@@ -14,9 +14,7 @@
     "scene_focus": "Ruins, shrine stones, and older dangers now carry more weight than simple road trouble.",
     "requires_any": [
       {"type": "quest_completed", "quest_id": "q001_clear_forest_path"},
-      {"type": "quest_completed", "quest_id": "q003_watchtower_threat"},
-      {"type": "location_visited", "location_id": "old_watchtower"},
-      {"type": "location_visited", "location_id": "ruined_shrine"}
+      {"type": "quest_completed", "quest_id": "q003_watchtower_threat"}
     ]
   },
   "arc_3_greyhaven_tensions": {

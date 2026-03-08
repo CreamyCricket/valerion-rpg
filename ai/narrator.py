@@ -918,7 +918,7 @@ class Narrator:
         if chapter_note:
             lines.append(f"Arc focus: {chapter_note}")
 
-        turn_line = Narrator._campaign_turn_line(history_flags)
+        turn_line = Narrator._campaign_turn_line(history_flags, chapter_progress)
         if turn_line:
             lines.append(turn_line)
 
@@ -981,7 +981,7 @@ class Narrator:
         if region_lore:
             lines.append("Campaign frame: " + region_lore)
 
-        turn_line = Narrator._campaign_turn_line(history_flags)
+        turn_line = Narrator._campaign_turn_line(history_flags, chapter_progress)
         if turn_line:
             lines.append(turn_line)
 
@@ -1045,7 +1045,13 @@ class Narrator:
         return hook
 
     @staticmethod
-    def _campaign_turn_line(history_flags: dict) -> str:
+    def _campaign_turn_line(history_flags: dict, chapter_progress: dict | None = None) -> str:
+        chapter_progress = chapter_progress or {}
+        arc_index = max(1, int(chapter_progress.get("index", 1) or 1))
+        if arc_index >= 4:
+            return "Campaign turn: ash-marked threats are rising, and the wider cult pressure is starting to define the road ahead."
+        if arc_index >= 3:
+            return "Campaign turn: merchant pressure, guard interests, and larger road politics are now shaping the campaign."
         if history_flags.get("carrying_guardian_sigil"):
             return "Campaign turn: the Guardian Sigil is in your keeping, and its meaning now matters as much as its weight."
         if history_flags.get("shrine_guardian_defeated"):
@@ -1054,7 +1060,29 @@ class Narrator:
             return "Campaign turn: the watchtower road is stabilizing, but deeper forest mysteries are now impossible to ignore."
         if history_flags.get("forest_path_cleared"):
             return "Campaign turn: the village roads are safer than before, which means harder decisions now lie beyond them."
+        if arc_index >= 2:
+            return "Campaign turn: the road now leads beyond the village toward the watchtower and shrine, where older trouble is becoming harder to ignore."
         return "Campaign turn: the opening roads are still testing what kind of adventurer you intend to become."
+
+    @staticmethod
+    def _memory_names(event_memory: dict, key: str) -> list[str]:
+        names = []
+        for entry in event_memory.get(key, []):
+            if not isinstance(entry, dict):
+                continue
+            name = str(entry.get("name", "")).strip()
+            if name:
+                names.append(name)
+        return names
+
+    @staticmethod
+    def _compact_memory_list(names: list[str], limit: int) -> str:
+        visible = names[:limit]
+        remaining = max(0, len(names) - len(visible))
+        summary = ", ".join(visible)
+        if remaining:
+            summary += f", and {remaining} more"
+        return summary
 
     @staticmethod
     def _event_memory_lines(event_memory: dict) -> list[str]:
@@ -1062,30 +1090,30 @@ class Narrator:
             return []
 
         lines = []
-        visited = [entry.get("name", "") for entry in event_memory.get("visited_locations", [])[:3] if isinstance(entry, dict)]
+        visited = Narrator._memory_names(event_memory, "visited_locations")
         if visited:
-            lines.append("Road walked: " + ", ".join(visited) + ".")
+            lines.append("Road walked: " + Narrator._compact_memory_list(visited, 4) + ".")
 
-        victories = [entry.get("name", "") for entry in event_memory.get("defeated_enemies", [])[:3] if isinstance(entry, dict)]
+        victories = Narrator._memory_names(event_memory, "defeated_enemies")
         if victories:
-            lines.append("Known victories: " + ", ".join(victories) + ".")
+            lines.append("Known victories: " + Narrator._compact_memory_list(victories, 3) + ".")
 
-        quests = [entry.get("name", "") for entry in event_memory.get("completed_quests", [])[:3] if isinstance(entry, dict)]
+        quests = Narrator._memory_names(event_memory, "completed_quests")
         if quests:
-            lines.append("Finished work: " + ", ".join(quests) + ".")
+            lines.append("Finished work: " + Narrator._compact_memory_list(quests, 3) + ".")
 
-        items = [entry.get("name", "") for entry in event_memory.get("important_items_acquired", [])[:2] if isinstance(entry, dict)]
+        items = Narrator._memory_names(event_memory, "important_items_acquired")
         if items:
-            lines.append("Important finds: " + ", ".join(items) + ".")
+            lines.append("Important finds: " + Narrator._compact_memory_list(items, 2) + ".")
 
-        started = [entry.get("name", "") for entry in event_memory.get("world_states_started", [])[:2] if isinstance(entry, dict)]
-        cleared = [entry.get("name", "") for entry in event_memory.get("world_states_cleared", [])[:2] if isinstance(entry, dict)]
+        started = Narrator._memory_names(event_memory, "world_states_started")
+        cleared = Narrator._memory_names(event_memory, "world_states_cleared")
         if started or cleared:
             parts = []
             if started:
-                parts.append("troubled by " + ", ".join(started))
+                parts.append("troubled by " + Narrator._compact_memory_list(started, 2))
             if cleared:
-                parts.append("settled after " + ", ".join(cleared))
+                parts.append("settled after " + Narrator._compact_memory_list(cleared, 2))
             lines.append("World memory: " + "; ".join(parts) + ".")
 
         return lines

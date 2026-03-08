@@ -330,51 +330,21 @@ class QuestEngine:
     def journal_lines(
         self,
         player: Character,
+        npc_ids: list[str] | None = None,
         world=None,
         current_location: str | None = None,
         campaign_context: dict | None = None,
     ) -> list[str]:
-        offered_lines = []
-        active_lines = []
         completed_lines = []
 
         for quest_id, quest in self.quests.items():
             if quest_id in self.completed:
                 completed_lines.append(f"- {quest.get('title', quest_id)}")
-                continue
 
-            title = quest.get("title", quest_id)
-            description = quest.get("description", "No description available.")
-            objective = quest.get("objective", {})
-            need = int(objective.get("count", 1))
-            have = self.progress.get(quest_id, 0)
-            entry = f"- {title}\n  {description}\n  Progress: {have}/{need}"
+        if not completed_lines:
+            return ["Journal", "No completed quests recorded yet."]
 
-            if self._is_active(
-                player,
-                quest_id,
-                quest,
-                world=world,
-                current_location=current_location,
-                campaign_context=campaign_context,
-            ):
-                active_lines.append(entry)
-            elif self._requires_acceptance(quest) and self._is_available(
-                player,
-                quest,
-                world=world,
-                current_location=current_location,
-                campaign_context=campaign_context,
-            ):
-                offered_lines.append(entry)
-
-        lines = ["Journal", "Offered Quests:"]
-        lines.extend(offered_lines or ["- none"])
-        lines.append("Active Quests:")
-        lines.extend(active_lines or ["- none"])
-        lines.append("Completed Quests:")
-        lines.extend(completed_lines or ["- none"])
-        return lines
+        return ["Journal", *completed_lines]
 
     def recap_summary(self, player: Character, campaign_context: dict | None = None) -> dict:
         active = []

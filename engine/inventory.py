@@ -4,6 +4,7 @@ from player.character import Character
 class InventoryEngine:
     SHOP_PRICES = {"potion": 5}
     RARITY_COST_STEPS = {"common": 0, "uncommon": 1, "rare": 2, "epic": 3, "relic": 4}
+    STACKABLE_TYPES = {"consumable", "loot"}
 
     """Manages deterministic add/use behavior without hidden randomness."""
 
@@ -23,6 +24,36 @@ class InventoryEngine:
 
     def add_item(self, player: Character, item_id: str) -> None:
         player.inventory.append(item_id)
+
+    @classmethod
+    def item_type(cls, item_id: str, items_data: dict) -> str:
+        return str(items_data.get(item_id, {}).get("type", "item")).strip().lower()
+
+    @classmethod
+    def is_stackable(cls, item_id: str, items_data: dict) -> bool:
+        return cls.item_type(item_id, items_data) in cls.STACKABLE_TYPES
+
+    def carry_load(self, player: Character, items_data: dict) -> int:
+        load = 0
+        counted_stacks = set()
+        for item_id in player.inventory:
+            normalized_item = str(item_id).strip().lower()
+            if self.is_stackable(normalized_item, items_data):
+                if normalized_item in counted_stacks:
+                    continue
+                counted_stacks.add(normalized_item)
+            load += 1
+        return load
+
+    def carry_status_line(self, player: Character, items_data: dict) -> str:
+        load = self.carry_load(player, items_data)
+        capacity = player.carry_capacity()
+        if load <= capacity:
+            return ""
+        return (
+            f"Carry status: overloaded ({load}/{capacity}). "
+            "Loot and consumables stack into one slot each, but new item types and gear still take space."
+        )
 
     @staticmethod
     def item_rarity(item: dict) -> str:
@@ -184,7 +215,18 @@ class InventoryEngine:
             return ["Backpack: empty", "Equipped weapon: none", "Equipped armor: none", "Equipped accessory: none"]
 
         lines = ["Backpack:"]
-        for index, item_id in enumerate(player.inventory, start=1):
+        display_entries = []
+        stack_counts = {}
+        for item_id in player.inventory:
+            normalized_item = str(item_id).strip().lower()
+            if self.is_stackable(normalized_item, items_data):
+                stack_counts[normalized_item] = stack_counts.get(normalized_item, 0) + 1
+                if normalized_item not in display_entries:
+                    display_entries.append(normalized_item)
+                continue
+            display_entries.append(normalized_item)
+
+        for index, item_id in enumerate(display_entries, start=1):
             item = player.effective_item_data(item_id, items_data)
             item_name = self.item_label(item_id, items_data, player.item_upgrade_level(item_id, items_data))
             item_type = item.get("type", "unknown")
@@ -198,7 +240,9 @@ class InventoryEngine:
                 equipped_tags.append("accessory")
             equipped_tag = f" [{' & '.join(equipped_tags)}]" if equipped_tags else ""
             bonus_text = f" | {', '.join(bonus_parts)}" if bonus_parts else ""
-            lines.append(f"{index}. {item_name} ({item_type}){equipped_tag}{bonus_text}")
+            quantity = stack_counts.get(item_id, 1)
+            quantity_text = f"{quantity}x " if quantity > 1 else ""
+            lines.append(f"{index}. {quantity_text}{item_name} ({item_type}){equipped_tag}{bonus_text}")
         equipped_name = "none"
         if player.equipped_weapon:
             equipped_name = self.item_label(player.equipped_weapon, items_data, player.item_upgrade_level(player.equipped_weapon, items_data))
@@ -325,7 +369,9 @@ class InventoryEngine:
 
         player.gold -= cost
         player.inventory.append(item_id)
-        return True, f"{seller_name}: Sold 1 {item_name} for {cost} gold. Gold left: {player.gold}."
+        load = self.carry_load(player, items_data)
+        capacity = player.carry_capacity()
+        return True, f"{seller_name}: Sold 1 {item_name} for {cost} gold. Gold left: {player.gold}. Carry {load}/{capacity}."
 
     def sell_item(
         self,
@@ -354,7 +400,9 @@ class InventoryEngine:
         if not still_has_copy:
             player.set_item_upgrade_level(item_id, 0)
         player.gold += value
-        return True, f"{buyer_name}: Bought 1 {item_name} for {value} gold. Gold now: {player.gold}."
+        load = self.carry_load(player, items_data)
+        capacity = player.carry_capacity()
+        return True, f"{buyer_name}: Bought 1 {item_name} for {value} gold. Gold now: {player.gold}. Carry {load}/{capacity}."
 
     def upgrade_item(self, player: Character, item_id: str, items_data: dict) -> tuple[bool, str]:
         if item_id not in player.inventory:

@@ -80,7 +80,9 @@ class Game:
         "rest",
         "use",
         "cast",
+        "ability",
         "quests",
+        "quest",
         "journal",
         "about",
         "talk",
@@ -231,6 +233,16 @@ class Game:
 
     def _backfill_world_progress_events(self) -> None:
         """Ensure event memory reflects world state (needed for legacy saves without history)."""
+        forest_path_enemies = self.world.get_enemies_at("forest_path")
+        if "slime" not in forest_path_enemies and not self.player.has_event("enemy_defeated", "location_id", "forest_path"):
+            self._log_event(
+                "enemy_defeated",
+                enemy_id="slime",
+                enemy_name=self.world.enemy_name("slime"),
+                location_id="forest_path",
+                location_name=self.world.get_location("forest_path").get("name", "Forest Path"),
+            )
+
         watchtower_enemies = self.world.get_enemies_at("old_watchtower")
         if "slime" not in watchtower_enemies and not self.player.has_event("enemy_defeated", "location_id", "old_watchtower"):
             self._log_event(
@@ -262,6 +274,23 @@ class Game:
 
         if "guardian_sigil" in self.player.inventory and not self.player.has_event("important_item_acquired", "item_id", "guardian_sigil"):
             self._record_important_item_acquired("guardian_sigil", source="inventory_backfill")
+
+    def _backfill_quest_progress_events(self) -> None:
+        for quest_id in sorted(self.quests.completed):
+            if self.player.has_event("quest_completed", "quest_id", quest_id):
+                continue
+            quest_data = self.quests.quests.get(quest_id, {})
+            objective = quest_data.get("objective", {})
+            location_id = str(objective.get("turn_in", self.current_location)).strip().lower()
+            if location_id not in self.world.locations:
+                location_id = self.current_location
+            self._log_event(
+                "quest_completed",
+                quest_id=quest_id,
+                quest_title=quest_data.get("title", quest_id),
+                location_id=location_id,
+                location_name=self.world.get_location(location_id).get("name", location_id),
+            )
 
     def _history_flags(self) -> dict:
         """Expose cached progress flags derived from event history for narration/visibility."""
@@ -1053,8 +1082,14 @@ class Game:
             return self._cmd_use(arg)
         if command == "cast":
             return self._cmd_cast(arg)
+        if command == "ability":
+            return self._cmd_abilities() if not arg else self._cmd_cast(arg)
         if command == "quests":
             return self._cmd_quests()
+        if command == "quest":
+            if not arg:
+                return self._cmd_quests()
+            return "Use 'quests' to review your log or 'accept <quest>' to take an offered quest."
         if command == "journal":
             return self._cmd_journal()
         if command == "about":
@@ -1365,6 +1400,9 @@ class Game:
         item_name = self.world.item_name(item_id)
         lines = [Narrator.item_taken(item_name)]
         lines.extend(self.quests.on_item_obtained(self.player, item_id))
+        carry_status = self.inventory.carry_status_line(self.player, self.world.items)
+        if carry_status:
+            lines.append(carry_status)
         lines.extend(self._post_action_world_tick("take"))
         transition_text = self._scene_transition_text(self.player.event_log[event_count_before:])
         if transition_text:
@@ -1372,14 +1410,18 @@ class Game:
         return "\n".join(lines)
 
     def _cmd_inventory(self) -> str:
+        carry_load = self.inventory.carry_load(self.player, self.world.items)
         lines = [
             "Inventory",
             f"HP: {self.player.hp}/{self.player.max_hp}",
             f"Focus: {self.player.focus}/{self.player.max_focus}",
             f"Defense: {self.player.defense_value(self.world.items)}",
             f"Gold: {self.player.gold}",
-            f"Carry: {len(self.player.inventory)}/{self.player.carry_capacity()}",
+            f"Carry: {carry_load}/{self.player.carry_capacity()}",
         ]
+        carry_status = self.inventory.carry_status_line(self.player, self.world.items)
+        if carry_status:
+            lines.append(carry_status)
         lines.extend(self.inventory.inventory_lines(self.player, self.world.items))
         return "\n".join(lines)
 
@@ -1442,6 +1484,8 @@ class Game:
             )
 
         derived = self.player.derived_stats(self.world.items)
+        carry_load = self.inventory.carry_load(self.player, self.world.items)
+        carry_status = self.inventory.carry_status_line(self.player, self.world.items)
         prepared_effect = self._prepared_effect_line()
 
         return (
@@ -1476,12 +1520,13 @@ class Game:
             f"Spell {derived['spell_power']} | "
             f"Healing {derived['healing_power']} | "
             f"Magic Guard {derived['magic_guard']} | "
-            f"Carry {len(self.player.inventory)}/{derived['carry_capacity']}\n"
+            f"Carry {carry_load}/{derived['carry_capacity']}\n"
             f"Location: {location_name}\n"
             f"Equipped weapon: {equipped_weapon}\n"
             f"Equipped armor: {equipped_armor}\n"
             f"Equipped accessory: {equipped_accessory}\n"
-            f"Inventory items: {len(self.player.inventory)}\n"
+            + (carry_status + "\n" if carry_status else "")
+            + f"Inventory pieces: {len(self.player.inventory)}\n"
             f"Abilities known: {', '.join(self._ability_name(ability_id) for ability_id in self.player.abilities) or 'none'}\n"
             f"Active quest: {active_quest_summary}"
             + (f"\nPrepared effect: {prepared_effect}" if prepared_effect else "")
@@ -1760,6 +1805,10 @@ class Game:
             self._record_important_item_acquired(item_id, source="combat_loot")
         loot_names = [self.world.item_name(item_id) for item_id in result["loot"]]
         lines.append(Narrator.loot_text(loot_names))
+        if result["loot"]:
+            carry_status = self.inventory.carry_status_line(self.player, self.world.items)
+            if carry_status:
+                lines.append(carry_status)
 
         reward_text = enemy_data.get("reward_text")
         if reward_text:
@@ -2228,6 +2277,7 @@ class Game:
         return "\n".join(
             self.quests.journal_lines(
                 self.player,
+                npc_ids=self._visible_npcs_at_location(self.current_location),
                 world=self.world,
                 current_location=self.current_location,
                 campaign_context=self.arc_context(),
@@ -2901,6 +2951,7 @@ class Game:
         if isinstance(world_state, dict):
             self.world.load_state_from_dict(world_state)
 
+        self._backfill_quest_progress_events()
         self._backfill_world_progress_events()
         self._record_location_visit(self.current_location)
 
