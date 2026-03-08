@@ -1263,6 +1263,27 @@ class Narrator:
                 return f"Accepted quest: {quest} at {location}."
             return f"Accepted quest: {quest}."
 
+        if event_type == "contract_accepted":
+            contract = details.get("contract_title", details.get("contract_id", "Unknown contract"))
+            location = details.get("location_name", details.get("location_id", ""))
+            if location:
+                return f"Accepted contract: {contract} at {location}."
+            return f"Accepted contract: {contract}."
+
+        if event_type == "contract_completed":
+            contract = details.get("contract_title", details.get("contract_id", "Unknown contract"))
+            location = details.get("location_name", details.get("location_id", ""))
+            if location:
+                return f"Completed contract: {contract} at {location}."
+            return f"Completed contract: {contract}."
+
+        if event_type == "contract_claimed":
+            contract = details.get("contract_title", details.get("contract_id", "Unknown contract"))
+            location = details.get("location_name", details.get("location_id", ""))
+            if location:
+                return f"Claimed contract: {contract} at {location}."
+            return f"Claimed contract: {contract}."
+
         if event_type == "miniboss_defeated":
             enemy = details.get("enemy_name", details.get("enemy_id", "Unknown miniboss"))
             return f"Defeated miniboss: {enemy}."

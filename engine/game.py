@@ -9,6 +9,7 @@ from engine.action_router import ActionRouter
 from engine.abilities import AbilityEngine
 from engine.campaign import CampaignEngine
 from engine.combat import CombatEngine
+from engine.contracts import ContractEngine
 from engine.crafting import CraftingEngine
 from engine.dice import DiceEngine
 from engine.encounters import EncounterEngine
@@ -22,6 +23,7 @@ from player.character import Character
 class Game:
     """Engine-first RPG core: tracks locations, inventory, quests, events, and persistence."""
     SAVE_FILE = "savegame.json"
+    CONTRACT_BOARD_LOCATION = "market_square"
     SAFE_REST_LOCATIONS = {"village_square", "shop", "inn"}
     CRAFTING_STATIONS = {
         "shop": {"alchemy"},
@@ -83,11 +85,14 @@ class Game:
         "ability",
         "quests",
         "quest",
+        "board",
+        "contracts",
         "journal",
         "about",
         "talk",
         "ask",
         "accept",
+        "claim",
         "do",
         "buy",
         "sell",
@@ -129,6 +134,7 @@ class Game:
         self.crafting = CraftingEngine()
         self.inventory = InventoryEngine()
         self.quests = QuestEngine(self.world.quests, self.world.items)
+        self.contracts = ContractEngine(self.world.contracts, self.world.items)
         self.intent_parser = IntentParser()
         self.action_router = ActionRouter()
         self.dm_context = DMContextBuilder()
@@ -137,6 +143,7 @@ class Game:
         self.running = True
         self._sync_social_state()
         self._record_location_visit(self.current_location)
+        self.contracts.sync_active_targets(self.player, self.world)
 
     def _load_npc_registry(self) -> None:
         self.TALKABLE_NPCS = {
@@ -230,6 +237,13 @@ class Game:
             location_id=location_id,
             location_name=self.world.get_location(location_id).get("name", location_id) if location_id else "",
         )
+
+    def _apply_contract_item_updates(self) -> list[str]:
+        lines = self.contracts.refresh_passive_progress(self.player, self.world)
+        if lines:
+            location_name = self.world.get_location(self.current_location).get("name", self.current_location)
+            lines.extend(self._apply_recent_contract_completions(self.current_location, location_name))
+        return lines
 
     def _backfill_world_progress_events(self) -> None:
         """Ensure event memory reflects world state (needed for legacy saves without history)."""
@@ -765,6 +779,19 @@ class Game:
             self.player.record_npc_help(giver, faction_id=giver_data.get("faction", ""))
         return lines
 
+    def _apply_contract_social_effects(self, contract_id: str) -> list[str]:
+        contract_data = self.contracts.contracts.get(contract_id, {})
+        lines = self._apply_social_rewards(
+            reputation_changes=contract_data.get("faction_rewards", {}),
+            trust_changes=contract_data.get("trust_rewards", {}),
+            source=contract_id,
+        )
+        for npc_id in contract_data.get("trust_rewards", {}):
+            npc_key = str(npc_id).strip().lower()
+            npc_data = self.world.get_npc(npc_key)
+            self.player.record_npc_help(npc_key, faction_id=npc_data.get("faction", ""))
+        return lines
+
     def _apply_recent_quest_completions(self, location_id: str, location_name: str) -> list[str]:
         lines = []
         for quest_id in self.quests.recently_completed_quests:
@@ -784,6 +811,24 @@ class Game:
                     self._record_important_item_acquired(str(reward_item_id), source="quest_reward")
         self.quests.recently_completed_quests = []
         return lines
+
+    def _apply_recent_contract_completions(self, location_id: str, location_name: str) -> list[str]:
+        lines = []
+        for contract_id in self.contracts.recently_completed_contracts:
+            contract_data = self.contracts.contracts.get(contract_id, {})
+            contract_title = contract_data.get("title", contract_id)
+            self._log_event(
+                "contract_completed",
+                contract_id=contract_id,
+                contract_title=contract_title,
+                location_id=location_id,
+                location_name=location_name,
+            )
+        self.contracts.recently_completed_contracts = []
+        return lines
+
+    def _contract_board_here(self) -> bool:
+        return self.current_location == self.CONTRACT_BOARD_LOCATION
 
     def _resolve_random_world_event(self, location_id: str) -> list[str]:
         location = self.world.get_location(location_id)
@@ -1121,6 +1166,10 @@ class Game:
             if not arg:
                 return self._cmd_quests()
             return "Use 'quests' to review your log or 'accept <quest>' to take an offered quest."
+        if command == "board":
+            return self._cmd_board()
+        if command == "contracts":
+            return self._cmd_contracts()
         if command == "journal":
             return self._cmd_journal()
         if command == "about":
@@ -1131,6 +1180,8 @@ class Game:
             return self._cmd_ask(arg)
         if command == "accept":
             return self._cmd_accept(arg)
+        if command == "claim":
+            return self._cmd_claim(arg)
         if command == "do":
             return self._cmd_do(arg)
         if command == "buy":
@@ -1178,7 +1229,7 @@ class Game:
         }
         scene_context = self._build_scene_context()
 
-        return Narrator.location_text(
+        text = Narrator.location_text(
             location_id=self.current_location,
             location=location,
             enemies=enemies,
@@ -1192,6 +1243,9 @@ class Game:
             history_flags=self._history_flags(),
             location_context=self._location_lore_context(),
         )
+        if self._contract_board_here():
+            text += "\nA contract board stands beside the market lane. Use 'board' to read the current postings."
+        return text
 
     def _inspect_with_quest_updates(self, base_text: str, target_id: str, target_type: str) -> str:
         self._log_event(
@@ -1223,6 +1277,9 @@ class Game:
 
         query = self._strip_leading_article(arg.strip())
         query_lower = query.lower()
+
+        if self._contract_board_here() and query_lower in {"board", "contract board", "job board", "hunters board"}:
+            return self._cmd_board()
 
         if self.world.is_current_location_query(self.current_location, query):
             location = self.world.get_location(self.current_location)
@@ -1479,6 +1536,7 @@ class Game:
                 campaign_context=self.arc_context(),
             )
         )
+        lines.extend(self._apply_contract_item_updates())
         carry_status = self.inventory.carry_status_line(self.player, self.world.items)
         if carry_status:
             lines.append(carry_status)
@@ -1561,6 +1619,10 @@ class Game:
                 f"{next_objective['title']} "
                 f"({next_objective['have']}/{next_objective['need']})"
             )
+        active_contract_summary = "None"
+        next_contract = self.contracts.next_objective()
+        if next_contract:
+            active_contract_summary = f"{next_contract['title']} ({next_contract['objective_text']})"
 
         derived = self.player.derived_stats(self.world.items)
         carry_load = self.inventory.carry_load(self.player, self.world.items)
@@ -1607,7 +1669,8 @@ class Game:
             + (carry_status + "\n" if carry_status else "")
             + f"Inventory pieces: {len(self.player.inventory)}\n"
             f"Abilities known: {', '.join(self._ability_name(ability_id) for ability_id in self.player.abilities) or 'none'}\n"
-            f"Active quest: {active_quest_summary}"
+            f"Active quest: {active_quest_summary}\n"
+            f"Active contract: {active_contract_summary}"
             + (f"\nPrepared effect: {prepared_effect}" if prepared_effect else "")
             + (f"\nBio: {self.player.bio}" if self.player.bio else "")
         )
@@ -1642,7 +1705,7 @@ class Game:
         campaign_context = self.arc_context()
         quest_summary = self.quests.recap_summary(self.player, campaign_context=campaign_context)
         event_counts = self._event_counts()
-        return Narrator.recap_text(
+        recap_text = Narrator.recap_text(
             player_name=self.player.name,
             location_name=location_name,
             hp=self.player.hp,
@@ -1660,6 +1723,10 @@ class Game:
             location_context=self._location_lore_context(),
             history_flags=self._history_flags(),
         )
+        contract_lines = self.contracts.active_contract_lines()[1:]
+        if self.contracts.accepted or self.contracts.claimable:
+            recap_text += "\n" + "\n".join(["Contracts"] + contract_lines)
+        return recap_text
 
     def _cmd_story(self) -> str:
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
@@ -1903,6 +1970,7 @@ class Game:
                     campaign_context=self.arc_context(),
                 )
             )
+        lines.extend(self._apply_contract_item_updates())
 
         lines.extend(self._grant_xp(result.get("xp_reward", 0), source=enemy_id))
 
@@ -1940,8 +2008,15 @@ class Game:
                 campaign_context=self.arc_context(),
             )
         )
+        lines.extend(self.contracts.on_enemy_defeated(self.player, enemy_id, self.current_location, self.world))
         lines.extend(
             self._apply_recent_quest_completions(
+                self.current_location,
+                self.world.get_location(self.current_location).get("name", self.current_location),
+            )
+        )
+        lines.extend(
+            self._apply_recent_contract_completions(
                 self.current_location,
                 self.world.get_location(self.current_location).get("name", self.current_location),
             )
@@ -2063,6 +2138,22 @@ class Game:
                     return Narrator.hint_text(f"For '{title}', go {direction} toward {target_location_name}.")
                 return Narrator.hint_text(f"For '{title}', travel to {target_location_name}.")
 
+        contract_objective = self.contracts.next_objective()
+        if contract_objective:
+            title = contract_objective["title"]
+            board_location = contract_objective["board_location"] or self.CONTRACT_BOARD_LOCATION
+            board_name = self.world.get_location(board_location).get("name", board_location)
+            if contract_objective["claimable"]:
+                if self.current_location == board_location:
+                    return Narrator.hint_text(f"'{title}' is ready to claim. Use 'claim {title}'.")
+                direction = self.world.exit_direction_to(self.current_location, board_location)
+                if direction:
+                    return Narrator.hint_text(f"'{title}' is ready to claim. Go {direction} toward {board_name}.")
+                return Narrator.hint_text(f"'{title}' is ready to claim. Return to {board_name}.")
+            return Narrator.hint_text(
+                f"Contract focus: {title}. {contract_objective['objective_text']}. Route: {contract_objective['location_hint']}."
+            )
+
         if offered_here:
             first_title = offered_here[0][1].get("title", offered_here[0][0])
             if len(offered_here) == 1:
@@ -2151,6 +2242,8 @@ class Game:
                 was_injured,
             )
         )
+        if self.world.get_location(self.current_location).get("region", "") == "Stonewatch":
+            self.contracts.advance_board_refresh()
         lines.extend(self._post_action_world_tick("rest"))
         return "\n".join(lines)
 
@@ -2368,6 +2461,22 @@ class Game:
             )
         )
 
+    def _cmd_board(self) -> str:
+        if not self._contract_board_here():
+            return "Stonewatch's contract board is posted in Market Square."
+        self.contracts.sync_active_targets(self.player, self.world)
+        location_name = self.world.get_location(self.current_location).get("name", self.current_location)
+        lines = self._apply_recent_contract_completions(self.current_location, location_name)
+        lines.extend(self.contracts.board_lines(self.player, self.CONTRACT_BOARD_LOCATION))
+        return "\n".join(lines)
+
+    def _cmd_contracts(self) -> str:
+        self.contracts.sync_active_targets(self.player, self.world)
+        location_name = self.world.get_location(self.current_location).get("name", self.current_location)
+        lines = self._apply_recent_contract_completions(self.current_location, location_name)
+        lines.extend(self.contracts.active_contract_lines())
+        return "\n".join(lines)
+
     def _cmd_journal(self) -> str:
         return "\n".join(
             self.quests.journal_lines(
@@ -2378,6 +2487,25 @@ class Game:
                 campaign_context=self.arc_context(),
             )
         )
+
+    def _cmd_claim(self, arg: str) -> str:
+        if not self._contract_board_here():
+            return "You need to be at the Stonewatch contract board in Market Square to claim payment."
+        claimed, lines, contract_id, reward_items = self.contracts.claim_contract(self.player, arg, self.inventory)
+        if not claimed or not contract_id:
+            return "\n".join(lines)
+        contract_data = self.contracts.contracts.get(contract_id, {})
+        self._log_event(
+            "contract_claimed",
+            contract_id=contract_id,
+            contract_title=contract_data.get("title", contract_id),
+            location_id=self.current_location,
+            location_name=self.world.get_location(self.current_location).get("name", self.current_location),
+        )
+        lines.extend(self._apply_contract_social_effects(contract_id))
+        for reward_item_id in reward_items:
+            self._record_important_item_acquired(str(reward_item_id), source="contract_reward")
+        return "\n".join(lines)
 
     def _npc_service_lines(self, npc_id: str, npc_data: dict) -> list[str]:
         services = []
@@ -2525,6 +2653,24 @@ class Game:
         )
 
     def _cmd_accept(self, arg: str) -> str:
+        if self._contract_board_here():
+            contract_accepted, contract_lines, contract_id = self.contracts.accept_contract(
+                self.player,
+                arg,
+                self.CONTRACT_BOARD_LOCATION,
+                self.world,
+            )
+            if contract_accepted and contract_id:
+                contract_data = self.contracts.contracts.get(contract_id, {})
+                self._log_event(
+                    "contract_accepted",
+                    contract_id=contract_id,
+                    contract_title=contract_data.get("title", contract_id),
+                    location_id=self.current_location,
+                    location_name=self.world.get_location(self.current_location).get("name", self.current_location),
+                )
+                return "\n".join(contract_lines)
+
         npcs_here = self._visible_npcs_at_location(self.current_location)
         accepted, lines, quest_id = self.quests.accept_quest(
             self.player,
@@ -2980,6 +3126,7 @@ class Game:
                     campaign_context=self.arc_context(),
                 )
             )
+            lines.extend(self._apply_contract_item_updates())
         extra_lines = self._post_action_world_tick("craft")
         if extra_lines:
             lines.extend(extra_lines)
@@ -3011,6 +3158,7 @@ class Game:
                 campaign_context=self.arc_context(),
             )
         )
+        lines.extend(self._apply_contract_item_updates())
         return "\n".join(lines)
 
     def _save_data(self) -> dict:
@@ -3018,6 +3166,7 @@ class Game:
             "player": self.player.to_dict(),
             "current_location": self.current_location,
             "quests": self.quests.to_dict(),
+            "contracts": self.contracts.to_dict(),
             "world_state": self.world.state_to_dict(),
         }
 
@@ -3056,6 +3205,7 @@ class Game:
         self.crafting = CraftingEngine()
         self.inventory = InventoryEngine()
         self.quests = QuestEngine(self.world.quests, self.world.items)
+        self.contracts = ContractEngine(self.world.contracts, self.world.items)
 
         self.player = Character.from_dict(data.get("player", {}))
         self._sync_social_state()
@@ -3072,6 +3222,10 @@ class Game:
         if isinstance(quests_data, dict):
             self.quests.load_from_dict(quests_data)
 
+        contracts_data = data.get("contracts", {})
+        if isinstance(contracts_data, dict):
+            self.contracts.load_from_dict(contracts_data)
+
         world_state = data.get("world_state", {})
         if isinstance(world_state, dict):
             self.world.load_state_from_dict(world_state)
@@ -3079,8 +3233,10 @@ class Game:
         self._backfill_quest_progress_events()
         self._backfill_world_progress_events()
         self._record_location_visit(self.current_location)
+        self.contracts.sync_active_targets(self.player, self.world)
 
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
+        self._apply_recent_contract_completions(self.current_location, location_name)
         reminder = Narrator.load_reminder_text(
             location_name,
             self.chapter_context(),
@@ -3101,7 +3257,10 @@ class Game:
             "take [item]        - Pick up a nearby item.\n"
             "talk <npc>         - Converse with an NPC who is present.\n"
             "ask <npc> about <topic> - Ask a present NPC about a topic.\n"
-            "accept <quest>     - Accept a quest offered by an NPC in your current location.\n"
+            "accept <name>      - Accept a quest offer or a posted board contract in your current location.\n"
+            "board              - Read the Stonewatch contract board in Market Square.\n"
+            "contracts          - Review active and claimable board contracts.\n"
+            "claim <contract>   - Claim payment for a finished board contract at Market Square.\n"
             "do <free text>     - Optional wrapper for safe narrative input like observe, ask, or listen.\n"
             "free text          - You can also type lines like 'look around', 'go to the forest', or 'attack the slime'.\n"
             "buy <item>         - Purchase from a local vendor in your current location.\n"
@@ -3114,10 +3273,10 @@ class Game:
             "gear               - Show equipped items, upgrade levels, and build impact.\n"
             "character          - Show a compact full character sheet.\n"
             "sheet              - Alias for `character`.\n"
-            "stats              - Snapshot core stats, derived combat values, and quest focus.\n"
+            "stats              - Snapshot core stats, derived combat values, and active quest/contract focus.\n"
             "skills             - Show skill totals, proficiencies, and linked core stats.\n"
             "abilities          - List your class abilities, spells, and current focus.\n"
-            "recap              - Recap your location, resources, and quests.\n"
+            "recap              - Recap your location, resources, quests, and contracts.\n"
             "story              - Tell the story of your adventure so far.\n"
             "history            - Show a timeline of important adventure events.\n"
             "world              - Show active world-state changes by location.\n"

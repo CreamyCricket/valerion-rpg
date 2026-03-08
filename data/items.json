@@ -501,6 +501,13 @@
     "tier": 1,
     "description": "A weathered satchel that still carries someone else's initials."
   },
+  "iron_lockbox": {
+    "name": "Iron Lockbox",
+    "type": "quest",
+    "rarity": "uncommon",
+    "tier": 2,
+    "description": "A compact iron lockbox scarred by travel and stubborn enough to survive a raider camp."
+  },
   "raider_badge": {
     "name": "Raider Badge",
     "type": "loot",

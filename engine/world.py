@@ -68,6 +68,7 @@ class World:
         self.locations = self._load_json(base / "locations.json")
         self.enemies = self._load_json(base / "enemies.json")
         self.items = self._load_json(base / "items.json")
+        self.contracts = self._load_json(base / "contracts.json")
         self.recipes = self._load_json(base / "recipes.json")
         self.npcs = self._load_json(base / "npcs.json")
         self.quests = self._load_json(base / "quests.json")
@@ -512,6 +513,14 @@ class World:
         items = self.get_items_at(location_id)
         if item_id in items:
             items.remove(item_id)
+
+    def add_item(self, location_id: str, item_id: str) -> None:
+        normalized_item = self._normalize_entity_id(item_id)
+        if location_id not in self.state_locations or not self.has_item(normalized_item):
+            return
+        items = self.get_items_at(location_id)
+        if normalized_item not in items:
+            items.append(normalized_item)
 
     def add_npc(self, location_id: str, npc_id: str) -> None:
         normalized_npc = self._normalize_entity_id(npc_id)

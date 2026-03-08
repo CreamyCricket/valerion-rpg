@@ -148,6 +148,16 @@
     "faction": "shrine_keepers",
     "important": true
   },
+  "aldric": {
+    "name": "Aldric",
+    "role": "Frontier trader",
+    "aliases": ["aldric the trader", "trader aldric", "aldric trader"],
+    "dialogue": "Aldric counts losses with a trader's calm and a survivor's memory, talking about roads, raiders, and recovered cargo as if all three belong on the same ledger line.",
+    "faction": "merchant_guild",
+    "important": true,
+    "shop_inventory": ["bread_ration", "torch_bundle", "bandage_kit", "iron_scrap"],
+    "buy_types": ["consumable", "utility", "loot"]
+  },
   "hold_warden": {
     "name": "Hold Warden",
     "role": "Ironridge pass warden",

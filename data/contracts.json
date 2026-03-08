@@ -1,0 +1,204 @@
+{
+  "c001_wolfpack_culling": {
+    "contract_id": "c001_wolfpack_culling",
+    "title": "Wolfpack Culling",
+    "rank": "E",
+    "category": "hunter_extermination",
+    "posted_by": "Stonewatch Hunters Guild",
+    "board_location": "market_square",
+    "display_location": "Ashwood Trail",
+    "location_hint": "Forest Path and Deep Forest",
+    "repeatable": true,
+    "cooldown": 1,
+    "objective": {
+      "type": "defeat_targets",
+      "enemy_ids": ["ashwood_wolf", "ashwood_stalker", "ashwood_packleader"],
+      "locations": ["forest_path", "deep_forest"],
+      "count": 3,
+      "summary": "Defeat 3 Ashwood Wolves",
+      "spawn_enemies": [
+        {"enemy": "ashwood_wolf", "location": "forest_path"},
+        {"enemy": "ashwood_stalker", "location": "forest_path"},
+        {"enemy": "ashwood_packleader", "location": "deep_forest"}
+      ]
+    },
+    "reward": {
+      "gold": 40
+    },
+    "faction_rewards": {
+      "hunters_guild": 5,
+      "merchant_guild": 2
+    },
+    "trust_rewards": {}
+  },
+  "c002_shrine_ash_clearing": {
+    "contract_id": "c002_shrine_ash_clearing",
+    "title": "Shrine Ash Clearing",
+    "rank": "E",
+    "category": "shrine_cleansing",
+    "posted_by": "Shrine Keepers",
+    "board_location": "market_square",
+    "display_location": "Ember Shrine",
+    "location_hint": "Abandoned Shrine",
+    "repeatable": true,
+    "cooldown": 1,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "corrupted_shrine_wraith",
+      "location": "ruined_shrine",
+      "count": 1,
+      "summary": "Defeat the Corrupted Shrine Wraith",
+      "spawn_enemies": [
+        {"enemy": "corrupted_shrine_wraith", "location": "ruined_shrine"}
+      ]
+    },
+    "reward": {
+      "gold": 35
+    },
+    "faction_rewards": {},
+    "trust_rewards": {
+      "shrine_caretaker": 8
+    }
+  },
+  "c003_bandit_road_tax": {
+    "contract_id": "c003_bandit_road_tax",
+    "title": "Bandit Road Tax",
+    "rank": "D",
+    "category": "bandit_suppression",
+    "posted_by": "Stonewatch Guard",
+    "board_location": "market_square",
+    "display_location": "Ironpass Road",
+    "location_hint": "Ironridge Pass",
+    "repeatable": true,
+    "cooldown": 1,
+    "steps": [
+      {
+        "title": "Break the Tollmaster",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "bandit_tollmaster",
+          "location": "ironridge_pass",
+          "count": 1,
+          "summary": "Defeat the Bandit Tollmaster",
+          "spawn_enemies": [
+            {"enemy": "bandit_tollmaster", "location": "ironridge_pass"},
+            {"enemy": "bandit_toll_guard", "location": "ironridge_pass"}
+          ]
+        }
+      },
+      {
+        "title": "Sweep the Guards",
+        "objective": {
+          "type": "defeat_targets",
+          "enemy_ids": ["bandit_toll_guard", "ridge_raider", "ore_thief"],
+          "location": "ironridge_pass",
+          "count": 2,
+          "summary": "Defeat 2 Toll Guards",
+          "spawn_enemies": [
+            {"enemy": "bandit_toll_guard", "location": "ironridge_pass"},
+            {"enemy": "ridge_raider", "location": "ironridge_pass"}
+          ]
+        }
+      }
+    ],
+    "reward": {
+      "gold": 70
+    },
+    "faction_rewards": {
+      "kingdom_guard": 10
+    },
+    "trust_rewards": {}
+  },
+  "c004_merchant_recovery": {
+    "contract_id": "c004_merchant_recovery",
+    "title": "Merchant Recovery",
+    "rank": "D",
+    "category": "merchant_recovery",
+    "posted_by": "Aldric the Trader",
+    "board_location": "market_square",
+    "display_location": "Dustfield Crossing",
+    "location_hint": "Bandit Camp beyond Deep Forest",
+    "repeatable": true,
+    "cooldown": 1,
+    "objective": {
+      "type": "bring_item",
+      "item": "iron_lockbox",
+      "count": 1,
+      "summary": "Recover the Iron Lockbox",
+      "spawn_items": [
+        {"item": "iron_lockbox", "location": "bandit_camp"}
+      ]
+    },
+    "reward": {
+      "gold": 65,
+      "items": ["iron_scrap"]
+    },
+    "faction_rewards": {
+      "merchant_guild": 5
+    },
+    "trust_rewards": {
+      "aldric": 12
+    }
+  },
+  "c005_corrupted_grove": {
+    "contract_id": "c005_corrupted_grove",
+    "title": "Corrupted Grove",
+    "rank": "C",
+    "category": "hunter_extermination",
+    "posted_by": "Hunters Guild - Urgent",
+    "board_location": "market_square",
+    "display_location": "Blackroot Grove",
+    "location_hint": "Old Ruins",
+    "repeatable": true,
+    "cooldown": 2,
+    "requires_reputation": [
+      {"faction": "hunters_guild", "min": 5}
+    ],
+    "requires_contracts_completed": [
+      "c001_wolfpack_culling",
+      "c002_shrine_ash_clearing",
+      "c003_bandit_road_tax",
+      "c004_merchant_recovery"
+    ],
+    "steps": [
+      {
+        "title": "Break the Sentinel",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "grove_sentinel",
+          "location": "old_ruins",
+          "count": 1,
+          "summary": "Defeat the Grove Sentinel",
+          "spawn_enemies": [
+            {"enemy": "grove_sentinel", "location": "old_ruins"}
+          ]
+        }
+      },
+      {
+        "title": "Endure the Ambush Waves",
+        "objective": {
+          "type": "defeat_targets",
+          "enemy_ids": ["blackroot_ambusher", "blackroot_stalker"],
+          "location": "old_ruins",
+          "count": 2,
+          "summary": "Survive 2 ambush waves",
+          "spawn_enemies": [
+            {"enemy": "blackroot_ambusher", "location": "old_ruins"},
+            {"enemy": "blackroot_stalker", "location": "old_ruins"}
+          ]
+        }
+      }
+    ],
+    "reward": {
+      "gold": 120,
+      "bonus_items": [
+        {"item": "guardian_plate", "chance": 35}
+      ]
+    },
+    "faction_rewards": {
+      "hunters_guild": 20
+    },
+    "trust_rewards": {},
+    "unlocks_rank": "C"
+  }
+}

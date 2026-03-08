@@ -521,7 +521,7 @@
     "description": "Stonewatch's market square is tight with awnings, handcarts, and callers who know the road well enough to price it by the mile.",
     "region": "Stonewatch",
     "lore": "The square is where forest goods become town coin, where travelers overhear their next lead, and where Stonewatch proves it is more than a checkpoint with walls.",
-    "services": ["buy", "sell", "materials", "quest leads"],
+    "services": ["buy", "sell", "materials", "quest leads", "contract board"],
     "economy_note": "The square sets the town's mood: food, salvage, and rumor all change hands here first.",
     "connected_locations": {
       "gate": "town_gate",
@@ -534,7 +534,7 @@
     },
     "enemies": [],
     "items": [],
-    "npcs": ["market_broker"],
+    "npcs": ["market_broker", "aldric"],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],

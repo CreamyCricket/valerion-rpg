@@ -9,6 +9,7 @@ class Character:
     DEFAULT_FACTION_REPUTATION: ClassVar[dict[str, int]] = {
         "kingdom_guard": 0,
         "merchant_guild": 0,
+        "hunters_guild": 0,
         "thieves_circle": 0,
         "shrine_keepers": 0,
         "forest_clans": 0,

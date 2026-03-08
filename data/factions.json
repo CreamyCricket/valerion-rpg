@@ -7,6 +7,10 @@
     "name": "Merchant Guild",
     "description": "Caravan masters, traders, ferrymen, and suppliers who care about safe routes and fair trade."
   },
+  "hunters_guild": {
+    "name": "Hunters Guild",
+    "description": "Trackers, trappers, and frontier contractors who turn road danger into clear work and cleaner ledgers."
+  },
   "thieves_circle": {
     "name": "Thieves Circle",
     "description": "Smugglers, raiders, and quiet criminals who profit when the roads turn uncertain."
