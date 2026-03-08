@@ -765,6 +765,26 @@ class Game:
             self.player.record_npc_help(giver, faction_id=giver_data.get("faction", ""))
         return lines
 
+    def _apply_recent_quest_completions(self, location_id: str, location_name: str) -> list[str]:
+        lines = []
+        for quest_id in self.quests.recently_completed_quests:
+            quest_data = self.quests.quests.get(quest_id, {})
+            quest_title = quest_data.get("title", quest_id)
+            self._log_event(
+                "quest_completed",
+                quest_id=quest_id,
+                quest_title=quest_title,
+                location_id=location_id,
+                location_name=location_name,
+            )
+            lines.extend(self._apply_quest_social_effects(quest_id))
+            reward_items = quest_data.get("reward", {}).get("items", [])
+            if isinstance(reward_items, list):
+                for reward_item_id in reward_items:
+                    self._record_important_item_acquired(str(reward_item_id), source="quest_reward")
+        self.quests.recently_completed_quests = []
+        return lines
+
     def _resolve_random_world_event(self, location_id: str) -> list[str]:
         location = self.world.get_location(location_id)
         location_name = location.get("name", location_id)
@@ -1003,6 +1023,17 @@ class Game:
                     "watch memorial",
                 ),
             }
+        if location_id == "river_crossing":
+            return {
+                "ferry_ledger": (
+                    "ledger",
+                    "ferry ledger",
+                    "ferry records",
+                    "toll ledger",
+                    "toll records",
+                    "ferry log",
+                )
+            }
         return {}
 
     def _find_lore_object_at_location(self, location_id: str, query: str) -> str | None:
@@ -1162,6 +1193,30 @@ class Game:
             location_context=self._location_lore_context(),
         )
 
+    def _inspect_with_quest_updates(self, base_text: str, target_id: str, target_type: str) -> str:
+        self._log_event(
+            "inspected",
+            target_id=target_id,
+            target_type=target_type,
+            location_id=self.current_location,
+        )
+        quest_lines = self.quests.on_inspect(
+            self.player,
+            target_id,
+            target_type,
+            self.current_location,
+            self.inventory,
+            world=self.world,
+            campaign_context=self.arc_context(),
+        )
+        if quest_lines:
+            lines = [base_text]
+            lines.extend(quest_lines)
+            location_name = self.world.get_location(self.current_location).get("name", self.current_location)
+            lines.extend(self._apply_recent_quest_completions(self.current_location, location_name))
+            return "\n".join(lines)
+        return base_text
+
     def _cmd_inspect(self, arg: str) -> str:
         if not arg.strip():
             return "Inspect what? Try your location, an item nearby, an item in your backpack, or an NPC here."
@@ -1172,48 +1227,72 @@ class Game:
         if self.world.is_current_location_query(self.current_location, query):
             location = self.world.get_location(self.current_location)
             if self.current_location in {"old_watchtower", "ruined_shrine"}:
-                return Narrator.inspect_special_location_text(
+                return self._inspect_with_quest_updates(
+                    Narrator.inspect_special_location_text(
+                        self.current_location,
+                        location,
+                        self._history_flags(),
+                        location_context=self._location_lore_context(),
+                    ),
                     self.current_location,
+                    "location",
+                )
+            return self._inspect_with_quest_updates(
+                Narrator.inspect_location_text(
                     location,
+                    self.current_location,
                     self._history_flags(),
                     location_context=self._location_lore_context(),
-                )
-            return Narrator.inspect_location_text(
-                location,
+                ),
                 self.current_location,
-                self._history_flags(),
-                location_context=self._location_lore_context(),
+                "location",
             )
 
         lore_object_id = self._find_lore_object_at_location(self.current_location, query)
         if lore_object_id:
-            return Narrator.inspect_lore_object_text(
-                lore_object_id=lore_object_id,
-                location_id=self.current_location,
-                history_flags=self._history_flags(),
+            return self._inspect_with_quest_updates(
+                Narrator.inspect_lore_object_text(
+                    lore_object_id=lore_object_id,
+                    location_id=self.current_location,
+                    history_flags=self._history_flags(),
+                ),
+                lore_object_id,
+                "lore",
             )
 
         inventory_item_id = self.inventory.find_item_in_inventory(self.player, self.world.items, query)
         if inventory_item_id:
-            return "\n".join(self.inventory.inspect_item_lines(self.player, inventory_item_id, self.world.items, "your backpack"))
+            return self._inspect_with_quest_updates(
+                "\n".join(self.inventory.inspect_item_lines(self.player, inventory_item_id, self.world.items, "your backpack")),
+                inventory_item_id,
+                "item",
+            )
 
         location_item_id = self.world.find_item_at_location(self.current_location, query)
         if location_item_id:
-            return "\n".join(
-                self.inventory.inspect_item_lines(
-                    self.player,
-                    location_item_id,
-                    self.world.items,
-                    "the ground here",
-                    include_upgrade_state=False,
-                )
+            return self._inspect_with_quest_updates(
+                "\n".join(
+                    self.inventory.inspect_item_lines(
+                        self.player,
+                        location_item_id,
+                        self.world.items,
+                        "the ground here",
+                        include_upgrade_state=False,
+                    )
+                ),
+                location_item_id,
+                "item",
             )
 
         npc_id = self._find_visible_npc_at_location(self.current_location, query)
         if npc_id:
             npc_name = self.TALKABLE_NPCS.get(npc_id, npc_id.title())
             location_name = self.world.get_location(self.current_location).get("name", self.current_location)
-            return Narrator.inspect_npc_text(npc_name, location_name)
+            return self._inspect_with_quest_updates(
+                Narrator.inspect_npc_text(npc_name, location_name),
+                npc_id,
+                "npc",
+            )
 
         hints = []
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
@@ -1292,23 +1371,15 @@ class Game:
         lines.extend(self.scene_composer.compose_entry_lines(scene_context))
         lines.extend(self._learn_available_recipes())
         lines.append(self._cmd_look())
-        quest_messages = self.quests.on_location_enter(self.player, self.current_location, self.inventory)
+        quest_messages = self.quests.on_location_enter(
+            self.player,
+            self.current_location,
+            self.inventory,
+            world=self.world,
+            campaign_context=self.arc_context(),
+        )
         lines.extend(quest_messages)
-        for quest_id in self.quests.recently_completed_quests:
-            quest_data = self.quests.quests.get(quest_id, {})
-            quest_title = quest_data.get("title", quest_id)
-            self._log_event(
-                "quest_completed",
-                quest_id=quest_id,
-                quest_title=quest_title,
-                location_id=self.current_location,
-                location_name=location_name,
-            )
-            lines.extend(self._apply_quest_social_effects(quest_id))
-            reward_items = quest_data.get("reward", {}).get("items", [])
-            if isinstance(reward_items, list):
-                for reward_item_id in reward_items:
-                    self._record_important_item_acquired(str(reward_item_id), source="quest_reward")
+        lines.extend(self._apply_recent_quest_completions(self.current_location, location_name))
         transition_text = self._scene_transition_text(self.player.event_log[event_count_before:])
         if transition_text:
             lines.append(transition_text)
@@ -1399,7 +1470,15 @@ class Game:
 
         item_name = self.world.item_name(item_id)
         lines = [Narrator.item_taken(item_name)]
-        lines.extend(self.quests.on_item_obtained(self.player, item_id))
+        lines.extend(
+            self.quests.on_item_obtained(
+                self.player,
+                item_id,
+                world=self.world,
+                current_location=self.current_location,
+                campaign_context=self.arc_context(),
+            )
+        )
         carry_status = self.inventory.carry_status_line(self.player, self.world.items)
         if carry_status:
             lines.append(carry_status)
@@ -1815,7 +1894,15 @@ class Game:
             lines.append(str(reward_text))
 
         for item_id in result["loot"]:
-            lines.extend(self.quests.on_item_obtained(self.player, item_id))
+            lines.extend(
+                self.quests.on_item_obtained(
+                    self.player,
+                    item_id,
+                    world=self.world,
+                    current_location=self.current_location,
+                    campaign_context=self.arc_context(),
+                )
+            )
 
         lines.extend(self._grant_xp(result.get("xp_reward", 0), source=enemy_id))
 
@@ -1849,6 +1936,14 @@ class Game:
                 enemy_id,
                 self.current_location,
                 self.inventory,
+                world=self.world,
+                campaign_context=self.arc_context(),
+            )
+        )
+        lines.extend(
+            self._apply_recent_quest_completions(
+                self.current_location,
+                self.world.get_location(self.current_location).get("name", self.current_location),
             )
         )
         return lines
@@ -2367,7 +2462,7 @@ class Game:
         )
         service_lines = self._npc_service_lines(npc_query, npc_data)
         memory_lines = self._npc_memory_lines(npc_query)
-        return Narrator.npc_dialogue_text(
+        dialogue_text = Narrator.npc_dialogue_text(
             npc_name,
             role,
             dialogue,
@@ -2375,6 +2470,20 @@ class Game:
             service_lines=service_lines,
             memory_lines=memory_lines,
         )
+        quest_lines = self.quests.on_npc_talk(
+            self.player,
+            npc_query,
+            self.current_location,
+            self.inventory,
+            world=self.world,
+            campaign_context=self.arc_context(),
+        )
+        if quest_lines:
+            lines = [dialogue_text]
+            lines.extend(quest_lines)
+            lines.extend(self._apply_recent_quest_completions(self.current_location, location.get("name", self.current_location)))
+            return "\n".join(lines)
+        return dialogue_text
 
     def _cmd_ask(self, arg: str) -> str:
         usage = "Use format: ask <npc> about <topic>"
@@ -2862,7 +2971,15 @@ class Game:
         lines = learned_lines + [message]
         if output_item_id:
             self._record_important_item_acquired(output_item_id, source="crafting")
-            lines.extend(self.quests.on_item_obtained(self.player, output_item_id))
+            lines.extend(
+                self.quests.on_item_obtained(
+                    self.player,
+                    output_item_id,
+                    world=self.world,
+                    current_location=self.current_location,
+                    campaign_context=self.arc_context(),
+                )
+            )
         extra_lines = self._post_action_world_tick("craft")
         if extra_lines:
             lines.extend(extra_lines)
@@ -2885,7 +3002,15 @@ class Game:
             return message
 
         lines = [message]
-        lines.extend(self.quests.on_item_obtained(self.player, item_id))
+        lines.extend(
+            self.quests.on_item_obtained(
+                self.player,
+                item_id,
+                world=self.world,
+                current_location=self.current_location,
+                campaign_context=self.arc_context(),
+            )
+        )
         return "\n".join(lines)
 
     def _save_data(self) -> dict:
@@ -3005,7 +3130,7 @@ class Game:
             "use <item>         - Consume a potion or equip a weapon.\n"
             "cast <ability>     - Spend focus on a known spell or class ability.\n"
             "quests             - Show raw quest progress and completion.\n"
-            "journal            - Read each quest's story and progress.\n"
+            "journal            - Read completed quest records only.\n"
             "about              - Explain engine rules vs AI narration.\n"
             "\n"
             "save               - Persist your run to `savegame.json`.\n"

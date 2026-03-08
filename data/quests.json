@@ -333,7 +333,7 @@
   "q013_badges_for_the_watch": {
     "quest_id": "q013_badges_for_the_watch",
     "title": "Badges for the Watch",
-    "description": "Stonewatch's Quartermaster wants a raider badge brought in so the watch can track who is pressing the road.",
+    "description": "Stonewatch's Quartermaster needs fresh proof, tower intel, and a clear report before the watch moves on the Ironridge raids.",
     "giver": "quartermaster",
     "requires_acceptance": true,
     "min_arc": 3,
@@ -343,12 +343,40 @@
       "thieves_circle": -4
     },
     "trust_reward": 8,
-    "objective": {
-      "type": "bring_item",
-      "item": "raider_badge",
-      "count": 1,
-      "turn_in": "watch_barracks"
-    },
+    "steps": [
+      {
+        "title": "Inspect the Watchtower Journal",
+        "objective": {
+          "type": "inspect",
+          "target": "watchtower_journal",
+          "location": "old_watchtower",
+          "count": 1,
+          "turn_in": "watch_barracks"
+        },
+        "turn_in_npc": "quartermaster"
+      },
+      {
+        "title": "Drive Off a Ridge Raider",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "ridge_raider",
+          "count": 1,
+          "location": "ironridge_pass",
+          "turn_in": "watch_barracks"
+        },
+        "turn_in_npc": "quartermaster"
+      },
+      {
+        "title": "Deliver a Raider Badge",
+        "objective": {
+          "type": "bring_item",
+          "item": "raider_badge",
+          "count": 1,
+          "turn_in": "watch_barracks"
+        },
+        "turn_in_npc": "quartermaster"
+      }
+    ],
     "reward": {
       "gold": 18,
       "items": ["bandage_kit"]
@@ -366,12 +394,39 @@
       "cult_of_ash": -4
     },
     "trust_reward": 8,
-    "objective": {
-      "type": "bring_item",
-      "item": "shrine_ash",
-      "count": 1,
-      "turn_in": "town_shrine"
-    },
+    "steps": [
+      {
+        "title": "Report to the Shrine",
+        "objective": {
+          "type": "talk_to_npc",
+          "npc": "shrine_caretaker",
+          "location": "town_shrine",
+          "count": 1
+        }
+      },
+      {
+        "title": "Gather Shrine Ash",
+        "objective": {
+          "type": "bring_item",
+          "item": "shrine_ash",
+          "count": 1,
+          "turn_in": "town_shrine"
+        },
+        "turn_in_npc": "shrine_caretaker",
+        "requires_npc_trust": [
+          {
+            "npc": "shrine_caretaker",
+            "min": 2
+          }
+        ],
+        "requires_world_states": [
+          {
+            "location": "ruined_shrine",
+            "state": "shrine_corruption"
+          }
+        ]
+      }
+    ],
     "reward": {
       "gold": 16,
       "items": ["novice_grimoire", "herb_bundle"]
@@ -471,6 +526,59 @@
     "reward": {
       "gold": 20,
       "items": ["mana_tonic"]
+    }
+  },
+  "q019_roadside_losses": {
+    "quest_id": "q019_roadside_losses",
+    "title": "Roadside Losses",
+    "description": "Stonewatch's market broker wants proof of which raiders are hitting the ferry road and a satchel returned to its owner.",
+    "giver": "market_broker",
+    "requires_acceptance": true,
+    "min_arc": 3,
+    "requires_reputation": [
+      {
+        "faction": "merchant_guild",
+        "min": 2
+      }
+    ],
+    "requires_skills": [
+      {
+        "skill": "persuasion",
+        "min": 1
+      }
+    ],
+    "faction_rewards": {
+      "merchant_guild": 10,
+      "kingdom_guard": 4,
+      "thieves_circle": -6
+    },
+    "trust_reward": 6,
+    "steps": [
+      {
+        "title": "Inspect the Ferry Ledger",
+        "objective": {
+          "type": "inspect",
+          "target": "ferry_ledger",
+          "location": "river_crossing",
+          "count": 1,
+          "turn_in": "market_square"
+        },
+        "turn_in_npc": "market_broker"
+      },
+      {
+        "title": "Recover the Stolen Satchel",
+        "objective": {
+          "type": "bring_item",
+          "item": "stolen_satchel",
+          "count": 1,
+          "turn_in": "market_square"
+        },
+        "turn_in_npc": "market_broker"
+      }
+    ],
+    "reward": {
+      "gold": 18,
+      "items": ["bandage_kit"]
     }
   }
 }

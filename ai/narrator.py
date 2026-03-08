@@ -407,7 +407,8 @@ class Narrator:
         if service_lines:
             lines.extend(service_lines)
         if offered_quests:
-            lines.append("Quest offers: " + ", ".join(offered_quests))
+            lines.append("Quest offers:")
+            lines.extend(f"- {offer}" for offer in offered_quests)
             lines.append("Use 'accept <quest>' to take one.")
         return "\n".join(lines)
 
@@ -659,6 +660,12 @@ class Narrator:
             return (
                 "You inspect the memorial plaque.\n"
                 "The names are worn nearly smooth, but a closing line remains: 'They held the road when no one else could.'"
+            )
+
+        if lore_object_id == "ferry_ledger":
+            return (
+                "You inspect the ferry ledger.\n"
+                "Tally marks and hurried notes record tolls, late wagons, and the nights the crossing closed under pressure."
             )
 
         return (
