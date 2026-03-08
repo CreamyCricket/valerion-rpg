@@ -200,5 +200,294 @@
     },
     "trust_rewards": {},
     "unlocks_rank": "C"
+  },
+  "c006_break_gorgos_toll": {
+    "contract_id": "c006_break_gorgos_toll",
+    "title": "Break Gorgos's Toll",
+    "rank": "D",
+    "category": "bandit_suppression",
+    "posted_by": "Stonewatch Guard - Urgent",
+    "board_location": "market_square",
+    "display_location": "Ironpass Road",
+    "location_hint": "Ironridge Pass",
+    "repeatable": false,
+    "requires_reputation": [
+      {"faction": "kingdom_guard", "min": 8}
+    ],
+    "requires_contracts_completed": [
+      "c003_bandit_road_tax"
+    ],
+    "steps": [
+      {
+        "title": "Break the Bulwark",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "elite_ironpass_bulwark",
+          "location": "ironridge_pass",
+          "count": 1,
+          "summary": "Defeat the Ironpass Bulwark",
+          "spawn_enemies": [
+            {"enemy": "elite_ironpass_bulwark", "location": "ironridge_pass"}
+          ]
+        }
+      },
+      {
+        "title": "End Gorgos's Toll",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "gorgos_the_sundered",
+          "location": "ironridge_pass",
+          "count": 1,
+          "summary": "Defeat Gorgos the Sundered",
+          "spawn_enemies": [
+            {"enemy": "gorgos_the_sundered", "location": "ironridge_pass"}
+          ]
+        }
+      }
+    ],
+    "reward": {
+      "gold": 110,
+      "items": ["raider_sabre"]
+    },
+    "faction_rewards": {
+      "kingdom_guard": 14,
+      "merchant_guild": 4,
+      "thieves_circle": -12
+    },
+    "trust_rewards": {
+      "quartermaster": 6,
+      "hold_warden": 8
+    }
+  },
+  "c007_silence_the_weeping_shrine": {
+    "contract_id": "c007_silence_the_weeping_shrine",
+    "title": "Silence the Weeping Shrine",
+    "rank": "C",
+    "category": "shrine_cleansing",
+    "posted_by": "Shrine Keepers - Urgent",
+    "board_location": "market_square",
+    "display_location": "Ember Shrine",
+    "location_hint": "Abandoned Shrine",
+    "repeatable": false,
+    "requires_reputation": [
+      {"faction": "shrine_keepers", "min": 8}
+    ],
+    "requires_contracts_completed": [
+      "c002_shrine_ash_clearing",
+      "c005_corrupted_grove"
+    ],
+    "steps": [
+      {
+        "title": "Break the Bound Wraith",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "elite_huskbound_wraith",
+          "location": "ruined_shrine",
+          "count": 1,
+          "summary": "Defeat the Huskbound Wraith",
+          "spawn_enemies": [
+            {"enemy": "elite_huskbound_wraith", "location": "ruined_shrine"}
+          ]
+        }
+      },
+      {
+        "title": "Still the Husk",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "weeping_husk",
+          "location": "ruined_shrine",
+          "count": 1,
+          "summary": "Defeat the Weeping Husk",
+          "spawn_enemies": [
+            {"enemy": "weeping_husk", "location": "ruined_shrine"}
+          ]
+        }
+      }
+    ],
+    "reward": {
+      "gold": 145,
+      "items": ["ember_focus"]
+    },
+    "faction_rewards": {
+      "shrine_keepers": 16,
+      "cult_of_ash": -14
+    },
+    "trust_rewards": {
+      "shrine_caretaker": 10
+    }
+  },
+  "c008_alpha_on_ashwood_trail": {
+    "contract_id": "c008_alpha_on_ashwood_trail",
+    "title": "Alpha on Ashwood Trail",
+    "rank": "C",
+    "category": "hunter_extermination",
+    "posted_by": "Stonewatch Hunters Guild - Urgent",
+    "board_location": "market_square",
+    "display_location": "Ashwood Trail",
+    "location_hint": "Deep Forest",
+    "repeatable": false,
+    "requires_reputation": [
+      {"faction": "hunters_guild", "min": 12}
+    ],
+    "requires_contracts_completed": [
+      "c001_wolfpack_culling",
+      "c005_corrupted_grove"
+    ],
+    "steps": [
+      {
+        "title": "Break the Fanglord",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "elite_ashwood_fanglord",
+          "location": "deep_forest",
+          "count": 1,
+          "summary": "Defeat the Ashwood Fanglord",
+          "spawn_enemies": [
+            {"enemy": "elite_ashwood_fanglord", "location": "deep_forest"}
+          ]
+        }
+      },
+      {
+        "title": "Bring Down Vorgar",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "vorgar_ironfang_alpha",
+          "location": "deep_forest",
+          "count": 1,
+          "summary": "Defeat Vorgar, Ironfang Alpha",
+          "spawn_enemies": [
+            {"enemy": "vorgar_ironfang_alpha", "location": "deep_forest"}
+          ]
+        }
+      }
+    ],
+    "reward": {
+      "gold": 150,
+      "items": ["wolfhide_vest"]
+    },
+    "faction_rewards": {
+      "hunters_guild": 18,
+      "forest_clans": 10
+    },
+    "trust_rewards": {
+      "elder": 4
+    },
+    "unlocks_rank": "B"
+  },
+  "c009_blackroot_ash_mark": {
+    "contract_id": "c009_blackroot_ash_mark",
+    "title": "Blackroot Ash Mark",
+    "rank": "B",
+    "category": "cult_hunt",
+    "posted_by": "Hunters Guild - Blackroot Notice",
+    "board_location": "market_square",
+    "display_location": "Blackroot Grove",
+    "location_hint": "Old Ruins",
+    "repeatable": false,
+    "requires_reputation": [
+      {"faction": "hunters_guild", "min": 20}
+    ],
+    "requires_contracts_completed": [
+      "c007_silence_the_weeping_shrine",
+      "c008_alpha_on_ashwood_trail"
+    ],
+    "steps": [
+      {
+        "title": "Break the Sentinel",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "grove_sentinel",
+          "location": "old_ruins",
+          "count": 1,
+          "summary": "Defeat the Grove Sentinel",
+          "spawn_enemies": [
+            {"enemy": "grove_sentinel", "location": "old_ruins"}
+          ]
+        }
+      },
+      {
+        "title": "End the Herald",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "ash_herald",
+          "location": "old_ruins",
+          "count": 1,
+          "summary": "Defeat the Ash Herald",
+          "spawn_enemies": [
+            {"enemy": "ash_herald", "location": "old_ruins"}
+          ]
+        }
+      }
+    ],
+    "reward": {
+      "gold": 195,
+      "items": ["focus_draught"]
+    },
+    "faction_rewards": {
+      "hunters_guild": 20,
+      "shrine_keepers": 10,
+      "cult_of_ash": -18
+    },
+    "trust_rewards": {
+      "shrine_caretaker": 6,
+      "vault_scholar": 4
+    }
+  },
+  "c010_vault_keeper_expedition": {
+    "contract_id": "c010_vault_keeper_expedition",
+    "title": "Vault Keeper Expedition",
+    "rank": "B",
+    "category": "vault_expedition",
+    "posted_by": "Vault Scholar",
+    "board_location": "market_square",
+    "display_location": "Ashen Vault",
+    "location_hint": "Ashen Stair and Inner Vault",
+    "repeatable": false,
+    "requires_reputation": [
+      {"faction": "shrine_keepers", "min": 18}
+    ],
+    "requires_contracts_completed": [
+      "c009_blackroot_ash_mark"
+    ],
+    "steps": [
+      {
+        "title": "Clear the Outer Warden",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "elite_vault_warden",
+          "location": "ashen_stair",
+          "count": 1,
+          "summary": "Defeat the Vault Warden",
+          "spawn_enemies": [
+            {"enemy": "elite_vault_warden", "location": "ashen_stair"}
+          ]
+        }
+      },
+      {
+        "title": "Defeat the Keeper",
+        "objective": {
+          "type": "defeat_enemy",
+          "enemy": "vault_keeper",
+          "location": "ashen_vault",
+          "count": 1,
+          "summary": "Defeat the Vault Keeper",
+          "spawn_enemies": [
+            {"enemy": "vault_keeper", "location": "ashen_vault"}
+          ]
+        }
+      }
+    ],
+    "reward": {
+      "gold": 220,
+      "items": ["guardian_plate", "greater_potion"]
+    },
+    "faction_rewards": {
+      "shrine_keepers": 20,
+      "merchant_guild": 6,
+      "cult_of_ash": -20
+    },
+    "trust_rewards": {
+      "vault_scholar": 10
+    }
   }
 }

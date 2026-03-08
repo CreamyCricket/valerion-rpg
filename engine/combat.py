@@ -34,12 +34,12 @@ class CombatEngine:
     FAMILY_LIBRARY = {
         "wolves": {
             "stat_focus": ["agility", "wisdom"],
-            "allowed_abilities": ["bite", "howl", "pack_attack"],
+            "allowed_abilities": ["bite", "howl", "pack_attack", "blood_frenzy", "pack_howl"],
             "behavior_tendencies": ["hunter", "aggressive"],
         },
         "bandits": {
             "stat_focus": ["strength", "agility"],
-            "allowed_abilities": ["slash", "dirty_trick", "ambush", "jab", "cheap_shot", "scatter"],
+            "allowed_abilities": ["slash", "dirty_trick", "ambush", "jab", "cheap_shot", "scatter", "heavy_shield_bash", "desperate_rally"],
             "behavior_tendencies": ["aggressive", "cowardly"],
         },
         "spiders": {
@@ -54,7 +54,7 @@ class CombatEngine:
         },
         "shrine_creatures": {
             "stat_focus": ["mind", "wisdom"],
-            "allowed_abilities": ["grave_touch", "ash_bolt", "warding_hex"],
+            "allowed_abilities": ["grave_touch", "ash_bolt", "warding_hex", "mourning_wail", "weeping_siphon"],
             "behavior_tendencies": ["defensive", "aggressive"],
         },
         "cultists": {
@@ -74,12 +74,12 @@ class CombatEngine:
         },
         "ruin_guardians": {
             "stat_focus": ["strength", "vitality"],
-            "allowed_abilities": ["heavy_strike", "stone_defense", "stomp"],
+            "allowed_abilities": ["heavy_strike", "stone_defense", "stomp", "fortified_shell", "core_lance"],
             "behavior_tendencies": ["defensive"],
         },
         "ash_heralds": {
             "stat_focus": ["mind", "wisdom"],
-            "allowed_abilities": ["grave_touch", "ash_bolt", "warding_hex"],
+            "allowed_abilities": ["grave_touch", "ash_bolt", "warding_hex", "ashen_brand", "cinder_burst"],
             "behavior_tendencies": ["aggressive", "defensive"],
         },
     }
@@ -107,6 +107,11 @@ class CombatEngine:
         "charger": {"attack_stat": "strength", "skill_focus": ["defense", "survival"], "allowed_abilities": ["maul", "pounce"], "preferred_abilities": ["maul", "pounce"]},
         "cliff_charger": {"attack_stat": "strength", "skill_focus": ["defense", "survival"], "allowed_abilities": ["maul", "thick_hide"], "preferred_abilities": ["thick_hide", "maul"]},
         "brute": {"attack_stat": "strength", "skill_focus": ["defense"], "allowed_abilities": ["maul", "thick_hide", "crushing_blow"], "preferred_abilities": ["thick_hide", "maul", "crushing_blow"]},
+        "shield_captain": {"attack_stat": "strength", "skill_focus": ["defense", "swordsmanship"], "allowed_abilities": ["slash", "heavy_shield_bash", "desperate_rally"], "preferred_abilities": ["heavy_shield_bash", "slash", "desperate_rally"]},
+        "weeping_husk": {"attack_stat": "mind", "skill_focus": ["spellcasting", "lore"], "allowed_abilities": ["mourning_wail", "weeping_siphon", "warding_hex"], "preferred_abilities": ["mourning_wail", "weeping_siphon", "warding_hex"]},
+        "ironfang_alpha": {"attack_stat": "agility", "skill_focus": ["survival", "defense"], "allowed_abilities": ["bite", "pack_howl", "blood_frenzy"], "preferred_abilities": ["pack_howl", "bite", "blood_frenzy"]},
+        "ash_horror": {"attack_stat": "mind", "skill_focus": ["spellcasting", "lore"], "allowed_abilities": ["ashen_brand", "cinder_burst", "warding_hex"], "preferred_abilities": ["ashen_brand", "warding_hex", "cinder_burst"]},
+        "vault_sentinel": {"attack_stat": "strength", "skill_focus": ["defense", "lore"], "allowed_abilities": ["fortified_shell", "core_lance", "stomp"], "preferred_abilities": ["fortified_shell", "core_lance", "stomp"]},
     }
     ENEMY_ABILITIES = {
         "bite": {
@@ -354,6 +359,108 @@ class CombatEngine:
             "kind": "self_buff",
             "buff": {"dodge_bonus": 1, "defense_bonus": 1},
         },
+        "heavy_shield_bash": {
+            "name": "Heavy Shield Bash",
+            "min_level": 3,
+            "cost": 2,
+            "kind": "attack",
+            "scale_stat": "strength",
+            "scale_skill": "defense",
+            "damage": 4,
+            "accuracy_bonus": 1,
+            "target_attack_penalty": 1,
+            "target_defense_penalty": 1,
+        },
+        "desperate_rally": {
+            "name": "Desperate Rally",
+            "min_level": 3,
+            "cost": 2,
+            "kind": "self_buff",
+            "buff": {"attack_bonus": 1, "damage_bonus": 1, "defense_bonus": 1, "crit_bonus": 5},
+            "self_heal": 4,
+        },
+        "mourning_wail": {
+            "name": "Mourning Wail",
+            "min_level": 3,
+            "cost": 2,
+            "kind": "attack",
+            "scale_stat": "mind",
+            "scale_skill": "spellcasting",
+            "damage": 2,
+            "accuracy_bonus": 2,
+            "target_attack_penalty": 1,
+            "target_focus_drain": 1,
+        },
+        "weeping_siphon": {
+            "name": "Weeping Siphon",
+            "min_level": 3,
+            "cost": 2,
+            "kind": "hybrid",
+            "scale_stat": "mind",
+            "scale_skill": "spellcasting",
+            "damage": 2,
+            "accuracy_bonus": 1,
+            "self_heal": 4,
+            "target_focus_drain": 1,
+        },
+        "blood_frenzy": {
+            "name": "Blood Frenzy",
+            "min_level": 3,
+            "cost": 2,
+            "kind": "self_buff",
+            "buff": {"attack_bonus": 1, "damage_bonus": 2, "crit_bonus": 10},
+        },
+        "pack_howl": {
+            "name": "Pack Howl",
+            "min_level": 3,
+            "cost": 2,
+            "kind": "hybrid",
+            "scale_stat": "wisdom",
+            "scale_skill": "survival",
+            "damage": 1,
+            "buff": {"attack_bonus": 1, "damage_bonus": 1, "crit_bonus": 5},
+            "target_defense_penalty": 1,
+        },
+        "ashen_brand": {
+            "name": "Ashen Brand",
+            "min_level": 4,
+            "cost": 2,
+            "kind": "attack",
+            "scale_stat": "mind",
+            "scale_skill": "spellcasting",
+            "damage": 3,
+            "accuracy_bonus": 1,
+            "target_attack_penalty": 1,
+            "target_focus_drain": 1,
+        },
+        "cinder_burst": {
+            "name": "Cinder Burst",
+            "min_level": 4,
+            "cost": 3,
+            "kind": "attack",
+            "scale_stat": "mind",
+            "scale_skill": "spellcasting",
+            "damage": 5,
+            "accuracy_bonus": 1,
+        },
+        "fortified_shell": {
+            "name": "Fortified Shell",
+            "min_level": 4,
+            "cost": 2,
+            "kind": "self_buff",
+            "buff": {"defense_bonus": 3, "damage_bonus": 1},
+        },
+        "core_lance": {
+            "name": "Core Lance",
+            "min_level": 4,
+            "cost": 3,
+            "kind": "attack",
+            "scale_stat": "strength",
+            "scale_skill": "defense",
+            "damage": 5,
+            "accuracy_bonus": 1,
+            "target_defense_penalty": 1,
+        },
     }
 
     def __init__(self):
@@ -442,6 +549,11 @@ class CombatEngine:
         stats = self._normalized_enemy_stats(enemy_data.get("stats", {}))
         skills = self._normalized_enemy_skills(enemy_data.get("skills", {}))
         abilities = self._resolve_enemy_abilities(family, class_type, level, enemy_data.get("abilities", []))
+        phase_only_abilities = {
+            self._normalize_key(ability_id)
+            for ability_id in enemy_data.get("phase_only_abilities", [])
+            if self._normalize_key(ability_id)
+        }
         focus_max = max(
             0,
             int(enemy_data.get("focus", 2 + level + max(0, self._stat_modifier(stats["mind"])))),
@@ -456,6 +568,7 @@ class CombatEngine:
             "skills": skills,
             "abilities": abilities,
             "focus_max": focus_max,
+            "phase_only_abilities": phase_only_abilities,
         }
 
     def preview_enemy(self, enemy_id: str, enemy_data: dict) -> dict:
@@ -624,6 +737,137 @@ class CombatEngine:
     def _available_enemy_abilities(self, profile: dict, enemy_focus: int) -> list[dict]:
         return [ability for ability in profile["abilities"] if int(ability.get("cost", 0)) <= enemy_focus]
 
+    def _find_enemy_ability(self, profile: dict, ability_id: str, enemy_focus: int) -> dict | None:
+        normalized = self._normalize_key(ability_id)
+        for ability in self._available_enemy_abilities(profile, enemy_focus):
+            if ability.get("id") == normalized:
+                return ability
+        return None
+
+    def _phase_trigger_met(self, trigger: dict, turn: int, enemy_state: dict, player: Character) -> bool:
+        if not isinstance(trigger, dict):
+            return False
+
+        exact_turn = trigger.get("turn")
+        if exact_turn is not None and turn != max(1, int(exact_turn)):
+            return False
+
+        turn_interval = int(trigger.get("turn_interval", 0) or 0)
+        if turn_interval > 0 and turn % turn_interval != 0:
+            return False
+
+        hp_pct = (enemy_state["hp"] * 100) / max(1, enemy_state["max_hp"])
+        enemy_hp_below = trigger.get("enemy_hp_at_or_below_pct")
+        if enemy_hp_below is not None and hp_pct > int(enemy_hp_below):
+            return False
+
+        enemy_hp_above = trigger.get("enemy_hp_at_or_above_pct")
+        if enemy_hp_above is not None and hp_pct < int(enemy_hp_above):
+            return False
+
+        player_focus_below = trigger.get("player_focus_at_or_below")
+        if player_focus_below is not None and int(player.focus) > int(player_focus_below):
+            return False
+
+        player_hp_below = trigger.get("player_hp_at_or_below_pct")
+        if player_hp_below is not None:
+            player_hp_pct = (player.hp * 100) / max(1, player.max_hp)
+            if player_hp_pct > int(player_hp_below):
+                return False
+
+        return True
+
+    def _apply_enemy_heal(self, enemy_state: dict, amount: int) -> int:
+        heal_amount = max(0, int(amount))
+        if heal_amount <= 0:
+            return 0
+        before = int(enemy_state.get("hp", 0))
+        enemy_state["hp"] = min(int(enemy_state.get("max_hp", before)), before + heal_amount)
+        return int(enemy_state["hp"]) - before
+
+    def _apply_focus_drain(self, player: Character, amount: int) -> int:
+        drain_amount = max(0, int(amount))
+        if drain_amount <= 0:
+            return 0
+        actual = min(int(player.focus), drain_amount)
+        player.focus = max(0, int(player.focus) - actual)
+        return actual
+
+    def _phase_rule_effects(
+        self,
+        rule: dict,
+        enemy_state: dict,
+        player: Character,
+        player_state: dict,
+    ) -> tuple[list[str], str | None]:
+        details = []
+        buff_summary = self._apply_enemy_buff(enemy_state, rule.get("buff", {}))
+        if buff_summary:
+            details.append(buff_summary)
+
+        penalty_summary = self._apply_player_penalties(player_state, rule)
+        if penalty_summary:
+            details.append(penalty_summary)
+
+        heal_amount = self._apply_enemy_heal(enemy_state, int(rule.get("heal", 0) or 0))
+        if heal_amount:
+            details.append(f"heals {heal_amount} HP")
+
+        drained = self._apply_focus_drain(player, int(rule.get("focus_drain", 0) or 0))
+        if drained:
+            details.append(f"drains {drained} Focus")
+
+        damage_player = max(0, int(rule.get("damage_player", 0) or 0))
+        if damage_player:
+            player.hp = max(0, player.hp - damage_player)
+            details.append(f"hits for {damage_player} damage")
+
+        forced_ability = str(rule.get("force_ability", "")).strip().lower() or None
+        return details, forced_ability
+
+    def _enemy_phase_actions(
+        self,
+        enemy_data: dict,
+        enemy_name: str,
+        enemy_state: dict,
+        player: Character,
+        player_state: dict,
+        turn: int,
+    ) -> tuple[list[str], str | None]:
+        rules = enemy_data.get("phase_rules", [])
+        if not isinstance(rules, list) or not rules:
+            return [], None
+
+        forced_ability = None
+        lines = []
+        used_rules = enemy_state.setdefault("used_phase_rules", set())
+        for raw_rule in rules:
+            if not isinstance(raw_rule, dict):
+                continue
+            rule_id = self._normalize_key(raw_rule.get("id", "")) or f"phase_{len(used_rules)}"
+            if raw_rule.get("once", False) and rule_id in used_rules:
+                continue
+            if not self._phase_trigger_met(raw_rule.get("trigger", {}), turn, enemy_state, player):
+                continue
+
+            details, rule_forced_ability = self._phase_rule_effects(raw_rule, enemy_state, player, player_state)
+            if raw_rule.get("once", False):
+                used_rules.add(rule_id)
+            if rule_forced_ability:
+                forced_ability = rule_forced_ability
+
+            log_text = str(raw_rule.get("log", "")).strip()
+            if details:
+                details_text = ", ".join(details)
+                if log_text:
+                    lines.append(f"Turn {turn}: {enemy_name} {log_text} ({details_text}).")
+                else:
+                    lines.append(f"Turn {turn}: {enemy_name} shifts phase ({details_text}).")
+            elif log_text:
+                lines.append(f"Turn {turn}: {enemy_name} {log_text}.")
+
+        return lines, forced_ability
+
     def _select_enemy_ability(
         self,
         profile: dict,
@@ -633,12 +877,22 @@ class CombatEngine:
         enemy_focus: int,
         enemy_state: dict,
         turn: int,
+        forced_ability_id: str | None = None,
     ) -> dict | None:
         available = self._available_enemy_abilities(profile, enemy_focus)
         if not available:
             return None
 
+        if forced_ability_id:
+            forced = self._find_enemy_ability(profile, forced_ability_id, enemy_focus)
+            if forced:
+                return forced
+
+        phase_only_abilities = set(profile.get("phase_only_abilities", set()))
+
         for ability in available:
+            if ability["id"] in phase_only_abilities:
+                continue
             if ability.get("kind") != "self_buff":
                 continue
             if ability["id"] in enemy_state["used_buffs"]:
@@ -648,10 +902,12 @@ class CombatEngine:
 
         if turn % 2 == 0:
             for ability in available:
+                if ability["id"] in phase_only_abilities:
+                    continue
                 if ability.get("kind") == "hybrid":
                     return ability
 
-        damaging = [ability for ability in available if int(ability.get("damage", 0)) > 0]
+        damaging = [ability for ability in available if ability["id"] not in phase_only_abilities and int(ability.get("damage", 0)) > 0]
         if damaging:
             damaging = sorted(
                 damaging,
@@ -659,6 +915,10 @@ class CombatEngine:
                 reverse=True,
             )
             return damaging[(turn - 1) % len(damaging)]
+
+        for ability in available:
+            if ability["id"] not in phase_only_abilities:
+                return ability
 
         return available[0]
 
@@ -710,8 +970,18 @@ class CombatEngine:
         behavior: str,
         enemy_focus: int,
         turn: int,
+        forced_ability_id: str | None = None,
     ) -> tuple[str, int]:
-        ability = self._select_enemy_ability(profile, behavior, enemy_state["hp"], enemy_state["max_hp"], enemy_focus, enemy_state, turn)
+        ability = self._select_enemy_ability(
+            profile,
+            behavior,
+            enemy_state["hp"],
+            enemy_state["max_hp"],
+            enemy_focus,
+            enemy_state,
+            turn,
+            forced_ability_id=forced_ability_id,
+        )
         if not ability:
             return self._basic_enemy_attack(player, profile, enemy_name, enemy_attack, items_data, enemy_state, player_state, behavior, turn), enemy_focus
 
@@ -720,9 +990,14 @@ class CombatEngine:
 
         if ability.get("kind") == "self_buff":
             buff_summary = self._apply_enemy_buff(enemy_state, effect.get("buff", {}))
+            heal_amount = self._apply_enemy_heal(enemy_state, int(effect.get("self_heal", 0) or 0))
             enemy_state["used_buffs"].add(ability["id"])
+            if buff_summary and heal_amount:
+                return f"Turn {turn}: {enemy_name} uses {ability['name']} and prepares itself ({buff_summary}, heals {heal_amount} HP).", enemy_focus
             if buff_summary:
                 return f"Turn {turn}: {enemy_name} uses {ability['name']} and prepares itself ({buff_summary}).", enemy_focus
+            if heal_amount:
+                return f"Turn {turn}: {enemy_name} uses {ability['name']} and heals {heal_amount} HP.", enemy_focus
             return f"Turn {turn}: {enemy_name} uses {ability['name']}.", enemy_focus
 
         attack_stat = self._normalize_key(effect.get("scale_stat", self._enemy_attack_stat(profile)))
@@ -753,6 +1028,8 @@ class CombatEngine:
 
         buff_summary = self._apply_enemy_buff(enemy_state, effect.get("buff", {}))
         penalty_summary = self._apply_player_penalties(player_state, effect)
+        heal_amount = self._apply_enemy_heal(enemy_state, int(effect.get("self_heal", 0) or 0))
+        drained = self._apply_focus_drain(player, int(effect.get("target_focus_drain", 0) or 0))
         details = []
         if damage > 0:
             details.append(f"hits for {damage} damage")
@@ -761,6 +1038,10 @@ class CombatEngine:
             enemy_state["used_buffs"].add(ability["id"])
         if penalty_summary:
             details.append(penalty_summary)
+        if heal_amount:
+            details.append(f"heals {heal_amount} HP")
+        if drained:
+            details.append(f"drains {drained} Focus")
         detail_text = "; ".join(details) if details else "has an effect"
         crit_text = " Critical hit." if critical else ""
         return (
@@ -811,6 +1092,7 @@ class CombatEngine:
             "dodge_bonus": 0,
             "crit_bonus": 0,
             "used_buffs": set(),
+            "used_phase_rules": set(),
         }
         player_state = {
             "attack_penalty": 0,
@@ -851,6 +1133,19 @@ class CombatEngine:
                 log.append(f"Turn {turn}: {enemy_name} breaks and flees.")
                 break
 
+            phase_lines, forced_ability_id = self._enemy_phase_actions(
+                enemy_data,
+                enemy_name,
+                enemy_state,
+                player,
+                player_state,
+                turn,
+            )
+            log.extend(phase_lines)
+            enemy_hp = enemy_state["hp"]
+            if enemy_hp <= 0 or not player.is_alive():
+                break
+
             enemy_line, enemy_focus = self._enemy_ability_action(
                 player,
                 profile,
@@ -862,8 +1157,10 @@ class CombatEngine:
                 behavior,
                 enemy_focus,
                 turn,
+                forced_ability_id=forced_ability_id,
             )
             log.append(enemy_line)
+            enemy_hp = enemy_state["hp"]
             turn += 1
 
         victory = enemy_hp <= 0 and player.is_alive()

@@ -574,10 +574,24 @@ class World:
         return None
 
     def find_enemy_at_location(self, location_id: str, query: str) -> str | None:
-        query = query.strip().lower()
+        query = " ".join(query.strip().lower().split())
+        normalized_query = query
+        for prefix in ("the ", "a ", "an "):
+            if normalized_query.startswith(prefix):
+                normalized_query = normalized_query[len(prefix):].strip()
         for enemy_id in self.get_enemies_at(location_id):
             enemy = self.enemies.get(enemy_id, {})
-            if query == enemy_id.lower() or query == enemy.get("name", "").lower():
+            enemy_name = " ".join(str(enemy.get("name", "")).strip().lower().split())
+            simplified_name = enemy_name
+            for prefix in ("the ", "a ", "an "):
+                if simplified_name.startswith(prefix):
+                    simplified_name = simplified_name[len(prefix):].strip()
+            if (
+                normalized_query == enemy_id.lower()
+                or normalized_query == enemy_name
+                or normalized_query == simplified_name
+                or (normalized_query and normalized_query in enemy_name)
+            ):
                 return enemy_id
         return None
 

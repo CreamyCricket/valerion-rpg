@@ -4,356 +4,1118 @@
     "family": "slimes",
     "class_type": "ooze",
     "level": 1,
-    "stats": {"strength": 9, "agility": 7, "vitality": 12, "endurance": 11, "mind": 4, "wisdom": 5, "charisma": 1, "luck": 8},
-    "skills": {"defense": 1},
-    "abilities": ["corrosive_splash"],
+    "stats": {
+      "strength": 9,
+      "agility": 7,
+      "vitality": 12,
+      "endurance": 11,
+      "mind": 4,
+      "wisdom": 5,
+      "charisma": 1,
+      "luck": 8
+    },
+    "skills": {
+      "defense": 1
+    },
+    "abilities": [
+      "corrosive_splash"
+    ],
     "hp": 8,
     "defense": 9,
     "attack": 2,
     "behavior": "defensive",
     "xp": 40,
-    "loot": ["slime_gel", "herb_bundle"]
+    "loot": [
+      "slime_gel",
+      "herb_bundle"
+    ]
   },
   "wolf": {
     "name": "Wild Wolf",
     "family": "wolves",
     "class_type": "hunter",
     "level": 1,
-    "stats": {"strength": 10, "agility": 12, "vitality": 11, "endurance": 10, "mind": 4, "wisdom": 10, "charisma": 2, "luck": 10},
-    "skills": {"survival": 2, "stealth": 1},
-    "abilities": ["bite"],
+    "stats": {
+      "strength": 10,
+      "agility": 12,
+      "vitality": 11,
+      "endurance": 10,
+      "mind": 4,
+      "wisdom": 10,
+      "charisma": 2,
+      "luck": 10
+    },
+    "skills": {
+      "survival": 2,
+      "stealth": 1
+    },
+    "abilities": [
+      "bite"
+    ],
     "hp": 12,
     "defense": 10,
     "attack": 3,
     "behavior": "hunter",
     "xp": 60,
-    "loot": ["wolf_pelt"]
+    "loot": [
+      "wolf_pelt"
+    ]
   },
   "pack_wolf": {
     "name": "Pack Wolf",
     "family": "wolves",
     "class_type": "pack_hunter",
     "level": 2,
-    "stats": {"strength": 11, "agility": 12, "vitality": 10, "endurance": 10, "mind": 4, "wisdom": 10, "charisma": 2, "luck": 11},
-    "skills": {"survival": 2, "stealth": 1, "defense": 1},
-    "abilities": ["bite", "howl"],
+    "stats": {
+      "strength": 11,
+      "agility": 12,
+      "vitality": 10,
+      "endurance": 10,
+      "mind": 4,
+      "wisdom": 10,
+      "charisma": 2,
+      "luck": 11
+    },
+    "skills": {
+      "survival": 2,
+      "stealth": 1,
+      "defense": 1
+    },
+    "abilities": [
+      "bite",
+      "howl"
+    ],
     "hp": 10,
     "defense": 10,
     "attack": 3,
     "behavior": "aggressive",
     "xp": 55,
-    "loot": ["wolf_fang"]
+    "loot": [
+      "wolf_fang"
+    ]
   },
   "dire_wolf": {
     "name": "Dire Wolf",
     "family": "wolves",
     "class_type": "alpha_hunter",
     "level": 4,
-    "stats": {"strength": 13, "agility": 14, "vitality": 12, "endurance": 12, "mind": 5, "wisdom": 11, "charisma": 3, "luck": 12},
-    "skills": {"survival": 3, "stealth": 2, "defense": 1},
-    "abilities": ["bite", "howl", "pack_attack"],
+    "stats": {
+      "strength": 13,
+      "agility": 14,
+      "vitality": 12,
+      "endurance": 12,
+      "mind": 5,
+      "wisdom": 11,
+      "charisma": 3,
+      "luck": 12
+    },
+    "skills": {
+      "survival": 3,
+      "stealth": 2,
+      "defense": 1
+    },
+    "abilities": [
+      "bite",
+      "howl",
+      "pack_attack"
+    ],
     "hp": 18,
     "defense": 11,
     "attack": 4,
     "behavior": "hunter",
     "xp": 90,
-    "loot": ["wolf_pelt", "wolf_fang", "wolfhide_vest"]
+    "loot": [
+      "wolf_pelt",
+      "wolf_fang",
+      "wolfhide_vest"
+    ]
   },
   "ashwood_wolf": {
     "name": "Ashwood Wolf",
     "family": "wolves",
     "class_type": "hunter",
     "level": 1,
-    "stats": {"strength": 10, "agility": 12, "vitality": 11, "endurance": 10, "mind": 4, "wisdom": 10, "charisma": 2, "luck": 10},
-    "skills": {"survival": 2, "stealth": 1},
-    "abilities": ["bite"],
+    "stats": {
+      "strength": 10,
+      "agility": 12,
+      "vitality": 11,
+      "endurance": 10,
+      "mind": 4,
+      "wisdom": 10,
+      "charisma": 2,
+      "luck": 10
+    },
+    "skills": {
+      "survival": 2,
+      "stealth": 1
+    },
+    "abilities": [
+      "bite"
+    ],
     "hp": 12,
     "defense": 10,
     "attack": 3,
     "behavior": "hunter",
     "xp": 60,
-    "loot": ["wolf_pelt"]
+    "loot": [
+      "wolf_pelt"
+    ]
   },
   "ashwood_stalker": {
     "name": "Ashwood Stalker",
     "family": "wolves",
     "class_type": "pack_hunter",
     "level": 2,
-    "stats": {"strength": 11, "agility": 12, "vitality": 10, "endurance": 10, "mind": 4, "wisdom": 10, "charisma": 2, "luck": 11},
-    "skills": {"survival": 2, "stealth": 1, "defense": 1},
-    "abilities": ["bite", "howl"],
+    "stats": {
+      "strength": 11,
+      "agility": 12,
+      "vitality": 10,
+      "endurance": 10,
+      "mind": 4,
+      "wisdom": 10,
+      "charisma": 2,
+      "luck": 11
+    },
+    "skills": {
+      "survival": 2,
+      "stealth": 1,
+      "defense": 1
+    },
+    "abilities": [
+      "bite",
+      "howl"
+    ],
     "hp": 10,
     "defense": 10,
     "attack": 3,
     "behavior": "aggressive",
     "xp": 55,
-    "loot": ["wolf_fang"]
+    "loot": [
+      "wolf_fang"
+    ]
   },
   "ashwood_packleader": {
     "name": "Ashwood Packleader",
     "family": "wolves",
     "class_type": "alpha_hunter",
     "level": 3,
-    "stats": {"strength": 12, "agility": 13, "vitality": 11, "endurance": 11, "mind": 4, "wisdom": 10, "charisma": 2, "luck": 11},
-    "skills": {"survival": 3, "stealth": 2, "defense": 1},
-    "abilities": ["bite", "howl", "pack_attack"],
+    "stats": {
+      "strength": 12,
+      "agility": 13,
+      "vitality": 11,
+      "endurance": 11,
+      "mind": 4,
+      "wisdom": 10,
+      "charisma": 2,
+      "luck": 11
+    },
+    "skills": {
+      "survival": 3,
+      "stealth": 2,
+      "defense": 1
+    },
+    "abilities": [
+      "bite",
+      "howl",
+      "pack_attack"
+    ],
     "hp": 15,
     "defense": 11,
     "attack": 4,
     "behavior": "hunter",
     "xp": 82,
-    "loot": ["wolf_pelt", "wolf_fang"]
+    "loot": [
+      "wolf_pelt",
+      "wolf_fang"
+    ]
+  },
+  "elite_ashwood_fanglord": {
+    "name": "[ELITE] Ashwood Fanglord",
+    "family": "wolves",
+    "class_type": "ironfang_alpha",
+    "level": 4,
+    "rank": "C",
+    "elite": true,
+    "stats": {
+      "strength": 13,
+      "agility": 14,
+      "vitality": 13,
+      "endurance": 12,
+      "mind": 5,
+      "wisdom": 11,
+      "charisma": 2,
+      "luck": 12
+    },
+    "skills": {
+      "survival": 4,
+      "stealth": 2,
+      "defense": 2
+    },
+    "abilities": [
+      "bite",
+      "pack_howl",
+      "blood_frenzy"
+    ],
+    "focus": 8,
+    "hp": 23,
+    "defense": 12,
+    "attack": 5,
+    "behavior": "hunter",
+    "xp": 150,
+    "loot": [
+      "wolf_fang",
+      "wolf_pelt",
+      "ration"
+    ]
+  },
+  "vorgar_ironfang_alpha": {
+    "name": "Vorgar, Ironfang Alpha",
+    "family": "wolves",
+    "class_type": "ironfang_alpha",
+    "level": 5,
+    "rank": "C",
+    "boss": true,
+    "stats": {
+      "strength": 14,
+      "agility": 15,
+      "vitality": 14,
+      "endurance": 13,
+      "mind": 5,
+      "wisdom": 12,
+      "charisma": 3,
+      "luck": 12
+    },
+    "skills": {
+      "survival": 5,
+      "stealth": 2,
+      "defense": 3
+    },
+    "abilities": [
+      "bite",
+      "pack_howl",
+      "blood_frenzy"
+    ],
+    "focus": 9,
+    "hp": 31,
+    "defense": 12,
+    "attack": 5,
+    "behavior": "hunter",
+    "xp": 235,
+    "loot": [
+      "ironfang_alpha_fang",
+      "wolfhide_vest"
+    ],
+    "phase_rules": [
+      {
+        "id": "pack_trigger",
+        "once": true,
+        "trigger": {
+          "turn": 2
+        },
+        "force_ability": "pack_howl",
+        "log": "throws back its head and the pack answers from the dark"
+      },
+      {
+        "id": "blood_frenzy",
+        "once": true,
+        "trigger": {
+          "enemy_hp_at_or_below_pct": 50
+        },
+        "force_ability": "blood_frenzy",
+        "log": "gives itself over to bloodlust"
+      }
+    ],
+    "reward_text": "Vorgar's fall breaks the nerve of lesser predators stalking the trail."
   },
   "giant_spider": {
     "name": "Giant Spider",
     "family": "spiders",
     "class_type": "ambusher",
     "level": 3,
-    "stats": {"strength": 11, "agility": 13, "vitality": 12, "endurance": 10, "mind": 5, "wisdom": 9, "charisma": 1, "luck": 11},
-    "skills": {"survival": 2, "stealth": 2},
-    "abilities": ["venom_bite", "web_trap"],
+    "stats": {
+      "strength": 11,
+      "agility": 13,
+      "vitality": 12,
+      "endurance": 10,
+      "mind": 5,
+      "wisdom": 9,
+      "charisma": 1,
+      "luck": 11
+    },
+    "skills": {
+      "survival": 2,
+      "stealth": 2
+    },
+    "abilities": [
+      "venom_bite",
+      "web_trap"
+    ],
     "hp": 16,
     "defense": 12,
     "attack": 4,
     "behavior": "defensive",
     "xp": 85,
-    "loot": ["spider_silk", "spider_silk_cloak"]
+    "loot": [
+      "spider_silk",
+      "spider_silk_cloak"
+    ]
   },
   "briar_boar": {
     "name": "Briar Boar",
     "family": "forest_beasts",
     "class_type": "charger",
     "level": 3,
-    "stats": {"strength": 13, "agility": 10, "vitality": 12, "endurance": 12, "mind": 4, "wisdom": 8, "charisma": 2, "luck": 10},
-    "skills": {"defense": 2, "survival": 1},
-    "abilities": ["maul", "pounce"],
+    "stats": {
+      "strength": 13,
+      "agility": 10,
+      "vitality": 12,
+      "endurance": 12,
+      "mind": 4,
+      "wisdom": 8,
+      "charisma": 2,
+      "luck": 10
+    },
+    "skills": {
+      "defense": 2,
+      "survival": 1
+    },
+    "abilities": [
+      "maul",
+      "pounce"
+    ],
     "hp": 15,
     "defense": 11,
     "attack": 4,
     "behavior": "aggressive",
     "xp": 80,
-    "loot": ["boar_tusk", "barbed_spear"]
+    "loot": [
+      "boar_tusk",
+      "barbed_spear"
+    ]
+  },
+  "elite_briar_dreadboar": {
+    "name": "[ELITE] Briar Dreadboar",
+    "family": "forest_beasts",
+    "class_type": "brute",
+    "level": 4,
+    "rank": "C",
+    "elite": true,
+    "stats": {
+      "strength": 15,
+      "agility": 10,
+      "vitality": 14,
+      "endurance": 13,
+      "mind": 4,
+      "wisdom": 8,
+      "charisma": 2,
+      "luck": 10
+    },
+    "skills": {
+      "defense": 3,
+      "survival": 2
+    },
+    "abilities": [
+      "maul",
+      "thick_hide",
+      "crushing_blow"
+    ],
+    "focus": 7,
+    "hp": 24,
+    "defense": 12,
+    "attack": 5,
+    "behavior": "aggressive",
+    "xp": 150,
+    "loot": [
+      "boar_tusk",
+      "ration",
+      "iron_scrap"
+    ]
   },
   "skeleton": {
     "name": "Skeleton",
     "family": "cultists",
     "class_type": "undead_guard",
     "level": 2,
-    "stats": {"strength": 11, "agility": 9, "vitality": 11, "endurance": 11, "mind": 7, "wisdom": 9, "charisma": 1, "luck": 8},
-    "skills": {"defense": 1, "lore": 1},
-    "abilities": ["grave_touch"],
+    "stats": {
+      "strength": 11,
+      "agility": 9,
+      "vitality": 11,
+      "endurance": 11,
+      "mind": 7,
+      "wisdom": 9,
+      "charisma": 1,
+      "luck": 8
+    },
+    "skills": {
+      "defense": 1,
+      "lore": 1
+    },
+    "abilities": [
+      "grave_touch"
+    ],
     "hp": 14,
     "defense": 11,
     "attack": 3,
     "behavior": "defensive",
     "xp": 80,
-    "loot": ["bone_charm", "iron_scrap"]
+    "loot": [
+      "bone_charm",
+      "iron_scrap"
+    ]
   },
   "cultist": {
     "name": "Cultist",
     "family": "cultists",
     "class_type": "hexer",
     "level": 2,
-    "stats": {"strength": 9, "agility": 10, "vitality": 10, "endurance": 9, "mind": 12, "wisdom": 11, "charisma": 8, "luck": 9},
-    "skills": {"spellcasting": 2, "lore": 1, "persuasion": 1},
-    "abilities": ["grave_touch", "ash_bolt"],
+    "stats": {
+      "strength": 9,
+      "agility": 10,
+      "vitality": 10,
+      "endurance": 9,
+      "mind": 12,
+      "wisdom": 11,
+      "charisma": 8,
+      "luck": 9
+    },
+    "skills": {
+      "spellcasting": 2,
+      "lore": 1,
+      "persuasion": 1
+    },
+    "abilities": [
+      "grave_touch",
+      "ash_bolt"
+    ],
     "hp": 13,
     "defense": 10,
     "attack": 3,
     "behavior": "aggressive",
     "faction": "cult_of_ash",
     "xp": 75,
-    "loot": ["cultist_seal"]
+    "loot": [
+      "cultist_seal"
+    ]
   },
   "ash_wisp": {
     "name": "Ash Wisp",
     "family": "shrine_creatures",
     "class_type": "ember_spirit",
     "level": 2,
-    "stats": {"strength": 7, "agility": 12, "vitality": 9, "endurance": 8, "mind": 13, "wisdom": 11, "charisma": 1, "luck": 10},
-    "skills": {"spellcasting": 2, "stealth": 1, "lore": 1},
-    "abilities": ["ash_bolt"],
+    "stats": {
+      "strength": 7,
+      "agility": 12,
+      "vitality": 9,
+      "endurance": 8,
+      "mind": 13,
+      "wisdom": 11,
+      "charisma": 1,
+      "luck": 10
+    },
+    "skills": {
+      "spellcasting": 2,
+      "stealth": 1,
+      "lore": 1
+    },
+    "abilities": [
+      "ash_bolt"
+    ],
     "hp": 11,
     "defense": 11,
     "attack": 3,
     "behavior": "defensive",
     "faction": "cult_of_ash",
     "xp": 68,
-    "loot": ["shrine_ash", "ember_focus"]
+    "loot": [
+      "shrine_ash",
+      "ember_focus"
+    ]
   },
   "bone_warden": {
     "name": "Bone Warden",
     "family": "ruin_guardians",
     "class_type": "grave_sentinel",
     "level": 4,
-    "stats": {"strength": 13, "agility": 8, "vitality": 13, "endurance": 13, "mind": 10, "wisdom": 11, "charisma": 1, "luck": 9},
-    "skills": {"defense": 3, "lore": 2, "spellcasting": 1},
-    "abilities": ["heavy_strike", "stone_defense", "stomp"],
+    "stats": {
+      "strength": 13,
+      "agility": 8,
+      "vitality": 13,
+      "endurance": 13,
+      "mind": 10,
+      "wisdom": 11,
+      "charisma": 1,
+      "luck": 9
+    },
+    "skills": {
+      "defense": 3,
+      "lore": 2,
+      "spellcasting": 1
+    },
+    "abilities": [
+      "heavy_strike",
+      "stone_defense",
+      "stomp"
+    ],
     "hp": 18,
     "defense": 12,
     "attack": 4,
     "behavior": "defensive",
     "faction": "cult_of_ash",
     "xp": 95,
-    "loot": ["bone_charm", "ritual_knife", "guardian_plate"]
+    "loot": [
+      "bone_charm",
+      "ritual_knife",
+      "guardian_plate"
+    ]
   },
   "corrupted_shrine_wraith": {
     "name": "Corrupted Shrine Wraith",
     "family": "shrine_creatures",
     "class_type": "ash_hexer",
     "level": 2,
-    "stats": {"strength": 8, "agility": 12, "vitality": 10, "endurance": 9, "mind": 13, "wisdom": 12, "charisma": 1, "luck": 10},
-    "skills": {"spellcasting": 2, "lore": 2, "stealth": 1},
-    "abilities": ["ash_bolt", "warding_hex"],
+    "stats": {
+      "strength": 8,
+      "agility": 12,
+      "vitality": 10,
+      "endurance": 9,
+      "mind": 13,
+      "wisdom": 12,
+      "charisma": 1,
+      "luck": 10
+    },
+    "skills": {
+      "spellcasting": 2,
+      "lore": 2,
+      "stealth": 1
+    },
+    "abilities": [
+      "ash_bolt",
+      "warding_hex"
+    ],
     "hp": 13,
     "defense": 11,
     "attack": 3,
     "behavior": "defensive",
     "faction": "cult_of_ash",
     "xp": 78,
-    "loot": ["shrine_ash", "ember_focus"]
+    "loot": [
+      "shrine_ash",
+      "ember_focus"
+    ]
+  },
+  "elite_huskbound_wraith": {
+    "name": "[ELITE] Huskbound Wraith",
+    "family": "shrine_creatures",
+    "class_type": "weeping_husk",
+    "level": 4,
+    "rank": "C",
+    "elite": true,
+    "stats": {
+      "strength": 8,
+      "agility": 12,
+      "vitality": 12,
+      "endurance": 11,
+      "mind": 14,
+      "wisdom": 13,
+      "charisma": 1,
+      "luck": 10
+    },
+    "skills": {
+      "spellcasting": 3,
+      "lore": 3,
+      "stealth": 1,
+      "defense": 1
+    },
+    "abilities": [
+      "mourning_wail",
+      "weeping_siphon",
+      "warding_hex"
+    ],
+    "focus": 9,
+    "hp": 22,
+    "defense": 12,
+    "attack": 5,
+    "behavior": "defensive",
+    "faction": "cult_of_ash",
+    "xp": 160,
+    "loot": [
+      "shrine_ash",
+      "ember_focus",
+      "cultist_seal"
+    ]
+  },
+  "weeping_husk": {
+    "name": "The Weeping Husk",
+    "family": "shrine_creatures",
+    "class_type": "weeping_husk",
+    "level": 5,
+    "rank": "C",
+    "boss": true,
+    "stats": {
+      "strength": 8,
+      "agility": 12,
+      "vitality": 14,
+      "endurance": 12,
+      "mind": 15,
+      "wisdom": 14,
+      "charisma": 1,
+      "luck": 10
+    },
+    "skills": {
+      "spellcasting": 4,
+      "lore": 4,
+      "stealth": 1,
+      "defense": 2
+    },
+    "abilities": [
+      "mourning_wail",
+      "weeping_siphon",
+      "warding_hex"
+    ],
+    "focus": 10,
+    "hp": 30,
+    "defense": 12,
+    "attack": 5,
+    "behavior": "defensive",
+    "faction": "cult_of_ash",
+    "xp": 240,
+    "loot": [
+      "weeping_resin",
+      "ember_focus"
+    ],
+    "phase_rules": [
+      {
+        "id": "focus_drain_aura",
+        "trigger": {
+          "turn_interval": 1
+        },
+        "focus_drain": 1,
+        "log": "draws focus into its hollow frame"
+      },
+      {
+        "id": "resource_siphon",
+        "once": true,
+        "trigger": {
+          "player_focus_at_or_below": 3
+        },
+        "force_ability": "weeping_siphon",
+        "log": "tightens its lament around your failing focus"
+      }
+    ],
+    "reward_text": "The shrine's grief loosens as the husk collapses inward."
   },
   "thief": {
     "name": "Thief",
     "family": "bandits",
     "class_type": "cutpurse",
     "level": 1,
-    "stats": {"strength": 9, "agility": 12, "vitality": 9, "endurance": 9, "mind": 8, "wisdom": 8, "charisma": 10, "luck": 11},
-    "skills": {"stealth": 2, "swordsmanship": 1},
-    "abilities": ["slash"],
+    "stats": {
+      "strength": 9,
+      "agility": 12,
+      "vitality": 9,
+      "endurance": 9,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 10,
+      "luck": 11
+    },
+    "skills": {
+      "stealth": 2,
+      "swordsmanship": 1
+    },
+    "abilities": [
+      "slash"
+    ],
     "hp": 11,
     "defense": 10,
     "attack": 3,
     "behavior": "cowardly",
     "faction": "thieves_circle",
     "xp": 70,
-    "loot": ["stolen_satchel"]
+    "loot": [
+      "stolen_satchel"
+    ]
   },
   "cutpurse": {
     "name": "Cutpurse",
     "family": "bandits",
     "class_type": "skirmisher",
     "level": 2,
-    "stats": {"strength": 9, "agility": 13, "vitality": 9, "endurance": 9, "mind": 8, "wisdom": 8, "charisma": 10, "luck": 11},
-    "skills": {"stealth": 2, "swordsmanship": 1, "persuasion": 1},
-    "abilities": ["slash", "dirty_trick"],
+    "stats": {
+      "strength": 9,
+      "agility": 13,
+      "vitality": 9,
+      "endurance": 9,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 10,
+      "luck": 11
+    },
+    "skills": {
+      "stealth": 2,
+      "swordsmanship": 1,
+      "persuasion": 1
+    },
+    "abilities": [
+      "slash",
+      "dirty_trick"
+    ],
     "hp": 10,
     "defense": 11,
     "attack": 3,
     "behavior": "cowardly",
     "faction": "thieves_circle",
     "xp": 62,
-    "loot": ["road_knife", "iron_scrap"]
+    "loot": [
+      "road_knife",
+      "iron_scrap"
+    ]
   },
   "cave_troll": {
     "name": "Cave Troll",
     "family": "forest_beasts",
     "class_type": "brute",
     "level": 5,
-    "stats": {"strength": 15, "agility": 8, "vitality": 15, "endurance": 14, "mind": 5, "wisdom": 6, "charisma": 2, "luck": 8},
-    "skills": {"defense": 3, "survival": 1},
-    "abilities": ["maul", "thick_hide", "crushing_blow"],
+    "stats": {
+      "strength": 15,
+      "agility": 8,
+      "vitality": 15,
+      "endurance": 14,
+      "mind": 5,
+      "wisdom": 6,
+      "charisma": 2,
+      "luck": 8
+    },
+    "skills": {
+      "defense": 3,
+      "survival": 1
+    },
+    "abilities": [
+      "maul",
+      "thick_hide",
+      "crushing_blow"
+    ],
     "hp": 24,
     "defense": 13,
     "attack": 5,
     "behavior": "hunter",
     "xp": 140,
-    "loot": ["troll_tusk"]
+    "loot": [
+      "troll_tusk"
+    ]
   },
   "goblin": {
     "name": "Goblin Skirmisher",
     "family": "bandits",
     "class_type": "raider",
     "level": 1,
-    "stats": {"strength": 8, "agility": 11, "vitality": 9, "endurance": 8, "mind": 8, "wisdom": 7, "charisma": 7, "luck": 10},
-    "skills": {"stealth": 1, "swordsmanship": 1},
-    "abilities": ["jab"],
+    "stats": {
+      "strength": 8,
+      "agility": 11,
+      "vitality": 9,
+      "endurance": 8,
+      "mind": 8,
+      "wisdom": 7,
+      "charisma": 7,
+      "luck": 10
+    },
+    "skills": {
+      "stealth": 1,
+      "swordsmanship": 1
+    },
+    "abilities": [
+      "jab"
+    ],
     "hp": 10,
     "defense": 10,
     "attack": 2,
     "behavior": "cowardly",
     "xp": 50,
-    "loot": ["bandage", "iron_scrap"]
+    "loot": [
+      "bandage",
+      "iron_scrap"
+    ]
   },
   "bandit": {
     "name": "Road Bandit",
     "family": "bandits",
     "class_type": "skirmisher",
     "level": 2,
-    "stats": {"strength": 11, "agility": 11, "vitality": 10, "endurance": 10, "mind": 8, "wisdom": 8, "charisma": 9, "luck": 10},
-    "skills": {"swordsmanship": 2, "stealth": 1, "defense": 1},
-    "abilities": ["slash", "dirty_trick"],
+    "stats": {
+      "strength": 11,
+      "agility": 11,
+      "vitality": 10,
+      "endurance": 10,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 9,
+      "luck": 10
+    },
+    "skills": {
+      "swordsmanship": 2,
+      "stealth": 1,
+      "defense": 1
+    },
+    "abilities": [
+      "slash",
+      "dirty_trick"
+    ],
     "hp": 14,
     "defense": 11,
     "attack": 3,
     "behavior": "aggressive",
     "faction": "thieves_circle",
     "xp": 70,
-    "loot": ["potion", "iron_scrap"]
+    "loot": [
+      "potion",
+      "iron_scrap"
+    ]
   },
   "bandit_raider": {
     "name": "Bandit Raider",
     "family": "bandits",
     "class_type": "enforcer",
     "level": 3,
-    "stats": {"strength": 12, "agility": 11, "vitality": 11, "endurance": 11, "mind": 8, "wisdom": 8, "charisma": 9, "luck": 10},
-    "skills": {"swordsmanship": 2, "stealth": 1, "defense": 2},
-    "abilities": ["slash", "dirty_trick", "ambush"],
+    "stats": {
+      "strength": 12,
+      "agility": 11,
+      "vitality": 11,
+      "endurance": 11,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 9,
+      "luck": 10
+    },
+    "skills": {
+      "swordsmanship": 2,
+      "stealth": 1,
+      "defense": 2
+    },
+    "abilities": [
+      "slash",
+      "dirty_trick",
+      "ambush"
+    ],
     "hp": 16,
     "defense": 11,
     "attack": 4,
     "behavior": "aggressive",
     "faction": "thieves_circle",
     "xp": 88,
-    "loot": ["raider_badge", "ration", "raider_sabre", "iron_scrap"]
+    "loot": [
+      "raider_badge",
+      "ration",
+      "raider_sabre",
+      "iron_scrap"
+    ]
   },
   "bandit_tollmaster": {
     "name": "Bandit Tollmaster",
     "family": "bandits",
     "class_type": "enforcer",
     "level": 3,
-    "stats": {"strength": 12, "agility": 11, "vitality": 12, "endurance": 11, "mind": 9, "wisdom": 8, "charisma": 10, "luck": 10},
-    "skills": {"swordsmanship": 2, "stealth": 1, "defense": 2},
-    "abilities": ["slash", "dirty_trick", "ambush"],
+    "stats": {
+      "strength": 12,
+      "agility": 11,
+      "vitality": 12,
+      "endurance": 11,
+      "mind": 9,
+      "wisdom": 8,
+      "charisma": 10,
+      "luck": 10
+    },
+    "skills": {
+      "swordsmanship": 2,
+      "stealth": 1,
+      "defense": 2
+    },
+    "abilities": [
+      "slash",
+      "dirty_trick",
+      "ambush"
+    ],
     "hp": 17,
     "defense": 11,
     "attack": 4,
     "behavior": "aggressive",
     "faction": "thieves_circle",
     "xp": 92,
-    "loot": ["raider_badge", "iron_scrap"]
+    "loot": [
+      "raider_badge",
+      "iron_scrap"
+    ]
   },
   "bandit_toll_guard": {
     "name": "Bandit Toll Guard",
     "family": "bandits",
     "class_type": "pass_raider",
     "level": 2,
-    "stats": {"strength": 11, "agility": 11, "vitality": 10, "endurance": 10, "mind": 8, "wisdom": 8, "charisma": 8, "luck": 9},
-    "skills": {"swordsmanship": 2, "stealth": 1, "defense": 1},
-    "abilities": ["slash", "dirty_trick"],
+    "stats": {
+      "strength": 11,
+      "agility": 11,
+      "vitality": 10,
+      "endurance": 10,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 8,
+      "luck": 9
+    },
+    "skills": {
+      "swordsmanship": 2,
+      "stealth": 1,
+      "defense": 1
+    },
+    "abilities": [
+      "slash",
+      "dirty_trick"
+    ],
     "hp": 14,
     "defense": 11,
     "attack": 3,
     "behavior": "aggressive",
     "faction": "thieves_circle",
     "xp": 76,
-    "loot": ["ration", "iron_scrap"]
+    "loot": [
+      "ration",
+      "iron_scrap"
+    ]
+  },
+  "elite_ironpass_bulwark": {
+    "name": "[ELITE] Ironpass Bulwark",
+    "family": "bandits",
+    "class_type": "shield_captain",
+    "level": 4,
+    "rank": "D",
+    "elite": true,
+    "stats": {
+      "strength": 13,
+      "agility": 11,
+      "vitality": 13,
+      "endurance": 13,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 9,
+      "luck": 9
+    },
+    "skills": {
+      "swordsmanship": 3,
+      "defense": 3,
+      "stealth": 1
+    },
+    "abilities": [
+      "slash",
+      "heavy_shield_bash",
+      "desperate_rally"
+    ],
+    "focus": 8,
+    "hp": 24,
+    "defense": 13,
+    "attack": 5,
+    "behavior": "defensive",
+    "faction": "thieves_circle",
+    "xp": 150,
+    "loot": [
+      "raider_badge",
+      "iron_scrap",
+      "ration"
+    ]
+  },
+  "gorgos_the_sundered": {
+    "name": "Gorgos the Sundered",
+    "family": "bandits",
+    "class_type": "shield_captain",
+    "level": 4,
+    "rank": "D",
+    "boss": true,
+    "stats": {
+      "strength": 14,
+      "agility": 11,
+      "vitality": 14,
+      "endurance": 14,
+      "mind": 9,
+      "wisdom": 9,
+      "charisma": 10,
+      "luck": 9
+    },
+    "skills": {
+      "swordsmanship": 3,
+      "defense": 4,
+      "stealth": 1
+    },
+    "abilities": [
+      "slash",
+      "heavy_shield_bash",
+      "desperate_rally"
+    ],
+    "focus": 9,
+    "hp": 32,
+    "defense": 13,
+    "attack": 5,
+    "behavior": "defensive",
+    "faction": "thieves_circle",
+    "xp": 220,
+    "loot": [
+      "sundered_crest",
+      "raider_sabre"
+    ],
+    "phase_rules": [
+      {
+        "id": "shield_bash_cycle",
+        "trigger": {
+          "turn_interval": 3
+        },
+        "force_ability": "heavy_shield_bash"
+      },
+      {
+        "id": "desperate_rally",
+        "once": true,
+        "trigger": {
+          "enemy_hp_at_or_below_pct": 40
+        },
+        "force_ability": "desperate_rally",
+        "log": "lets out a desperate rally and surges back behind ruined steel"
+      }
+    ],
+    "reward_text": "The bandit line breaks as Gorgos falls.",
+    "phase_only_abilities": [
+      "desperate_rally"
+    ]
   },
   "shrine_guardian": {
     "name": "Shrine Guardian",
     "family": "ruin_guardians",
     "class_type": "stone_guardian",
     "level": 5,
-    "stats": {"strength": 14, "agility": 8, "vitality": 14, "endurance": 14, "mind": 9, "wisdom": 11, "charisma": 1, "luck": 9},
-    "skills": {"defense": 3, "swordsmanship": 2, "lore": 2},
-    "abilities": ["heavy_strike", "stone_defense", "stomp"],
+    "stats": {
+      "strength": 14,
+      "agility": 8,
+      "vitality": 14,
+      "endurance": 14,
+      "mind": 9,
+      "wisdom": 11,
+      "charisma": 1,
+      "luck": 9
+    },
+    "skills": {
+      "defense": 3,
+      "swordsmanship": 2,
+      "lore": 2
+    },
+    "abilities": [
+      "heavy_strike",
+      "stone_defense",
+      "stomp"
+    ],
     "hp": 15,
     "defense": 12,
     "attack": 3,
     "behavior": "defensive",
     "faction": "cult_of_ash",
     "xp": 120,
-    "loot": ["guardian_sigil"],
+    "boss": true,
+    "loot": [
+      "guardian_sigil"
+    ],
     "reward_text": "The shrine grows quiet. You claim the Guardian Sigil as proof of your victory."
   },
   "ridge_raider": {
@@ -361,190 +1123,538 @@
     "family": "bandits",
     "class_type": "pass_raider",
     "level": 3,
-    "stats": {"strength": 12, "agility": 11, "vitality": 11, "endurance": 10, "mind": 8, "wisdom": 8, "charisma": 8, "luck": 9},
-    "skills": {"swordsmanship": 2, "stealth": 1, "defense": 1},
-    "abilities": ["slash", "dirty_trick"],
+    "stats": {
+      "strength": 12,
+      "agility": 11,
+      "vitality": 11,
+      "endurance": 10,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 8,
+      "luck": 9
+    },
+    "skills": {
+      "swordsmanship": 2,
+      "stealth": 1,
+      "defense": 1
+    },
+    "abilities": [
+      "slash",
+      "dirty_trick"
+    ],
     "hp": 15,
     "defense": 11,
     "attack": 4,
     "behavior": "aggressive",
     "faction": "thieves_circle",
     "xp": 84,
-    "loot": ["raider_badge", "ration"]
+    "loot": [
+      "raider_badge",
+      "ration"
+    ]
   },
   "ore_thief": {
     "name": "Ore Thief",
     "family": "bandits",
     "class_type": "scavenger",
     "level": 2,
-    "stats": {"strength": 10, "agility": 12, "vitality": 10, "endurance": 9, "mind": 8, "wisdom": 8, "charisma": 9, "luck": 10},
-    "skills": {"stealth": 2, "swordsmanship": 1},
-    "abilities": ["slash", "dirty_trick"],
+    "stats": {
+      "strength": 10,
+      "agility": 12,
+      "vitality": 10,
+      "endurance": 9,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 9,
+      "luck": 10
+    },
+    "skills": {
+      "stealth": 2,
+      "swordsmanship": 1
+    },
+    "abilities": [
+      "slash",
+      "dirty_trick"
+    ],
     "hp": 12,
     "defense": 10,
     "attack": 3,
     "behavior": "cowardly",
     "faction": "thieves_circle",
     "xp": 68,
-    "loot": ["road_knife", "stolen_satchel"]
+    "loot": [
+      "road_knife",
+      "stolen_satchel"
+    ]
   },
   "stone_ram": {
     "name": "Stone Ram",
     "family": "forest_beasts",
     "class_type": "cliff_charger",
     "level": 3,
-    "stats": {"strength": 13, "agility": 10, "vitality": 12, "endurance": 12, "mind": 4, "wisdom": 8, "charisma": 2, "luck": 9},
-    "skills": {"defense": 2, "survival": 1},
-    "abilities": ["maul", "thick_hide"],
+    "stats": {
+      "strength": 13,
+      "agility": 10,
+      "vitality": 12,
+      "endurance": 12,
+      "mind": 4,
+      "wisdom": 8,
+      "charisma": 2,
+      "luck": 9
+    },
+    "skills": {
+      "defense": 2,
+      "survival": 1
+    },
+    "abilities": [
+      "maul",
+      "thick_hide"
+    ],
     "hp": 16,
     "defense": 11,
     "attack": 4,
     "behavior": "aggressive",
     "xp": 82,
-    "loot": ["boar_tusk"]
+    "loot": [
+      "boar_tusk"
+    ]
   },
   "wreck_diver": {
     "name": "Wreck Diver",
     "family": "bandits",
     "class_type": "wreck_scavenger",
     "level": 2,
-    "stats": {"strength": 9, "agility": 12, "vitality": 10, "endurance": 9, "mind": 8, "wisdom": 8, "charisma": 7, "luck": 11},
-    "skills": {"stealth": 2, "swordsmanship": 1},
-    "abilities": ["jab", "scatter"],
+    "stats": {
+      "strength": 9,
+      "agility": 12,
+      "vitality": 10,
+      "endurance": 9,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 7,
+      "luck": 11
+    },
+    "skills": {
+      "stealth": 2,
+      "swordsmanship": 1
+    },
+    "abilities": [
+      "jab",
+      "scatter"
+    ],
     "hp": 11,
     "defense": 10,
     "attack": 3,
     "behavior": "cowardly",
     "faction": "thieves_circle",
     "xp": 66,
-    "loot": ["stolen_satchel", "bandage"]
+    "loot": [
+      "stolen_satchel",
+      "bandage"
+    ]
   },
   "sea_raider": {
     "name": "Sea Raider",
     "family": "bandits",
     "class_type": "surf_reaver",
     "level": 3,
-    "stats": {"strength": 11, "agility": 12, "vitality": 10, "endurance": 10, "mind": 8, "wisdom": 8, "charisma": 8, "luck": 11},
-    "skills": {"swordsmanship": 2, "stealth": 1},
-    "abilities": ["jab", "cheap_shot", "scatter"],
+    "stats": {
+      "strength": 11,
+      "agility": 12,
+      "vitality": 10,
+      "endurance": 10,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 8,
+      "luck": 11
+    },
+    "skills": {
+      "swordsmanship": 2,
+      "stealth": 1
+    },
+    "abilities": [
+      "jab",
+      "cheap_shot",
+      "scatter"
+    ],
     "hp": 15,
     "defense": 11,
     "attack": 4,
     "behavior": "aggressive",
     "faction": "thieves_circle",
     "xp": 86,
-    "loot": ["ration", "raider_sabre"]
+    "loot": [
+      "ration",
+      "raider_sabre"
+    ]
   },
   "ash_adept": {
     "name": "Ash Adept",
     "family": "cultists",
     "class_type": "ash_hexer",
     "level": 3,
-    "stats": {"strength": 9, "agility": 10, "vitality": 10, "endurance": 9, "mind": 13, "wisdom": 12, "charisma": 7, "luck": 9},
-    "skills": {"spellcasting": 3, "lore": 2, "persuasion": 1},
-    "abilities": ["ash_bolt", "warding_hex"],
+    "stats": {
+      "strength": 9,
+      "agility": 10,
+      "vitality": 10,
+      "endurance": 9,
+      "mind": 13,
+      "wisdom": 12,
+      "charisma": 7,
+      "luck": 9
+    },
+    "skills": {
+      "spellcasting": 3,
+      "lore": 2,
+      "persuasion": 1
+    },
+    "abilities": [
+      "ash_bolt",
+      "warding_hex"
+    ],
     "hp": 14,
     "defense": 11,
     "attack": 3,
     "behavior": "aggressive",
     "faction": "cult_of_ash",
     "xp": 92,
-    "loot": ["cultist_seal", "shrine_ash"]
+    "loot": [
+      "cultist_seal",
+      "shrine_ash"
+    ]
   },
   "cinder_guardian": {
     "name": "Cinder Guardian",
     "family": "ruin_guardians",
     "class_type": "ember_sentinel",
     "level": 4,
-    "stats": {"strength": 13, "agility": 8, "vitality": 13, "endurance": 13, "mind": 10, "wisdom": 11, "charisma": 1, "luck": 8},
-    "skills": {"defense": 3, "lore": 1, "spellcasting": 1},
-    "abilities": ["heavy_strike", "stone_defense", "stomp"],
+    "stats": {
+      "strength": 13,
+      "agility": 8,
+      "vitality": 13,
+      "endurance": 13,
+      "mind": 10,
+      "wisdom": 11,
+      "charisma": 1,
+      "luck": 8
+    },
+    "skills": {
+      "defense": 3,
+      "lore": 1,
+      "spellcasting": 1
+    },
+    "abilities": [
+      "heavy_strike",
+      "stone_defense",
+      "stomp"
+    ],
     "hp": 19,
     "defense": 12,
     "attack": 4,
     "behavior": "defensive",
     "faction": "cult_of_ash",
     "xp": 110,
-    "loot": ["ember_focus", "guardian_plate"]
+    "loot": [
+      "ember_focus",
+      "guardian_plate"
+    ]
+  },
+  "elite_vault_warden": {
+    "name": "[ELITE] Vault Warden",
+    "family": "ruin_guardians",
+    "class_type": "vault_sentinel",
+    "level": 5,
+    "rank": "B",
+    "elite": true,
+    "stats": {
+      "strength": 15,
+      "agility": 8,
+      "vitality": 15,
+      "endurance": 14,
+      "mind": 10,
+      "wisdom": 11,
+      "charisma": 1,
+      "luck": 8
+    },
+    "skills": {
+      "defense": 4,
+      "lore": 2
+    },
+    "abilities": [
+      "fortified_shell",
+      "core_lance",
+      "stomp"
+    ],
+    "focus": 10,
+    "hp": 27,
+    "defense": 13,
+    "attack": 6,
+    "behavior": "defensive",
+    "xp": 190,
+    "loot": [
+      "guardian_plate",
+      "iron_scrap",
+      "ember_focus"
+    ]
   },
   "grove_sentinel": {
     "name": "Grove Sentinel",
     "family": "ruin_guardians",
     "class_type": "grave_sentinel",
     "level": 4,
-    "stats": {"strength": 13, "agility": 8, "vitality": 13, "endurance": 13, "mind": 10, "wisdom": 11, "charisma": 1, "luck": 9},
-    "skills": {"defense": 3, "lore": 2, "spellcasting": 1},
-    "abilities": ["heavy_strike", "stone_defense", "stomp"],
+    "stats": {
+      "strength": 13,
+      "agility": 8,
+      "vitality": 13,
+      "endurance": 13,
+      "mind": 10,
+      "wisdom": 11,
+      "charisma": 1,
+      "luck": 9
+    },
+    "skills": {
+      "defense": 3,
+      "lore": 2,
+      "spellcasting": 1
+    },
+    "abilities": [
+      "heavy_strike",
+      "stone_defense",
+      "stomp"
+    ],
     "hp": 18,
     "defense": 12,
     "attack": 4,
     "behavior": "defensive",
     "faction": "cult_of_ash",
     "xp": 108,
-    "loot": ["guardian_plate"]
+    "loot": [
+      "guardian_plate"
+    ]
   },
   "blackroot_ambusher": {
     "name": "Blackroot Ambusher",
     "family": "bandits",
     "class_type": "skirmisher",
     "level": 3,
-    "stats": {"strength": 11, "agility": 12, "vitality": 10, "endurance": 10, "mind": 8, "wisdom": 8, "charisma": 8, "luck": 10},
-    "skills": {"swordsmanship": 2, "stealth": 2, "defense": 1},
-    "abilities": ["slash", "dirty_trick"],
+    "stats": {
+      "strength": 11,
+      "agility": 12,
+      "vitality": 10,
+      "endurance": 10,
+      "mind": 8,
+      "wisdom": 8,
+      "charisma": 8,
+      "luck": 10
+    },
+    "skills": {
+      "swordsmanship": 2,
+      "stealth": 2,
+      "defense": 1
+    },
+    "abilities": [
+      "slash",
+      "dirty_trick"
+    ],
     "hp": 15,
     "defense": 11,
     "attack": 4,
     "behavior": "aggressive",
     "faction": "thieves_circle",
     "xp": 84,
-    "loot": ["raider_badge", "iron_scrap"]
+    "loot": [
+      "raider_badge",
+      "iron_scrap"
+    ]
   },
   "blackroot_stalker": {
     "name": "Blackroot Stalker",
     "family": "forest_beasts",
     "class_type": "ambusher",
     "level": 3,
-    "stats": {"strength": 11, "agility": 13, "vitality": 11, "endurance": 10, "mind": 5, "wisdom": 9, "charisma": 1, "luck": 11},
-    "skills": {"survival": 2, "stealth": 2},
-    "abilities": ["venom_bite", "pounce"],
+    "stats": {
+      "strength": 11,
+      "agility": 13,
+      "vitality": 11,
+      "endurance": 10,
+      "mind": 5,
+      "wisdom": 9,
+      "charisma": 1,
+      "luck": 11
+    },
+    "skills": {
+      "survival": 2,
+      "stealth": 2
+    },
+    "abilities": [
+      "venom_bite",
+      "pounce"
+    ],
     "hp": 15,
     "defense": 11,
     "attack": 4,
     "behavior": "hunter",
     "xp": 86,
-    "loot": ["spider_silk", "wolf_fang"]
+    "loot": [
+      "spider_silk",
+      "wolf_fang"
+    ]
   },
   "abyss_beast": {
     "name": "Abyss Beast",
     "family": "abyss_beasts",
     "class_type": "brute",
     "level": 5,
-    "stats": {"strength": 16, "agility": 9, "vitality": 15, "endurance": 14, "mind": 5, "wisdom": 7, "charisma": 1, "luck": 9},
-    "skills": {"defense": 3, "survival": 2},
-    "abilities": ["maul", "thick_hide", "crushing_blow"],
+    "stats": {
+      "strength": 16,
+      "agility": 9,
+      "vitality": 15,
+      "endurance": 14,
+      "mind": 5,
+      "wisdom": 7,
+      "charisma": 1,
+      "luck": 9
+    },
+    "skills": {
+      "defense": 3,
+      "survival": 2
+    },
+    "abilities": [
+      "maul",
+      "thick_hide",
+      "crushing_blow"
+    ],
     "hp": 25,
     "defense": 13,
     "attack": 5,
     "behavior": "hunter",
     "xp": 155,
     "boss": false,
-    "loot": ["troll_tusk", "abyss_shard"]
+    "loot": [
+      "troll_tusk",
+      "abyss_shard"
+    ]
   },
   "ash_herald": {
-    "name": "Ash Herald",
+    "name": "The Ash Herald",
     "family": "ash_heralds",
-    "class_type": "ash_hexer",
-    "level": 6,
-    "stats": {"strength": 10, "agility": 11, "vitality": 12, "endurance": 11, "mind": 15, "wisdom": 14, "charisma": 9, "luck": 10},
-    "skills": {"spellcasting": 4, "lore": 3, "persuasion": 2},
-    "abilities": ["ash_bolt", "warding_hex", "grave_touch"],
-    "hp": 22,
+    "class_type": "ash_horror",
+    "level": 5,
+    "rank": "B",
+    "stats": {
+      "strength": 10,
+      "agility": 11,
+      "vitality": 14,
+      "endurance": 12,
+      "mind": 15,
+      "wisdom": 14,
+      "charisma": 9,
+      "luck": 10
+    },
+    "skills": {
+      "spellcasting": 4,
+      "lore": 4,
+      "persuasion": 2
+    },
+    "abilities": [
+      "ashen_brand",
+      "cinder_burst",
+      "warding_hex"
+    ],
+    "focus": 10,
+    "hp": 34,
     "defense": 13,
-    "attack": 5,
+    "attack": 6,
     "behavior": "aggressive",
     "faction": "cult_of_ash",
-    "xp": 180,
+    "xp": 280,
     "boss": true,
-    "loot": ["ember_focus", "herald_mask"]
+    "loot": [
+      "ash_mark_cinder",
+      "herald_mask"
+    ],
+    "phase_rules": [
+      {
+        "id": "burning_pressure",
+        "trigger": {
+          "turn_interval": 2
+        },
+        "focus_drain": 1,
+        "damage_player": 1,
+        "log": "sheds burning ash that blunts recovery and scorches the air"
+      },
+      {
+        "id": "ash_surge",
+        "once": true,
+        "trigger": {
+          "turn": 4
+        },
+        "force_ability": "cinder_burst",
+        "log": "peels back its ash-marked veil and vents a furnace-bright surge"
+      }
+    ],
+    "reward_text": "The grove's heat drops a fraction as the herald gutters out."
+  },
+  "vault_keeper": {
+    "name": "The Vault Keeper",
+    "family": "ruin_guardians",
+    "class_type": "vault_sentinel",
+    "level": 6,
+    "rank": "B",
+    "boss": true,
+    "stats": {
+      "strength": 16,
+      "agility": 8,
+      "vitality": 16,
+      "endurance": 15,
+      "mind": 10,
+      "wisdom": 12,
+      "charisma": 1,
+      "luck": 8
+    },
+    "skills": {
+      "defense": 5,
+      "lore": 3
+    },
+    "abilities": [
+      "fortified_shell",
+      "core_lance",
+      "stomp"
+    ],
+    "focus": 11,
+    "hp": 38,
+    "defense": 14,
+    "attack": 6,
+    "behavior": "defensive",
+    "xp": 300,
+    "loot": [
+      "vault_core",
+      "guardian_plate"
+    ],
+    "phase_rules": [
+      {
+        "id": "defensive_shell",
+        "once": true,
+        "trigger": {
+          "turn": 1
+        },
+        "force_ability": "fortified_shell",
+        "log": "locks its outer plates into a defensive phase"
+      },
+      {
+        "id": "vulnerability_window",
+        "once": true,
+        "trigger": {
+          "turn": 4
+        },
+        "buff": {
+          "defense_bonus": -4,
+          "damage_bonus": -1
+        },
+        "force_ability": "core_lance",
+        "log": "overextends its core lattice and exposes a brief vulnerability window"
+      }
+    ],
+    "reward_text": "Ancient locks grind open as the keeper collapses."
   }
 }

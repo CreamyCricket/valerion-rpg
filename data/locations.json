@@ -147,7 +147,9 @@
       {"type": "enemy", "target": "dire_wolf", "weight": 35},
       {"type": "enemy", "target": "pack_wolf", "weight": 25},
       {"type": "enemy", "target": "briar_boar", "weight": 25},
-      {"type": "enemy", "target": "bandit", "weight": 15}
+      {"type": "enemy", "target": "bandit", "weight": 15},
+      {"type": "enemy", "target": "elite_ashwood_fanglord", "weight": 8},
+      {"type": "enemy", "target": "elite_briar_dreadboar", "weight": 6}
     ],
     "world_event_chance": 30,
     "world_events": [
@@ -261,7 +263,8 @@
       {"type": "enemy", "target": "cultist", "weight": 30},
       {"type": "enemy", "target": "skeleton", "weight": 20},
       {"type": "enemy", "target": "ash_wisp", "weight": 25},
-      {"type": "enemy", "target": "bone_warden", "weight": 25}
+      {"type": "enemy", "target": "bone_warden", "weight": 25},
+      {"type": "enemy", "target": "elite_huskbound_wraith", "weight": 10}
     ],
     "world_event_chance": 15,
     "world_events": [
@@ -365,7 +368,8 @@
       {"type": "enemy", "target": "skeleton", "weight": 30},
       {"type": "enemy", "target": "ash_wisp", "weight": 25},
       {"type": "enemy", "target": "bone_warden", "weight": 25},
-      {"type": "enemy", "target": "cultist", "weight": 20}
+      {"type": "enemy", "target": "cultist", "weight": 20},
+      {"type": "enemy", "target": "elite_briar_dreadboar", "weight": 8}
     ],
     "world_event_chance": 25,
     "world_events": [
@@ -675,7 +679,8 @@
     "encounters": [
       {"type": "enemy", "target": "ridge_raider", "weight": 40},
       {"type": "enemy", "target": "ore_thief", "weight": 35},
-      {"type": "enemy", "target": "stone_ram", "weight": 25}
+      {"type": "enemy", "target": "stone_ram", "weight": 25},
+      {"type": "enemy", "target": "elite_ironpass_bulwark", "weight": 12}
     ],
     "world_event_chance": 18,
     "world_events": [
@@ -797,7 +802,8 @@
     "encounters": [
       {"type": "enemy", "target": "ash_adept", "weight": 50},
       {"type": "enemy", "target": "cinder_guardian", "weight": 25},
-      {"type": "enemy", "target": "ash_wisp", "weight": 25}
+      {"type": "enemy", "target": "ash_wisp", "weight": 25},
+      {"type": "enemy", "target": "elite_vault_warden", "weight": 10}
     ],
     "world_event_chance": 15,
     "world_events": [
@@ -814,7 +820,7 @@
     "dungeon": {
       "tier": "A",
       "enemy_pool": ["abyss_beast", "shrine_guardian"],
-      "boss_pool": ["ash_herald"]
+      "boss_pool": []
     },
     "connected_locations": {
       "stair": "ashen_stair"
@@ -825,7 +831,8 @@
     "encounters": [
       {"type": "enemy", "target": "cinder_guardian", "weight": 45},
       {"type": "enemy", "target": "ash_adept", "weight": 35},
-      {"type": "enemy", "target": "ash_wisp", "weight": 20}
+      {"type": "enemy", "target": "ash_wisp", "weight": 20},
+      {"type": "enemy", "target": "elite_vault_warden", "weight": 12}
     ],
     "world_event_chance": 12,
     "world_events": [

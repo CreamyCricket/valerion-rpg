@@ -363,6 +363,11 @@ class Narrator:
             f"Enemy: HP {enemy_hp}/{enemy_max_hp}",
         ]
         if enemy_summary:
+            lowered_summary = str(enemy_summary).strip().lower()
+            if "boss" in lowered_summary:
+                lines.append("Threat read: this is a major hostile presence.")
+            elif "elite" in lowered_summary:
+                lines.append("Threat read: this foe is stronger than the usual field threat.")
             lines.append("Enemy read: " + enemy_summary)
         if prepared_effect:
             lines.append("Prepared effect: " + prepared_effect)

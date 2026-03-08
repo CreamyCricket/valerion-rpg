@@ -42,7 +42,16 @@ class Game:
         "shrine_caretaker": "alchemy",
         "forgemistress": "forge",
     }
-    IMPORTANT_ITEM_IDS = {"rusty_sword", "wolf_pelt", "guardian_sigil"}
+    IMPORTANT_ITEM_IDS = {
+        "rusty_sword",
+        "wolf_pelt",
+        "guardian_sigil",
+        "sundered_crest",
+        "weeping_resin",
+        "ironfang_alpha_fang",
+        "ash_mark_cinder",
+        "vault_core",
+    }
     TALKABLE_NPCS = {
         "elder": "Elder",
         "merchant": "Merchant",
@@ -475,12 +484,32 @@ class Game:
     def _enemy_combat_summary(self, enemy_id: str) -> str:
         enemy_data = self.world.enemies.get(enemy_id, {})
         profile = self.combat.preview_enemy(enemy_id, enemy_data)
+        tags = []
+        if self._enemy_is_boss(enemy_id, enemy_data, self.current_location):
+            tags.append("boss")
+        elif bool(enemy_data.get("elite", False)):
+            tags.append("elite")
+        rank = str(enemy_data.get("rank", "")).strip().upper()
+        if rank:
+            tags.append(f"{rank}-rank")
         family = str(profile.get("family", "unknown")).replace("_", " ")
         class_type = str(profile.get("class_type", "foe")).replace("_", " ")
         level = int(profile.get("level", 1))
         abilities = [str(ability.get("name", "")).strip() for ability in profile.get("abilities", [])]
         ability_text = ", ".join(abilities) if abilities else "none"
+        tag_text = ", ".join(tags)
+        if tag_text:
+            return f"{tag_text}; {family}, {class_type}, level {level}. Abilities: {ability_text}."
         return f"{family}, {class_type}, level {level}. Abilities: {ability_text}."
+
+    def _enemy_is_boss(self, enemy_id: str, enemy_data: dict | None = None, location_id: str | None = None) -> bool:
+        enemy_data = enemy_data or self.world.enemies.get(enemy_id, {})
+        if bool(enemy_data.get("boss", False)):
+            return True
+        active_location = location_id or self.current_location
+        dungeon = self.world.dungeon_profile(active_location) or {}
+        boss_pool = {str(candidate).strip().lower() for candidate in dungeon.get("boss_pool", [])}
+        return str(enemy_id).strip().lower() in boss_pool
 
     @staticmethod
     def _crit_threshold_for_chance(chance: int) -> int:
@@ -1935,9 +1964,7 @@ class Game:
             location_id=self.current_location,
             location_name=self.world.get_location(self.current_location).get("name", self.current_location),
         )
-        dungeon = self.world.dungeon_profile(self.current_location) or {}
-        boss_pool = {str(candidate).strip().lower() for candidate in dungeon.get("boss_pool", [])}
-        if enemy_id == "shrine_guardian" or bool(enemy_data.get("boss", False)) or enemy_id in boss_pool:
+        if self._enemy_is_boss(enemy_id, enemy_data, self.current_location):
             self._log_event(
                 "miniboss_defeated",
                 enemy_id=enemy_id,

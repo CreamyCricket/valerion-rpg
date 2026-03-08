@@ -230,6 +230,8 @@ class ContractEngine:
         for contract_id, contract in self.contracts.items():
             if str(contract.get("board_location", "")).strip().lower() != normalized_board:
                 continue
+            if not bool(contract.get("repeatable", True)) and int(self.completed_counts.get(contract_id, 0)) > 0:
+                continue
             if contract_id in self.accepted or contract_id in self.claimable:
                 continue
             if int(self.cooldowns.get(contract_id, 0)) > 0:

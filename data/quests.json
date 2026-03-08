@@ -580,5 +580,97 @@
       "gold": 18,
       "items": ["bandage_kit"]
     }
+  },
+  "q020_break_the_sundered": {
+    "quest_id": "q020_break_the_sundered",
+    "title": "Break the Sundered",
+    "description": "The Quartermaster wants Gorgos put down before the Ironridge raids harden into open rebellion.",
+    "giver": "quartermaster",
+    "requires_acceptance": true,
+    "min_arc": 3,
+    "requires_reputation": [
+      {
+        "faction": "kingdom_guard",
+        "min": 8
+      }
+    ],
+    "faction_rewards": {
+      "kingdom_guard": 8,
+      "merchant_guild": 3,
+      "thieves_circle": -8
+    },
+    "trust_reward": 6,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "gorgos_the_sundered",
+      "count": 1,
+      "location": "ironridge_pass",
+      "turn_in": "watch_barracks"
+    },
+    "reward": {
+      "gold": 24,
+      "items": ["bandage_kit"]
+    }
+  },
+  "q021_silence_the_husk": {
+    "quest_id": "q021_silence_the_husk",
+    "title": "Silence the Husk",
+    "description": "The Shrine Caretaker wants the Weeping Husk ended before the shrine's grief poisons the road for good.",
+    "giver": "shrine_caretaker",
+    "requires_acceptance": true,
+    "min_arc": 4,
+    "requires_reputation": [
+      {
+        "faction": "shrine_keepers",
+        "min": 10
+      }
+    ],
+    "faction_rewards": {
+      "shrine_keepers": 10,
+      "cult_of_ash": -10
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "weeping_husk",
+      "count": 1,
+      "location": "ruined_shrine",
+      "turn_in": "town_shrine"
+    },
+    "reward": {
+      "gold": 26,
+      "items": ["focus_draught"]
+    }
+  },
+  "q022_core_of_the_vault": {
+    "quest_id": "q022_core_of_the_vault",
+    "title": "Core of the Vault",
+    "description": "The Vault Scholar wants proof that the inner guardian truly fell and the vault can be studied again.",
+    "giver": "vault_scholar",
+    "requires_acceptance": true,
+    "min_arc": 4,
+    "requires_reputation": [
+      {
+        "faction": "shrine_keepers",
+        "min": 14
+      }
+    ],
+    "faction_rewards": {
+      "shrine_keepers": 12,
+      "merchant_guild": 4,
+      "cult_of_ash": -10
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "vault_keeper",
+      "count": 1,
+      "location": "ashen_vault",
+      "turn_in": "ashen_stair"
+    },
+    "reward": {
+      "gold": 32,
+      "items": ["greater_potion"]
+    }
   }
 }

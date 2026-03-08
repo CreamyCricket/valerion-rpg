@@ -537,12 +537,47 @@
     "tier": 3,
     "description": "A heavy tusk chipped from a cave troll's jaw."
   },
+  "sundered_crest": {
+    "name": "Sundered Crest",
+    "type": "loot",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "A split guard crest worn by Gorgos after his fall from Stonewatch."
+  },
+  "weeping_resin": {
+    "name": "Weeping Resin",
+    "type": "loot",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "A cold resinous tear left behind when the Weeping Husk finally collapses."
+  },
+  "ironfang_alpha_fang": {
+    "name": "Ironfang Alpha Fang",
+    "type": "loot",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "A long blackened fang taken from Vorgar, still warm with predatory fury."
+  },
   "abyss_shard": {
     "name": "Abyss Shard",
     "type": "loot",
     "rarity": "rare",
     "tier": 4,
     "description": "A dark mineral shard cut from a beast that should have stayed deeper below."
+  },
+  "ash_mark_cinder": {
+    "name": "Ash-Mark Cinder",
+    "type": "loot",
+    "rarity": "epic",
+    "tier": 4,
+    "description": "A hard ember-core left behind by the Ash Herald's dying blaze."
+  },
+  "vault_core": {
+    "name": "Vault Core",
+    "type": "loot",
+    "rarity": "epic",
+    "tier": 4,
+    "description": "A humming core cylinder pried from the Vault Keeper's ruined chassis."
   },
   "herald_mask": {
     "name": "Herald Mask",
