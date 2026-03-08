@@ -1,12 +1,12 @@
 {
   "slime": {
     "name": "Green Slime",
-    "family": "oozes",
+    "family": "slimes",
     "class_type": "ooze",
     "level": 1,
     "stats": {"strength": 9, "agility": 7, "vitality": 12, "endurance": 11, "mind": 4, "wisdom": 5, "charisma": 1, "luck": 8},
     "skills": {"defense": 1},
-    "abilities": ["corrosive_slam"],
+    "abilities": ["corrosive_splash"],
     "hp": 8,
     "defense": 9,
     "attack": 2,
@@ -61,12 +61,12 @@
   },
   "giant_spider": {
     "name": "Giant Spider",
-    "family": "forest_beasts",
+    "family": "spiders",
     "class_type": "ambusher",
     "level": 3,
     "stats": {"strength": 11, "agility": 13, "vitality": 12, "endurance": 10, "mind": 5, "wisdom": 9, "charisma": 1, "luck": 11},
     "skills": {"survival": 2, "stealth": 2},
-    "abilities": ["pounce", "thick_hide"],
+    "abilities": ["venom_bite", "web_trap"],
     "hp": 16,
     "defense": 12,
     "attack": 4,
@@ -91,7 +91,7 @@
   },
   "skeleton": {
     "name": "Skeleton",
-    "family": "shrine_creatures",
+    "family": "cultists",
     "class_type": "undead_guard",
     "level": 2,
     "stats": {"strength": 11, "agility": 9, "vitality": 11, "endurance": 11, "mind": 7, "wisdom": 9, "charisma": 1, "luck": 8},
@@ -106,7 +106,7 @@
   },
   "cultist": {
     "name": "Cultist",
-    "family": "shrine_creatures",
+    "family": "cultists",
     "class_type": "hexer",
     "level": 2,
     "stats": {"strength": 9, "agility": 10, "vitality": 10, "endurance": 9, "mind": 12, "wisdom": 11, "charisma": 8, "luck": 9},
@@ -127,7 +127,7 @@
     "level": 2,
     "stats": {"strength": 7, "agility": 12, "vitality": 9, "endurance": 8, "mind": 13, "wisdom": 11, "charisma": 1, "luck": 10},
     "skills": {"spellcasting": 2, "stealth": 1, "lore": 1},
-    "abilities": ["ash_bolt", "warding_hex"],
+    "abilities": ["ash_bolt"],
     "hp": 11,
     "defense": 11,
     "attack": 3,
@@ -201,7 +201,7 @@
   },
   "goblin": {
     "name": "Goblin Skirmisher",
-    "family": "raiders",
+    "family": "bandits",
     "class_type": "raider",
     "level": 1,
     "stats": {"strength": 8, "agility": 11, "vitality": 9, "endurance": 8, "mind": 8, "wisdom": 7, "charisma": 7, "luck": 10},
@@ -217,7 +217,7 @@
   "bandit": {
     "name": "Road Bandit",
     "family": "bandits",
-    "class_type": "raider",
+    "class_type": "skirmisher",
     "level": 2,
     "stats": {"strength": 11, "agility": 11, "vitality": 10, "endurance": 10, "mind": 8, "wisdom": 8, "charisma": 9, "luck": 10},
     "skills": {"swordsmanship": 2, "stealth": 1, "defense": 1},
@@ -312,7 +312,7 @@
   },
   "wreck_diver": {
     "name": "Wreck Diver",
-    "family": "raiders",
+    "family": "bandits",
     "class_type": "wreck_scavenger",
     "level": 2,
     "stats": {"strength": 9, "agility": 12, "vitality": 10, "endurance": 9, "mind": 8, "wisdom": 8, "charisma": 7, "luck": 11},
@@ -328,7 +328,7 @@
   },
   "sea_raider": {
     "name": "Sea Raider",
-    "family": "raiders",
+    "family": "bandits",
     "class_type": "surf_reaver",
     "level": 3,
     "stats": {"strength": 11, "agility": 12, "vitality": 10, "endurance": 10, "mind": 8, "wisdom": 8, "charisma": 8, "luck": 11},
@@ -344,7 +344,7 @@
   },
   "ash_adept": {
     "name": "Ash Adept",
-    "family": "shrine_creatures",
+    "family": "cultists",
     "class_type": "ash_hexer",
     "level": 3,
     "stats": {"strength": 9, "agility": 10, "vitality": 10, "endurance": 9, "mind": 13, "wisdom": 12, "charisma": 7, "luck": 9},

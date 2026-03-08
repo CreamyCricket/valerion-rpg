@@ -232,9 +232,21 @@ class World:
         states = self.location_states.get(location_id, [])
         if normalized_state not in states:
             return None
-        states.remove(normalized_state)
-        self.clear_transient_npcs(location_id)
         template = self._state_template(normalized_state)
+        states.remove(normalized_state)
+        spawn_enemy = self._normalize_entity_id(template.get("spawn_enemy", "")) if template else ""
+        if spawn_enemy and spawn_enemy in self.get_enemies_at(location_id):
+            base_enemies = {
+                self._normalize_entity_id(enemy_id)
+                for enemy_id in self.locations.get(location_id, {}).get("enemies", [])
+            }
+            still_required = any(
+                self._normalize_entity_id(state.get("spawn_enemy", "")) == spawn_enemy
+                for state in self.get_location_states(location_id)
+            )
+            if spawn_enemy not in base_enemies and not still_required:
+                self.remove_enemy(location_id, spawn_enemy)
+        self.clear_transient_npcs(location_id)
         if template:
             template["location_id"] = location_id
         return template

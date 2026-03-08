@@ -408,10 +408,11 @@ class Game:
 
     def _enemy_combat_summary(self, enemy_id: str) -> str:
         enemy_data = self.world.enemies.get(enemy_id, {})
-        family = str(enemy_data.get("family", "unknown")).replace("_", " ")
-        class_type = str(enemy_data.get("class_type", "foe")).replace("_", " ")
-        level = int(enemy_data.get("level", 1))
-        abilities = [str(ability_id).replace("_", " ").title() for ability_id in enemy_data.get("abilities", [])]
+        profile = self.combat.preview_enemy(enemy_id, enemy_data)
+        family = str(profile.get("family", "unknown")).replace("_", " ")
+        class_type = str(profile.get("class_type", "foe")).replace("_", " ")
+        level = int(profile.get("level", 1))
+        abilities = [str(ability.get("name", "")).strip() for ability in profile.get("abilities", [])]
         ability_text = ", ".join(abilities) if abilities else "none"
         return f"{family}, {class_type}, level {level}. Abilities: {ability_text}."
 
@@ -559,7 +560,7 @@ class Game:
             if target in self.world.get_npcs_at(location_id):
                 return []
             self.world.add_npc(location_id, target)
-            encounter_name = "Traveling Merchant" if target == "merchant" else target.replace("_", " ").title()
+            encounter_name = self.world.npc_name(target)
             self._log_event(
                 "encounter_triggered",
                 encounter_id=target,
@@ -2031,10 +2032,11 @@ class Game:
             )
 
         if effect.get("reveal_enemy"):
-            family = str(enemy_data.get("family", "unknown")).replace("_", " ")
-            class_type = str(enemy_data.get("class_type", "foe")).replace("_", " ")
-            level = int(enemy_data.get("level", 1))
-            abilities = [str(ability_id).replace("_", " ").title() for ability_id in enemy_data.get("abilities", [])]
+            profile = self.combat.preview_enemy(enemy_id, enemy_data)
+            family = str(profile.get("family", "unknown")).replace("_", " ")
+            class_type = str(profile.get("class_type", "foe")).replace("_", " ")
+            level = int(profile.get("level", 1))
+            abilities = [str(ability.get("name", "")).strip() for ability in profile.get("abilities", [])]
             ability_text = ", ".join(abilities) if abilities else "none"
             lines.append(
                 Narrator.ability_text(

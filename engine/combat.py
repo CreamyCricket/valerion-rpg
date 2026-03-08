@@ -27,6 +27,10 @@ class CombatEngine:
         "lore": 0,
         "persuasion": 0,
     }
+    FAMILY_ALIASES = {
+        "oozes": "slimes",
+        "raiders": "bandits",
+    }
     FAMILY_LIBRARY = {
         "wolves": {
             "stat_focus": ["agility", "wisdom"],
@@ -35,13 +39,28 @@ class CombatEngine:
         },
         "bandits": {
             "stat_focus": ["strength", "agility"],
-            "allowed_abilities": ["slash", "dirty_trick", "ambush"],
+            "allowed_abilities": ["slash", "dirty_trick", "ambush", "jab", "cheap_shot", "scatter"],
             "behavior_tendencies": ["aggressive", "cowardly"],
+        },
+        "spiders": {
+            "stat_focus": ["agility", "luck"],
+            "allowed_abilities": ["venom_bite", "web_trap", "pounce"],
+            "behavior_tendencies": ["hunter", "defensive"],
+        },
+        "slimes": {
+            "stat_focus": ["vitality", "endurance"],
+            "allowed_abilities": ["corrosive_splash", "divide", "engulf"],
+            "behavior_tendencies": ["defensive"],
         },
         "shrine_creatures": {
             "stat_focus": ["mind", "wisdom"],
             "allowed_abilities": ["grave_touch", "ash_bolt", "warding_hex"],
             "behavior_tendencies": ["defensive", "aggressive"],
+        },
+        "cultists": {
+            "stat_focus": ["mind", "wisdom"],
+            "allowed_abilities": ["grave_touch", "ash_bolt", "warding_hex"],
+            "behavior_tendencies": ["aggressive", "defensive"],
         },
         "forest_beasts": {
             "stat_focus": ["strength", "vitality"],
@@ -53,16 +72,31 @@ class CombatEngine:
             "allowed_abilities": ["heavy_strike", "stone_defense", "stomp"],
             "behavior_tendencies": ["defensive"],
         },
-        "oozes": {
-            "stat_focus": ["vitality", "endurance"],
-            "allowed_abilities": ["corrosive_slam", "engulf"],
-            "behavior_tendencies": ["defensive"],
-        },
-        "raiders": {
-            "stat_focus": ["agility", "luck"],
-            "allowed_abilities": ["jab", "cheap_shot", "scatter"],
-            "behavior_tendencies": ["cowardly", "aggressive"],
-        },
+    }
+    TYPE_LIBRARY = {
+        "hunter": {"attack_stat": "agility", "skill_focus": ["survival", "stealth"], "allowed_abilities": ["bite"], "preferred_abilities": ["bite"]},
+        "pack_hunter": {"attack_stat": "agility", "skill_focus": ["survival", "defense"], "allowed_abilities": ["bite", "howl"], "preferred_abilities": ["howl", "bite"]},
+        "alpha_hunter": {"attack_stat": "agility", "skill_focus": ["survival", "defense"], "allowed_abilities": ["bite", "howl", "pack_attack"], "preferred_abilities": ["howl", "pack_attack", "bite"]},
+        "cutpurse": {"attack_stat": "agility", "skill_focus": ["stealth", "swordsmanship"], "allowed_abilities": ["slash"], "preferred_abilities": ["slash"]},
+        "skirmisher": {"attack_stat": "agility", "skill_focus": ["stealth", "swordsmanship"], "allowed_abilities": ["slash", "dirty_trick"], "preferred_abilities": ["dirty_trick", "slash"]},
+        "raider": {"attack_stat": "agility", "skill_focus": ["stealth", "swordsmanship"], "allowed_abilities": ["jab", "slash"], "preferred_abilities": ["jab", "slash"]},
+        "enforcer": {"attack_stat": "strength", "skill_focus": ["swordsmanship", "defense"], "allowed_abilities": ["slash", "dirty_trick", "ambush"], "preferred_abilities": ["slash", "ambush", "dirty_trick"]},
+        "pass_raider": {"attack_stat": "strength", "skill_focus": ["swordsmanship", "defense"], "allowed_abilities": ["slash", "dirty_trick"], "preferred_abilities": ["slash", "dirty_trick"]},
+        "scavenger": {"attack_stat": "agility", "skill_focus": ["stealth", "swordsmanship"], "allowed_abilities": ["dirty_trick", "slash"], "preferred_abilities": ["dirty_trick", "slash"]},
+        "wreck_scavenger": {"attack_stat": "agility", "skill_focus": ["stealth", "swordsmanship"], "allowed_abilities": ["jab", "scatter"], "preferred_abilities": ["scatter", "jab"]},
+        "surf_reaver": {"attack_stat": "agility", "skill_focus": ["stealth", "swordsmanship"], "allowed_abilities": ["cheap_shot", "jab", "scatter"], "preferred_abilities": ["scatter", "cheap_shot", "jab"]},
+        "ambusher": {"attack_stat": "agility", "skill_focus": ["stealth", "survival"], "allowed_abilities": ["venom_bite", "web_trap", "pounce"], "preferred_abilities": ["web_trap", "venom_bite", "pounce"]},
+        "ooze": {"attack_stat": "vitality", "skill_focus": ["defense"], "allowed_abilities": ["corrosive_splash", "divide", "engulf"], "preferred_abilities": ["corrosive_splash", "divide", "engulf"]},
+        "hexer": {"attack_stat": "mind", "skill_focus": ["spellcasting", "lore"], "allowed_abilities": ["grave_touch", "ash_bolt"], "preferred_abilities": ["ash_bolt", "grave_touch"]},
+        "ash_hexer": {"attack_stat": "mind", "skill_focus": ["spellcasting", "lore"], "allowed_abilities": ["ash_bolt", "warding_hex", "grave_touch"], "preferred_abilities": ["warding_hex", "ash_bolt", "grave_touch"]},
+        "ember_spirit": {"attack_stat": "mind", "skill_focus": ["spellcasting", "lore"], "allowed_abilities": ["ash_bolt", "warding_hex"], "preferred_abilities": ["ash_bolt", "warding_hex"]},
+        "undead_guard": {"attack_stat": "wisdom", "skill_focus": ["defense", "lore"], "allowed_abilities": ["grave_touch"], "preferred_abilities": ["grave_touch"]},
+        "stone_guardian": {"attack_stat": "strength", "skill_focus": ["defense"], "allowed_abilities": ["heavy_strike", "stone_defense", "stomp"], "preferred_abilities": ["stone_defense", "heavy_strike", "stomp"]},
+        "grave_sentinel": {"attack_stat": "strength", "skill_focus": ["defense", "lore"], "allowed_abilities": ["heavy_strike", "stone_defense", "stomp"], "preferred_abilities": ["stone_defense", "heavy_strike", "stomp"]},
+        "ember_sentinel": {"attack_stat": "strength", "skill_focus": ["defense", "lore"], "allowed_abilities": ["heavy_strike", "stone_defense", "stomp"], "preferred_abilities": ["stone_defense", "heavy_strike", "stomp"]},
+        "charger": {"attack_stat": "strength", "skill_focus": ["defense", "survival"], "allowed_abilities": ["maul", "pounce"], "preferred_abilities": ["maul", "pounce"]},
+        "cliff_charger": {"attack_stat": "strength", "skill_focus": ["defense", "survival"], "allowed_abilities": ["maul", "thick_hide"], "preferred_abilities": ["thick_hide", "maul"]},
+        "brute": {"attack_stat": "strength", "skill_focus": ["defense"], "allowed_abilities": ["maul", "thick_hide", "crushing_blow"], "preferred_abilities": ["thick_hide", "maul", "crushing_blow"]},
     }
     ENEMY_ABILITIES = {
         "bite": {
@@ -92,6 +126,29 @@ class CombatEngine:
             "damage": 4,
             "accuracy_bonus": 2,
             "crit_bonus": 5,
+        },
+        "venom_bite": {
+            "name": "Venom Bite",
+            "min_level": 1,
+            "cost": 1,
+            "kind": "attack",
+            "scale_stat": "agility",
+            "scale_skill": "stealth",
+            "damage": 2,
+            "accuracy_bonus": 1,
+            "target_attack_penalty": 1,
+        },
+        "web_trap": {
+            "name": "Web Trap",
+            "min_level": 2,
+            "cost": 2,
+            "kind": "attack",
+            "scale_stat": "agility",
+            "scale_skill": "stealth",
+            "damage": 1,
+            "accuracy_bonus": 2,
+            "target_defense_penalty": 1,
+            "target_dodge_penalty": 1,
         },
         "slash": {
             "name": "Slash",
@@ -222,6 +279,16 @@ class CombatEngine:
             "damage": 4,
             "target_defense_penalty": 1,
         },
+        "corrosive_splash": {
+            "name": "Corrosive Splash",
+            "min_level": 1,
+            "cost": 1,
+            "kind": "attack",
+            "scale_stat": "vitality",
+            "scale_skill": "defense",
+            "damage": 2,
+            "target_defense_penalty": 1,
+        },
         "corrosive_slam": {
             "name": "Corrosive Slam",
             "min_level": 1,
@@ -231,6 +298,13 @@ class CombatEngine:
             "scale_skill": "defense",
             "damage": 2,
             "target_defense_penalty": 1,
+        },
+        "divide": {
+            "name": "Divide",
+            "min_level": 2,
+            "cost": 2,
+            "kind": "self_buff",
+            "buff": {"defense_bonus": 1, "damage_bonus": 1},
         },
         "engulf": {
             "name": "Engulf",
@@ -310,9 +384,22 @@ class CombatEngine:
             return 2
         return 3
 
-    def _resolve_enemy_abilities(self, family: str, level: int, requested: list | None) -> list[dict]:
+    def _enemy_family(self, family: str) -> str:
+        normalized = self._normalize_key(family)
+        return self.FAMILY_ALIASES.get(normalized, normalized)
+
+    def _type_definition(self, class_type: str) -> dict:
+        return self.TYPE_LIBRARY.get(self._normalize_key(class_type), {})
+
+    def _resolve_enemy_abilities(self, family: str, class_type: str, level: int, requested: list | None) -> list[dict]:
         family_def = self.FAMILY_LIBRARY.get(family, {})
-        allowed = [self._normalize_key(ability_id) for ability_id in family_def.get("allowed_abilities", [])]
+        type_def = self._type_definition(class_type)
+        family_allowed = [self._normalize_key(ability_id) for ability_id in family_def.get("allowed_abilities", [])]
+        type_allowed = [self._normalize_key(ability_id) for ability_id in type_def.get("allowed_abilities", [])]
+        preferred = [self._normalize_key(ability_id) for ability_id in type_def.get("preferred_abilities", [])]
+        allowed = [ability_id for ability_id in family_allowed if not type_allowed or ability_id in type_allowed]
+        if not allowed:
+            allowed = family_allowed or type_allowed
         max_abilities = self._max_enemy_abilities(level)
         resolved_ids = []
 
@@ -326,8 +413,9 @@ class CombatEngine:
             if len(resolved_ids) >= max_abilities:
                 break
 
+        fallback_order = preferred + [ability_id for ability_id in allowed if ability_id not in preferred]
         if not resolved_ids:
-            for ability_id in allowed:
+            for ability_id in fallback_order:
                 ability = self.ENEMY_ABILITIES.get(ability_id)
                 if not ability or level < int(ability.get("min_level", 1)):
                     continue
@@ -338,11 +426,12 @@ class CombatEngine:
         return [{"id": ability_id, **self.ENEMY_ABILITIES[ability_id]} for ability_id in resolved_ids]
 
     def _enemy_profile(self, enemy_id: str, enemy_data: dict) -> dict:
-        family = self._normalize_key(enemy_data.get("family", ""))
+        family = self._enemy_family(enemy_data.get("family", ""))
+        class_type = self._normalize_key(enemy_data.get("class_type", "")) or "foe"
         level = max(1, int(enemy_data.get("level", 1)))
         stats = self._normalized_enemy_stats(enemy_data.get("stats", {}))
         skills = self._normalized_enemy_skills(enemy_data.get("skills", {}))
-        abilities = self._resolve_enemy_abilities(family, level, enemy_data.get("abilities", []))
+        abilities = self._resolve_enemy_abilities(family, class_type, level, enemy_data.get("abilities", []))
         focus_max = max(
             0,
             int(enemy_data.get("focus", 2 + level + max(0, self._stat_modifier(stats["mind"])))),
@@ -351,13 +440,16 @@ class CombatEngine:
             "id": enemy_id,
             "name": str(enemy_data.get("name", enemy_id)),
             "family": family,
-            "class_type": self._normalize_key(enemy_data.get("class_type", "")) or "foe",
+            "class_type": class_type,
             "level": level,
             "stats": stats,
             "skills": skills,
             "abilities": abilities,
             "focus_max": focus_max,
         }
+
+    def preview_enemy(self, enemy_id: str, enemy_data: dict) -> dict:
+        return self._enemy_profile(enemy_id, enemy_data)
 
     def _enemy_stat_value(self, profile: dict, stat_name: str) -> int:
         return int(profile["stats"].get(stat_name, self.DEFAULT_ENEMY_STATS.get(stat_name, 10)))
@@ -371,6 +463,9 @@ class CombatEngine:
     def _enemy_attack_stat(self, profile: dict) -> str:
         class_type = profile.get("class_type", "")
         family = profile.get("family", "")
+        type_attack_stat = self._normalize_key(self._type_definition(class_type).get("attack_stat", ""))
+        if type_attack_stat in self.DEFAULT_ENEMY_STATS:
+            return type_attack_stat
         if family in {"shrine_creatures"} and self._enemy_skill(profile, "spellcasting") >= self._enemy_skill(profile, "swordsmanship"):
             return "mind"
         if class_type in {"hexer", "ember_spirit"}:
@@ -380,6 +475,13 @@ class CombatEngine:
         return "strength"
 
     def _enemy_basic_skill(self, profile: dict) -> str:
+        type_skills = [
+            self._normalize_key(skill_name)
+            for skill_name in self._type_definition(profile.get("class_type", "")).get("skill_focus", [])
+            if self._normalize_key(skill_name) in self.DEFAULT_ENEMY_SKILLS
+        ]
+        if type_skills:
+            return max(type_skills, key=lambda skill_name: (self._enemy_skill(profile, skill_name), -type_skills.index(skill_name)))
         candidates = ("swordsmanship", "archery", "spellcasting", "defense")
         return max(candidates, key=lambda skill_name: (self._enemy_skill(profile, skill_name), -candidates.index(skill_name)))
 
@@ -676,9 +778,10 @@ class CombatEngine:
             }
 
         profile = self._enemy_profile(enemy_id, enemy_data)
-        enemy_hp = int(enemy_data.get("hp", 1))
+        enemy_max_hp = max(1, int(enemy_data.get("hp", 1)))
+        enemy_hp = enemy_max_hp
         if starting_enemy_hp is not None:
-            enemy_hp = max(0, min(enemy_hp, int(starting_enemy_hp)))
+            enemy_hp = max(0, min(enemy_max_hp, int(starting_enemy_hp)))
         enemy_attack = int(enemy_data.get("attack", 1))
         enemy_defense = int(enemy_data.get("defense", self.DEFAULT_ENEMY_DEFENSE))
         enemy_name = str(enemy_data.get("name", enemy_id))
@@ -691,7 +794,7 @@ class CombatEngine:
         enemy_focus = int(profile.get("focus_max", 0))
         enemy_state = {
             "hp": enemy_hp,
-            "max_hp": enemy_hp,
+            "max_hp": enemy_max_hp,
             "attack_bonus": 0,
             "damage_bonus": 0,
             "defense_bonus": 0,
