@@ -574,7 +574,7 @@ class Game:
 
     def _trigger_dynamic_world_state(self, location_id: str, trigger: str, source: str) -> list[str]:
         location = self.world.get_location(location_id)
-        chance = int(location.get("state_event_chance", 0))
+        chance = self.world.state_event_chance(location_id)
         if chance <= 0:
             return []
         if len(self.world.get_location_state_ids(location_id)) >= 2:
@@ -716,14 +716,14 @@ class Game:
     def _resolve_random_world_event(self, location_id: str) -> list[str]:
         location = self.world.get_location(location_id)
         location_name = location.get("name", location_id)
-        event = self.encounters.roll_world_event(location)
+        event = self.encounters.roll_world_event(location, chance_override=self.world.world_event_chance(location_id))
         if not event:
             return []
 
         event_name = str(event.get("name", event.get("event_id", "World Event")))
         event_type = str(event.get("type", "")).strip().lower()
         skill_name = str(event.get("skill", "survival")).strip().lower()
-        dc = int(event.get("dc", 10))
+        dc = self.world.world_event_dc(location_id, int(event.get("dc", 10)))
         check = self._skill_check(skill_name, dc)
         roll = check["roll"]
         roll_text = f"{roll['die']} + {roll['modifier']} = {roll['total']} vs DC {dc}"
@@ -1546,11 +1546,18 @@ class Game:
         location = self.world.get_location(self.current_location)
         states = self.world.get_location_states(self.current_location)
         location_memory = self.player.location_event_memory(self.current_location)
+        dungeon = self.world.dungeon_profile(self.current_location) or {}
         return {
             "location_name": location.get("name", self.current_location),
             "region": location.get("region", ""),
             "location_lore": location.get("lore", ""),
             "state_names": [state.get("name", state.get("state_id", "State")) for state in states],
+            "dungeon_tier": dungeon.get("tier", ""),
+            "dungeon_label": dungeon.get("label", ""),
+            "dungeon_level_range": dungeon.get("level_range", []),
+            "dungeon_families": dungeon.get("family_names", []),
+            "dungeon_loot_band": dungeon.get("loot_band", ""),
+            "dungeon_event_risk": dungeon.get("event_risk", ""),
             "npcs": self._visible_npc_names_at_location(self.current_location),
             "visit_count": location_memory.get("visit_count", 0),
             "defeated_enemies_here": [entry.get("name", "") for entry in location_memory.get("defeated_enemies", [])],
@@ -1650,7 +1657,9 @@ class Game:
             location_id=self.current_location,
             location_name=self.world.get_location(self.current_location).get("name", self.current_location),
         )
-        if enemy_id == "shrine_guardian":
+        dungeon = self.world.dungeon_profile(self.current_location) or {}
+        boss_pool = {str(candidate).strip().lower() for candidate in dungeon.get("boss_pool", [])}
+        if enemy_id == "shrine_guardian" or bool(enemy_data.get("boss", False)) or enemy_id in boss_pool:
             self._log_event(
                 "miniboss_defeated",
                 enemy_id=enemy_id,

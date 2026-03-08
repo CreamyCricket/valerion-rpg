@@ -500,6 +500,20 @@
     "tier": 3,
     "description": "A heavy tusk chipped from a cave troll's jaw."
   },
+  "abyss_shard": {
+    "name": "Abyss Shard",
+    "type": "loot",
+    "rarity": "rare",
+    "tier": 4,
+    "description": "A dark mineral shard cut from a beast that should have stayed deeper below."
+  },
+  "herald_mask": {
+    "name": "Herald Mask",
+    "type": "loot",
+    "rarity": "epic",
+    "tier": 4,
+    "description": "A heat-etched ritual mask worn by an Ash Herald at the height of its calling."
+  },
   "sealed_letter": {
     "name": "Sealed Letter",
     "type": "quest",

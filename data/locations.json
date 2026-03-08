@@ -192,6 +192,11 @@
     "description": "A broken stone tower rises above the trees, quiet but still standing.",
     "region": "Village Roads",
     "lore": "The watchtower once gave the village warning over the road and treeline, so even half-ruined it still feels like part of the same border watch.",
+    "dungeon": {
+      "tier": "E",
+      "enemy_pool": ["slime", "goblin", "wolf"],
+      "boss_pool": ["pack_wolf"]
+    },
     "connected_locations": {
       "path": "forest_path",
       "ruins": "old_ruins"
@@ -240,6 +245,11 @@
     "description": "Cracked pillars and faded carvings mark an abandoned shrine deep in the woods.",
     "region": "Shrine March",
     "lore": "The shrine belonged to an older order of keepers, and locals still speak as if the stones remember more than they should.",
+    "dungeon": {
+      "tier": "D",
+      "enemy_pool": ["cultist", "skeleton", "ash_wisp"],
+      "boss_pool": ["bone_warden"]
+    },
     "connected_locations": {
       "forest": "deep_forest",
       "cave": "whispering_cave"
@@ -263,7 +273,7 @@
         "skill": "arcana",
         "dc": 14,
         "reward_gold": 15,
-        "reward_item": "potion"
+        "reward_item": "mana_tonic"
       }
     ],
     "state_event_chance": 22,
@@ -338,6 +348,11 @@
     "description": "Broken arches and fallen walls ring a courtyard where faded carvings still cling to the stone.",
     "region": "Shrine March",
     "lore": "These ruins predate the current roads, and scholars argue whether they once guarded the shrine or warned people away from it.",
+    "dungeon": {
+      "tier": "C",
+      "enemy_pool": ["ash_adept", "giant_spider", "bandit_raider"],
+      "boss_pool": ["bone_warden"]
+    },
     "connected_locations": {
       "watchtower": "old_watchtower",
       "river": "river_crossing",
@@ -362,7 +377,7 @@
         "skill": "lore",
         "dc": 13,
         "reward_gold": 12,
-        "reward_item": "bandage"
+        "reward_item": "novice_grimoire"
       },
       {
         "event_id": "wandering_trader",
@@ -432,6 +447,11 @@
     "description": "Cold air slips through narrow stone throats, making every sound in the cave feel half-spoken.",
     "region": "Deep Forest",
     "lore": "People say the cave carries voices farther than it should, which is enough reason for most locals to stay out.",
+    "dungeon": {
+      "tier": "C",
+      "enemy_pool": ["giant_spider", "bandit_raider", "ash_adept"],
+      "boss_pool": ["cave_troll"]
+    },
     "connected_locations": {
       "ruins": "old_ruins",
       "forest": "deep_forest",
@@ -456,7 +476,7 @@
         "skill": "lockpicking",
         "dc": 14,
         "reward_gold": 16,
-        "reward_item": "potion"
+        "reward_item": "focus_draught"
       },
       {
         "event_id": "bandit_ambush",
@@ -745,6 +765,12 @@
     "description": "Blackened steps descend beneath a cliffside arch whose seals were broken from within long ago.",
     "region": "Ashen Vault",
     "lore": "The stair marks the edge of a buried sanctuary that burned once, was sealed, and has lately begun drawing cult marks and careful footsteps back to it.",
+    "dungeon": {
+      "tier": "B",
+      "level_range": [3, 5],
+      "enemy_pool": ["ash_adept", "ash_wisp", "bone_warden"],
+      "boss_pool": ["cinder_guardian"]
+    },
     "connected_locations": {
       "cove": "stormbreak_cove",
       "vault": "ashen_vault"
@@ -759,7 +785,7 @@
     ],
     "world_event_chance": 15,
     "world_events": [
-      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 100, "skill": "arcana", "dc": 14, "reward_gold": 16, "reward_item": "mana_tonic"}
+      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 100, "skill": "arcana", "dc": 14, "reward_gold": 16, "reward_item": "focus_draught"}
     ],
     "state_event_chance": 0,
     "state_events": []
@@ -769,6 +795,11 @@
     "description": "Soot-dark halls and half-melted shrine metal stretch into a vault where old devotion and newer corruption have fused together.",
     "region": "Ashen Vault",
     "lore": "Whatever the vault guarded, the Cult of Ash now treats it as a reliquary and proving ground, leaving old stone guardians to share the dark with living zealots.",
+    "dungeon": {
+      "tier": "A",
+      "enemy_pool": ["abyss_beast", "shrine_guardian"],
+      "boss_pool": ["ash_herald"]
+    },
     "connected_locations": {
       "stair": "ashen_stair"
     },

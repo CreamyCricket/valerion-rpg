@@ -67,10 +67,20 @@ class CombatEngine:
             "allowed_abilities": ["maul", "pounce", "thick_hide", "crushing_blow"],
             "behavior_tendencies": ["aggressive", "hunter"],
         },
+        "abyss_beasts": {
+            "stat_focus": ["strength", "vitality"],
+            "allowed_abilities": ["maul", "thick_hide", "crushing_blow", "pounce"],
+            "behavior_tendencies": ["aggressive", "hunter"],
+        },
         "ruin_guardians": {
             "stat_focus": ["strength", "vitality"],
             "allowed_abilities": ["heavy_strike", "stone_defense", "stomp"],
             "behavior_tendencies": ["defensive"],
+        },
+        "ash_heralds": {
+            "stat_focus": ["mind", "wisdom"],
+            "allowed_abilities": ["grave_touch", "ash_bolt", "warding_hex"],
+            "behavior_tendencies": ["aggressive", "defensive"],
         },
     }
     TYPE_LIBRARY = {

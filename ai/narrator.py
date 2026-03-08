@@ -221,6 +221,10 @@ class Narrator:
         if state_lines:
             lines.append("Area state: " + ", ".join(state_lines))
 
+        dungeon_lines = Narrator._dungeon_lines(location_context)
+        if dungeon_lines:
+            lines.extend(dungeon_lines)
+
         npc_names = npc_names or []
         if npc_names:
             lines.append("NPCs here: " + ", ".join(npc_names))
@@ -516,6 +520,9 @@ class Narrator:
         continuity_lines = Narrator._location_continuity_lines(location_context, inspect_mode=True)
         if continuity_lines:
             lines.extend(continuity_lines)
+        dungeon_lines = Narrator._dungeon_lines(location_context, inspect_mode=True)
+        if dungeon_lines:
+            lines.extend(dungeon_lines)
         return "\n".join(lines)
 
     @staticmethod
@@ -876,6 +883,9 @@ class Narrator:
             lines.append("Area pressure: " + ", ".join(str(name) for name in state_names))
         elif region:
             lines.append("Area pressure: calm")
+        dungeon_lines = Narrator._dungeon_lines(location_context)
+        if dungeon_lines:
+            lines.extend(dungeon_lines)
 
         if active_quests:
             lines.append("Active quests:")
@@ -1091,6 +1101,39 @@ class Narrator:
         if cleared_here:
             lines.append("The area still carries the aftermath of " + ", ".join(cleared_here[:2]) + ".")
 
+        return lines
+
+    @staticmethod
+    def _dungeon_lines(location_context: dict, inspect_mode: bool = False) -> list[str]:
+        if not isinstance(location_context, dict):
+            return []
+
+        tier = str(location_context.get("dungeon_tier", "")).strip().upper()
+        if not tier:
+            return []
+
+        level_range = location_context.get("dungeon_level_range", [])
+        if isinstance(level_range, list) and len(level_range) == 2:
+            threat_text = f"{int(level_range[0])}-{int(level_range[1])}"
+        else:
+            threat_text = "unknown"
+
+        label = str(location_context.get("dungeon_label", f"Rank {tier}")).strip()
+        families = [str(name) for name in location_context.get("dungeon_families", []) if str(name).strip()]
+        loot_band = str(location_context.get("dungeon_loot_band", "")).strip()
+        event_risk = str(location_context.get("dungeon_event_risk", "")).strip()
+
+        lines = [f"Dungeon rank: {label} | Threat {threat_text}"]
+        details = []
+        if families:
+            details.append("Families: " + ", ".join(families))
+        if loot_band:
+            details.append("Loot: " + loot_band)
+        if event_risk:
+            details.append("Event risk: " + event_risk)
+        if details:
+            prefix = "Dungeon read: " if inspect_mode else "Dungeon pressure: "
+            lines.append(prefix + " | ".join(details))
         return lines
 
     @staticmethod

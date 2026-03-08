@@ -31,8 +31,8 @@ class EncounterEngine:
             return None
         return self.roll_from_table(encounters)
 
-    def roll_world_event(self, location: dict) -> dict | None:
-        chance = int(location.get("world_event_chance", 0))
+    def roll_world_event(self, location: dict, chance_override: int | None = None) -> dict | None:
+        chance = int(chance_override if chance_override is not None else location.get("world_event_chance", 0))
         if chance <= 0:
             return None
 

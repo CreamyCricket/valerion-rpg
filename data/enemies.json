@@ -373,5 +373,38 @@
     "faction": "cult_of_ash",
     "xp": 110,
     "loot": ["ember_focus", "guardian_plate"]
+  },
+  "abyss_beast": {
+    "name": "Abyss Beast",
+    "family": "abyss_beasts",
+    "class_type": "brute",
+    "level": 5,
+    "stats": {"strength": 16, "agility": 9, "vitality": 15, "endurance": 14, "mind": 5, "wisdom": 7, "charisma": 1, "luck": 9},
+    "skills": {"defense": 3, "survival": 2},
+    "abilities": ["maul", "thick_hide", "crushing_blow"],
+    "hp": 25,
+    "defense": 13,
+    "attack": 5,
+    "behavior": "hunter",
+    "xp": 155,
+    "boss": false,
+    "loot": ["troll_tusk", "abyss_shard"]
+  },
+  "ash_herald": {
+    "name": "Ash Herald",
+    "family": "ash_heralds",
+    "class_type": "ash_hexer",
+    "level": 6,
+    "stats": {"strength": 10, "agility": 11, "vitality": 12, "endurance": 11, "mind": 15, "wisdom": 14, "charisma": 9, "luck": 10},
+    "skills": {"spellcasting": 4, "lore": 3, "persuasion": 2},
+    "abilities": ["ash_bolt", "warding_hex", "grave_touch"],
+    "hp": 22,
+    "defense": 13,
+    "attack": 5,
+    "behavior": "aggressive",
+    "faction": "cult_of_ash",
+    "xp": 180,
+    "boss": true,
+    "loot": ["ember_focus", "herald_mask"]
   }
 }

@@ -5,6 +5,64 @@ from pathlib import Path
 
 class World:
     """Static data loader and persisting location/enemy/item runtime state."""
+    DUNGEON_TIERS = {
+        "E": {
+            "label": "Rank E",
+            "level_range": [1, 2],
+            "families": ["slimes", "wolves", "bandits"],
+            "boss_weight": 4,
+            "loot_band": "Common to Uncommon",
+            "event_risk": "Low",
+            "world_event_bonus": 0,
+            "world_event_dc_bonus": 0,
+            "state_event_bonus": 2,
+        },
+        "D": {
+            "label": "Rank D",
+            "level_range": [2, 3],
+            "families": ["wolves", "bandits", "shrine_creatures", "cultists"],
+            "boss_weight": 6,
+            "loot_band": "Common to Uncommon",
+            "event_risk": "Guarded",
+            "world_event_bonus": 2,
+            "world_event_dc_bonus": 1,
+            "state_event_bonus": 3,
+        },
+        "C": {
+            "label": "Rank C",
+            "level_range": [3, 4],
+            "families": ["bandits", "cultists", "spiders"],
+            "boss_weight": 10,
+            "loot_band": "Uncommon to Rare",
+            "event_risk": "Elevated",
+            "world_event_bonus": 4,
+            "world_event_dc_bonus": 1,
+            "state_event_bonus": 5,
+        },
+        "B": {
+            "label": "Rank B",
+            "level_range": [4, 5],
+            "families": ["cultists", "shrine_creatures", "ruin_guardians"],
+            "boss_weight": 14,
+            "loot_band": "Rare",
+            "event_risk": "High",
+            "world_event_bonus": 6,
+            "world_event_dc_bonus": 2,
+            "state_event_bonus": 6,
+        },
+        "A": {
+            "label": "Rank A",
+            "level_range": [5, 6],
+            "families": ["ruin_guardians", "abyss_beasts", "ash_heralds"],
+            "boss_weight": 18,
+            "loot_band": "Rare to Epic",
+            "event_risk": "Severe",
+            "world_event_bonus": 8,
+            "world_event_dc_bonus": 2,
+            "state_event_bonus": 8,
+        },
+    }
+
     def __init__(self, data_dir: str = "data"):
         base = Path(data_dir)
         self.locations = self._load_json(base / "locations.json")
@@ -71,6 +129,121 @@ class World:
             elif encounter_type == "npc" and self.has_npc(target):
                 filtered.append(copy.deepcopy(entry))
         return filtered
+
+    def dungeon_profile(self, location_id: str) -> dict | None:
+        location = self.locations.get(location_id, {})
+        raw_profile = location.get("dungeon", {})
+        if not isinstance(raw_profile, dict):
+            return None
+
+        tier = str(raw_profile.get("tier", "")).strip().upper()
+        template = copy.deepcopy(self.DUNGEON_TIERS.get(tier, {}))
+        if not template:
+            return None
+
+        profile = template
+        for key, value in raw_profile.items():
+            if key == "tier":
+                continue
+            profile[key] = copy.deepcopy(value)
+
+        profile["tier"] = tier
+        level_range = profile.get("level_range", [1, 1])
+        if not isinstance(level_range, list) or len(level_range) != 2:
+            level_range = [1, 1]
+        minimum_level = max(1, int(level_range[0]))
+        maximum_level = max(minimum_level, int(level_range[1]))
+        profile["level_range"] = [minimum_level, maximum_level]
+
+        normalized_families = []
+        for family in profile.get("families", []):
+            normalized_family = self._normalize_entity_id(family)
+            if normalized_family and normalized_family not in normalized_families:
+                normalized_families.append(normalized_family)
+        profile["families"] = normalized_families
+        profile["family_names"] = [family.replace("_", " ").title() for family in normalized_families]
+
+        profile["enemy_pool"] = self._validated_dungeon_enemy_pool(
+            raw_profile.get("enemy_pool", []),
+            minimum_level,
+            maximum_level,
+            normalized_families,
+            allow_boss=False,
+        )
+        profile["boss_pool"] = self._validated_dungeon_enemy_pool(
+            raw_profile.get("boss_pool", []),
+            minimum_level,
+            maximum_level + 1,
+            normalized_families,
+            allow_boss=True,
+        )
+
+        if not profile["enemy_pool"] and normalized_families:
+            profile["enemy_pool"] = self._derived_dungeon_enemy_pool(minimum_level, maximum_level, normalized_families)
+
+        return profile
+
+    def _validated_dungeon_enemy_pool(
+        self,
+        enemy_ids: list,
+        minimum_level: int,
+        maximum_level: int,
+        allowed_families: list[str],
+        *,
+        allow_boss: bool,
+    ) -> list[str]:
+        pool = []
+        if not isinstance(enemy_ids, list):
+            return pool
+
+        for enemy_id in enemy_ids:
+            normalized_enemy = self._normalize_entity_id(enemy_id)
+            enemy = self.enemies.get(normalized_enemy)
+            if not enemy:
+                continue
+            family = self._normalize_entity_id(enemy.get("family", ""))
+            level = max(1, int(enemy.get("level", 1)))
+            is_boss = bool(enemy.get("boss", False))
+            if allowed_families and family not in allowed_families and not allow_boss:
+                continue
+            if level < minimum_level or level > maximum_level:
+                continue
+            if is_boss and not allow_boss:
+                continue
+            if normalized_enemy not in pool:
+                pool.append(normalized_enemy)
+        return pool
+
+    def _derived_dungeon_enemy_pool(self, minimum_level: int, maximum_level: int, allowed_families: list[str]) -> list[str]:
+        pool = []
+        for enemy_id, enemy in self.enemies.items():
+            family = self._normalize_entity_id(enemy.get("family", ""))
+            level = max(1, int(enemy.get("level", 1)))
+            if allowed_families and family not in allowed_families:
+                continue
+            if level < minimum_level or level > maximum_level:
+                continue
+            if enemy.get("boss", False):
+                continue
+            pool.append(enemy_id)
+        return pool
+
+    def world_event_chance(self, location_id: str) -> int:
+        base = int(self.get_location(location_id).get("world_event_chance", 0))
+        dungeon = self.dungeon_profile(location_id)
+        bonus = int(dungeon.get("world_event_bonus", 0)) if dungeon else 0
+        return max(0, min(100, base + bonus))
+
+    def state_event_chance(self, location_id: str) -> int:
+        base = int(self.get_location(location_id).get("state_event_chance", 0))
+        dungeon = self.dungeon_profile(location_id)
+        bonus = int(dungeon.get("state_event_bonus", 0)) if dungeon else 0
+        return max(0, min(100, base + bonus))
+
+    def world_event_dc(self, location_id: str, base_dc: int) -> int:
+        dungeon = self.dungeon_profile(location_id)
+        bonus = int(dungeon.get("world_event_dc_bonus", 0)) if dungeon else 0
+        return max(1, int(base_dc) + bonus)
 
     @staticmethod
     def _state_library() -> dict:
@@ -275,6 +448,29 @@ class World:
             modifiers = state.get("encounter_modifiers", [])
             if isinstance(modifiers, list):
                 entries.extend(self.filter_encounter_entries(modifiers))
+        dungeon = self.dungeon_profile(location_id)
+        if dungeon:
+            existing = {
+                (
+                    self._normalize_entity_id(entry.get("type", "")),
+                    self._normalize_entity_id(entry.get("target", "")),
+                )
+                for entry in entries
+                if isinstance(entry, dict)
+            }
+            for enemy_id in dungeon.get("enemy_pool", []):
+                key = ("enemy", enemy_id)
+                if key in existing:
+                    continue
+                entries.append({"type": "enemy", "target": enemy_id, "weight": 18})
+                existing.add(key)
+            boss_weight = int(dungeon.get("boss_weight", 0))
+            for enemy_id in dungeon.get("boss_pool", []):
+                key = ("enemy", enemy_id)
+                if key in existing or boss_weight <= 0:
+                    continue
+                entries.append({"type": "enemy", "target": enemy_id, "weight": boss_weight})
+                existing.add(key)
         return entries
 
     def npc_dialogue_note(self, location_id: str, npc_id: str) -> str:
