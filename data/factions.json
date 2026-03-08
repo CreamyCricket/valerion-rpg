@@ -1,0 +1,26 @@
+{
+  "kingdom_guard": {
+    "name": "Kingdom Guard",
+    "description": "Soldiers, scouts, and officials trying to keep the roads and village holdings stable."
+  },
+  "merchant_guild": {
+    "name": "Merchant Guild",
+    "description": "Caravan masters, traders, ferrymen, and suppliers who care about safe routes and fair trade."
+  },
+  "thieves_circle": {
+    "name": "Thieves Circle",
+    "description": "Smugglers, raiders, and quiet criminals who profit when the roads turn uncertain."
+  },
+  "shrine_keepers": {
+    "name": "Shrine Keepers",
+    "description": "Caretakers, scholars, and ritual custodians trying to preserve sacred history and old wards."
+  },
+  "forest_clans": {
+    "name": "Forest Clans",
+    "description": "Hunters, elders, and wilderness folk who measure outsiders by how they treat the land and those on the road."
+  },
+  "cult_of_ash": {
+    "name": "Cult of Ash",
+    "description": "A destructive sect drawn to corruption, ruined sanctuaries, and unstable old power."
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "potion": {
+    "name": "Potion",
+    "type": "consumable",
+    "description": "A small bottle that restores health.",
+    "effect": "heal_10",
+    "price": 5
+  },
+  "herb": {
+    "name": "Herb",
+    "type": "consumable",
+    "description": "A common medicinal plant gathered near town.",
+    "effect": "heal_5",
+    "price": 3
+  },
+  "bandage": {
+    "name": "Bandage",
+    "type": "consumable",
+    "description": "A tidy strip of cloth stitched from traveler gear.",
+    "effect": "heal_3",
+    "price": 2
+  },
+  "ration": {
+    "name": "Travel Ration",
+    "type": "consumable",
+    "description": "Dried fruit, bread, and salted meat packed for the road.",
+    "effect": "heal_4",
+    "price": 4
+  },
+  "greater_potion": {
+    "name": "Greater Potion",
+    "type": "consumable",
+    "description": "A stronger tonic kept behind better counters and bought by people expecting real danger.",
+    "effect": "heal_12",
+    "price": 10
+  },
+  "mana_tonic": {
+    "name": "Mana Tonic",
+    "type": "consumable",
+    "description": "A bright tonic that steadies the mind and restores focus.",
+    "effect": "focus_5",
+    "price": 8
+  },
+  "focus_draught": {
+    "name": "Focus Draught",
+    "type": "consumable",
+    "description": "A more refined focus tonic sold by practiced arcanists.",
+    "effect": "focus_8",
+    "price": 13
+  },
+  "rusty_sword": {
+    "name": "Rusty Sword",
+    "type": "weapon",
+    "description": "An old blade with chipped edges, but still useful.",
+    "effect": "attack_plus_2",
+    "price": 7
+  },
+  "iron_sword": {
+    "name": "Iron Sword",
+    "type": "weapon",
+    "description": "A straight, dependable sword balanced for everyday fighting.",
+    "effect": "attack_plus_3",
+    "price": 15
+  },
+  "battle_axe": {
+    "name": "Battle Axe",
+    "type": "weapon",
+    "description": "A broad-headed axe that hits hard when the swing lands cleanly.",
+    "effect": "attack_plus_4",
+    "price": 20
+  },
+  "spear": {
+    "name": "Spear",
+    "type": "weapon",
+    "description": "A simple ash-wood spear valued for reach and reliability.",
+    "effect": "attack_plus_3",
+    "price": 14
+  },
+  "short_bow": {
+    "name": "Short Bow",
+    "type": "weapon",
+    "description": "A practical bow for hunters and scouts moving through tight ground.",
+    "effect": "attack_plus_2",
+    "price": 12
+  },
+  "hunting_bow": {
+    "name": "Hunting Bow",
+    "type": "weapon",
+    "description": "A stronger bow that rewards a steady hand and open sight lines.",
+    "effect": "attack_plus_3",
+    "price": 18
+  },
+  "apprentice_staff": {
+    "name": "Apprentice Staff",
+    "type": "weapon",
+    "description": "A rune-bound staff made to help novice casters keep their focus.",
+    "effect": "attack_plus_2",
+    "price": 16
+  },
+  "leather_vest": {
+    "name": "Leather Vest",
+    "type": "armor",
+    "description": "Layered leather that turns glancing blows into bruises instead of worse.",
+    "effect": "defense_plus_1",
+    "price": 10
+  },
+  "iron_mail": {
+    "name": "Iron Mail",
+    "type": "armor",
+    "description": "Linked iron rings that add real protection at the cost of weight.",
+    "effect": "defense_plus_2",
+    "price": 18
+  },
+  "warded_cloak": {
+    "name": "Warded Cloak",
+    "type": "armor",
+    "description": "A dark cloak sewn with quiet sigils that blunt both fear and force.",
+    "effect": "defense_plus_2",
+    "price": 17
+  },
+  "road_knife": {
+    "name": "Road Knife",
+    "type": "weapon",
+    "description": "A quick-drawn knife favored by robbers who expect their work to stay up close.",
+    "effect": "attack_plus_2"
+  },
+  "ritual_knife": {
+    "name": "Ritual Knife",
+    "type": "weapon",
+    "description": "A blackened ceremonial blade still sharp enough to be dangerous in plain hands.",
+    "effect": "attack_plus_2"
+  },
+  "barbed_spear": {
+    "name": "Barbed Spear",
+    "type": "weapon",
+    "description": "A hunting spear with a vicious head, taken from something that meant to keep it.",
+    "effect": "attack_plus_3"
+  },
+  "slime_gel": {
+    "name": "Slime Gel",
+    "type": "loot",
+    "description": "Sticky residue collected from a defeated slime."
+  },
+  "wolf_pelt": {
+    "name": "Wolf Pelt",
+    "type": "loot",
+    "description": "A rough pelt taken from a forest wolf."
+  },
+  "wolf_fang": {
+    "name": "Wolf Fang",
+    "type": "loot",
+    "description": "A long yellowed fang prized by hunters who want proof of a hard kill."
+  },
+  "guardian_sigil": {
+    "name": "Guardian Sigil",
+    "type": "loot",
+    "description": "A carved stone sigil taken from the Shrine Guardian."
+  },
+  "spider_silk": {
+    "name": "Spider Silk",
+    "type": "loot",
+    "description": "Strong silver-white thread cut from a giant spider's webbing."
+  },
+  "bone_charm": {
+    "name": "Bone Charm",
+    "type": "loot",
+    "description": "A splintered charm carried by a restless skeleton."
+  },
+  "cultist_seal": {
+    "name": "Cultist Seal",
+    "type": "loot",
+    "description": "A wax-marked seal taken from a cultist courier."
+  },
+  "stolen_satchel": {
+    "name": "Stolen Satchel",
+    "type": "loot",
+    "description": "A weathered satchel that still carries someone else's initials."
+  },
+  "raider_badge": {
+    "name": "Raider Badge",
+    "type": "loot",
+    "description": "A bent token worn by road raiders to mark who they answer to."
+  },
+  "shrine_ash": {
+    "name": "Shrine Ash",
+    "type": "loot",
+    "description": "Cold grey ash clinging to a fading trace of shrine corruption."
+  },
+  "boar_tusk": {
+    "name": "Boar Tusk",
+    "type": "loot",
+    "description": "A heavy curved tusk chipped from a forest boar built to charge through brush."
+  },
+  "troll_tusk": {
+    "name": "Troll Tusk",
+    "type": "loot",
+    "description": "A heavy tusk chipped from a cave troll's jaw."
+  },
+  "sealed_letter": {
+    "name": "Sealed Letter",
+    "type": "quest",
+    "description": "A folded letter marked with the ferryman's seal."
+  },
+  "ruins_rubbing": {
+    "name": "Ruins Rubbing",
+    "type": "quest",
+    "description": "A charcoal rubbing taken from carvings deep in the old ruins."
+  }
+}

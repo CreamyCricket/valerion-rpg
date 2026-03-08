@@ -1,0 +1,128 @@
+{
+  "elder": {
+    "name": "Elder",
+    "role": "Village elder",
+    "aliases": ["village elder", "elder of the village"],
+    "dialogue": "The Elder watches the roads like someone counting losses before they happen, because in a small village every journey changes more than one life.",
+    "faction": "forest_clans",
+    "important": true
+  },
+  "merchant": {
+    "name": "Merchant",
+    "role": "Trader",
+    "aliases": ["shopkeeper", "trader", "traveling merchant"],
+    "dialogue": "The Merchant keeps one eye on stock, one eye on the door, and enough patience to treat coin, rumor, and danger as parts of the same trade.",
+    "faction": "merchant_guild",
+    "important": true,
+    "shop_inventory": ["potion", "herb", "bandage"]
+  },
+  "scout": {
+    "name": "Scout",
+    "role": "Pathfinder",
+    "aliases": ["forest scout", "watchtower scout"],
+    "dialogue": "The Scout reads the road in snapped twigs and trampled mud, as if every passing threat signed its own report.",
+    "faction": "kingdom_guard",
+    "important": true
+  },
+  "caretaker": {
+    "name": "Caretaker",
+    "role": "Shrine keeper",
+    "aliases": ["shrine caretaker", "shrine keeper"],
+    "dialogue": "The Caretaker handles every cracked rune as if care itself might be the only thing still holding the shrine's history together.",
+    "faction": "shrine_keepers",
+    "important": true
+  },
+  "captain": {
+    "name": "Captain",
+    "role": "Village guard captain",
+    "aliases": ["guard captain", "captain of the guard"],
+    "dialogue": "The Captain speaks like someone who has no time for ornament and too much experience with small threats turning into funerals.",
+    "faction": "kingdom_guard",
+    "important": true
+  },
+  "ferryman": {
+    "name": "Ferryman",
+    "role": "River guide",
+    "aliases": ["river ferryman", "boatman"],
+    "dialogue": "The Ferryman remembers every face that boards in haste, every cart that creaks too heavily, and every crossing people later wish they had delayed.",
+    "faction": "merchant_guild",
+    "important": true
+  },
+  "scholar": {
+    "name": "Scholar",
+    "role": "Ruins scholar",
+    "aliases": ["ruins scholar", "researcher"],
+    "dialogue": "The Scholar treats the ruins like a wounded archive, convinced the old stones still say useful things if someone listens carefully enough.",
+    "faction": "shrine_keepers",
+    "important": true
+  },
+  "hermit": {
+    "name": "Hermit",
+    "role": "Cave hermit",
+    "aliases": ["cave hermit", "recluse"],
+    "dialogue": "The Hermit trusts cave echoes more than most travelers, insisting stone lies less often than frightened people do.",
+    "faction": "forest_clans",
+    "important": true
+  },
+  "traveler": {
+    "name": "Traveler",
+    "role": "Road-worn traveler",
+    "aliases": ["injured traveler", "wanderer"],
+    "dialogue": "The Traveler looks like someone who has already spent too much pride staying on their feet this long.",
+    "faction": "forest_clans",
+    "important": true
+  },
+  "gatewarden": {
+    "name": "Gatewarden",
+    "role": "Town guard",
+    "aliases": ["town guard", "warden", "gate guard"],
+    "dialogue": "The Gatewarden keeps the peace with a patient stare, the sort that has seen merchants, refugees, and trouble all arrive through the same gate.",
+    "faction": "kingdom_guard",
+    "important": true
+  },
+  "market_broker": {
+    "name": "Market Broker",
+    "role": "Square broker",
+    "aliases": ["broker", "market seller", "quartermaster"],
+    "dialogue": "The Market Broker speaks in prices, shortages, and whispers, as if the whole town can be measured by what people hurry to buy.",
+    "faction": "merchant_guild",
+    "important": true,
+    "shop_inventory": ["potion", "greater_potion", "bandage", "ration"]
+  },
+  "blacksmith": {
+    "name": "Blacksmith",
+    "role": "Forge master",
+    "aliases": ["smith", "forge master", "armorer"],
+    "dialogue": "The Blacksmith values plain speech, tested steel, and customers who understand that bad gear usually fails at the worst possible moment.",
+    "faction": "merchant_guild",
+    "important": true,
+    "shop_inventory": ["iron_sword", "battle_axe", "leather_vest", "iron_mail"]
+  },
+  "arcanist": {
+    "name": "Arcanist",
+    "role": "Mage merchant",
+    "aliases": ["mage merchant", "mage seller", "spell merchant"],
+    "dialogue": "The Arcanist keeps the shop quiet and precise, with the air of someone who expects carelessness to cost more than coin.",
+    "faction": "shrine_keepers",
+    "important": true,
+    "shop_inventory": ["apprentice_staff", "mana_tonic", "focus_draught", "warded_cloak"]
+  },
+  "fletcher": {
+    "name": "Fletcher",
+    "role": "Weapons dealer",
+    "aliases": ["bowyer", "weapons dealer", "arrow maker"],
+    "dialogue": "The Fletcher talks like range is a discipline rather than a comfort, and seems unimpressed by anyone who believes distance makes them safe.",
+    "faction": "merchant_guild",
+    "important": true,
+    "shop_inventory": ["spear", "short_bow", "hunting_bow"]
+  },
+  "innkeeper": {
+    "name": "Innkeeper",
+    "role": "Inn host",
+    "aliases": ["host", "bartender", "keeper"],
+    "dialogue": "The Innkeeper has the steady manner of someone who has heard every kind of road story and knows which ones end better after a meal and a night's sleep.",
+    "faction": "merchant_guild",
+    "important": true,
+    "shop_inventory": ["ration", "herb", "mana_tonic"]
+  }
+}

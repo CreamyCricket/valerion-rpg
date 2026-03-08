@@ -1,0 +1,572 @@
+{
+  "village_square": {
+    "name": "Village Square",
+    "description": "The heart of the village, with a stone well and a few market stalls.",
+    "region": "Village Roads",
+    "lore": "This village survives by watching the forest edge, the ferry road, and whatever trouble moves between them.",
+    "connected_locations": {
+      "shop": "shop",
+      "forest": "forest_path",
+      "river": "river_crossing",
+      "town": "town_gate"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["elder", "merchant", "captain"],
+    "encounters": [],
+    "world_event_chance": 10,
+    "world_events": [
+      {
+        "event_id": "injured_traveler",
+        "name": "Injured Traveler",
+        "type": "traveler",
+        "weight": 60,
+        "skill": "survival",
+        "dc": 11,
+        "reward_item": "bandage",
+        "reward_gold": 4
+      },
+      {
+        "event_id": "wandering_trader",
+        "name": "Wandering Trader",
+        "type": "trader",
+        "weight": 40,
+        "skill": "persuasion",
+        "dc": 11,
+        "reward_gold": 2
+      }
+    ],
+    "state_event_chance": 18,
+    "state_events": [
+      {"state_id": "bandit_raid", "weight": 40},
+      {"state_id": "merchant_caravan", "weight": 35},
+      {"state_id": "traveler_in_need", "weight": 25}
+    ]
+  },
+  "shop": {
+    "name": "Shop",
+    "description": "A small wooden shop stocked with simple supplies and tools.",
+    "connected_locations": {
+      "square": "village_square"
+    },
+    "enemies": [],
+    "items": ["potion"],
+    "npcs": ["merchant"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "forest_path": {
+    "name": "Forest Path",
+    "description": "A narrow trail leading into the trees. Strange sounds echo nearby.",
+    "region": "Village Roads",
+    "lore": "The first stretch of woodland road decides whether trade reaches the village at all, so even small threats matter here.",
+    "connected_locations": {
+      "village": "village_square",
+      "deeper": "deep_forest",
+      "tower": "old_watchtower",
+      "river": "river_crossing"
+    },
+    "enemies": ["slime"],
+    "items": ["herb"],
+    "npcs": [],
+    "encounters": [
+      {"type": "enemy", "target": "goblin", "weight": 30},
+      {"type": "enemy", "target": "wolf", "weight": 30},
+      {"type": "enemy", "target": "pack_wolf", "weight": 20},
+      {"type": "enemy", "target": "cutpurse", "weight": 10},
+      {"type": "npc", "target": "merchant", "weight": 10}
+    ],
+    "world_event_chance": 25,
+    "world_events": [
+      {
+        "event_id": "bandit_ambush",
+        "name": "Bandit Ambush",
+        "type": "ambush",
+        "weight": 35,
+        "enemy": "bandit",
+        "skill": "stealth",
+        "dc": 12
+      },
+      {
+        "event_id": "injured_traveler",
+        "name": "Injured Traveler",
+        "type": "traveler",
+        "weight": 25,
+        "skill": "survival",
+        "dc": 12,
+        "reward_item": "bandage",
+        "reward_gold": 5
+      },
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 20,
+        "skill": "lockpicking",
+        "dc": 12,
+        "reward_gold": 8,
+        "reward_item": "herb"
+      },
+      {
+        "event_id": "wandering_trader",
+        "name": "Wandering Trader",
+        "type": "trader",
+        "weight": 20,
+        "skill": "persuasion",
+        "dc": 12,
+        "reward_gold": 2
+      }
+    ],
+    "state_event_chance": 20,
+    "state_events": [
+      {"state_id": "bandit_raid", "weight": 35},
+      {"state_id": "wolf_infestation", "weight": 45},
+      {"state_id": "traveler_in_need", "weight": 20}
+    ]
+  },
+  "deep_forest": {
+    "name": "Deep Forest",
+    "description": "The trees grow thick here, and the light is dim beneath the canopy.",
+    "region": "Deep Forest",
+    "lore": "Old hunting paths and older fears overlap here, where wolves, raiders, and half-lost shrine roads all cross the same shadowed ground.",
+    "connected_locations": {
+      "path": "forest_path",
+      "shrine": "ruined_shrine",
+      "cave": "whispering_cave",
+      "camp": "bandit_camp"
+    },
+    "enemies": ["dire_wolf"],
+    "items": ["herb"],
+    "npcs": [],
+    "encounters": [
+      {"type": "enemy", "target": "dire_wolf", "weight": 35},
+      {"type": "enemy", "target": "pack_wolf", "weight": 25},
+      {"type": "enemy", "target": "briar_boar", "weight": 25},
+      {"type": "enemy", "target": "bandit", "weight": 15}
+    ],
+    "world_event_chance": 30,
+    "world_events": [
+      {
+        "event_id": "bandit_ambush",
+        "name": "Bandit Ambush",
+        "type": "ambush",
+        "weight": 40,
+        "enemy": "bandit_raider",
+        "skill": "stealth",
+        "dc": 13
+      },
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 35,
+        "skill": "lockpicking",
+        "dc": 13,
+        "reward_gold": 12,
+        "reward_item": "potion"
+      },
+      {
+        "event_id": "injured_traveler",
+        "name": "Injured Traveler",
+        "type": "traveler",
+        "weight": 25,
+        "skill": "survival",
+        "dc": 13,
+        "reward_item": "herb",
+        "reward_gold": 6
+      }
+    ],
+    "state_event_chance": 18,
+    "state_events": [
+      {"state_id": "wolf_infestation", "weight": 55},
+      {"state_id": "bandit_raid", "weight": 45}
+    ]
+  },
+  "old_watchtower": {
+    "name": "Old Watchtower",
+    "description": "A broken stone tower rises above the trees, quiet but still standing.",
+    "connected_locations": {
+      "path": "forest_path",
+      "ruins": "old_ruins"
+    },
+    "enemies": ["slime"],
+    "items": ["bandage"],
+    "npcs": ["scout"],
+    "encounters": [
+      {"type": "enemy", "target": "goblin", "weight": 30},
+      {"type": "enemy", "target": "bandit", "weight": 25},
+      {"type": "enemy", "target": "cutpurse", "weight": 25},
+      {"type": "enemy", "target": "pack_wolf", "weight": 20},
+      {"type": "npc", "target": "merchant", "weight": 20}
+    ],
+    "world_event_chance": 20,
+    "world_events": [
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 60,
+        "skill": "lockpicking",
+        "dc": 12,
+        "reward_gold": 10,
+        "reward_item": "bandage"
+      },
+      {
+        "event_id": "injured_traveler",
+        "name": "Injured Traveler",
+        "type": "traveler",
+        "weight": 40,
+        "skill": "survival",
+        "dc": 11,
+        "reward_item": "bandage",
+        "reward_gold": 4
+      }
+    ],
+    "state_event_chance": 12,
+    "state_events": [
+      {"state_id": "bandit_raid", "weight": 45},
+      {"state_id": "wolf_infestation", "weight": 55}
+    ]
+  },
+  "ruined_shrine": {
+    "name": "Abandoned Shrine",
+    "description": "Cracked pillars and faded carvings mark an abandoned shrine deep in the woods.",
+    "region": "Shrine March",
+    "lore": "The shrine belonged to an older order of keepers, and locals still speak as if the stones remember more than they should.",
+    "connected_locations": {
+      "forest": "deep_forest",
+      "cave": "whispering_cave"
+    },
+    "enemies": ["shrine_guardian", "ash_wisp"],
+    "items": ["herb"],
+    "npcs": ["caretaker"],
+    "encounters": [
+      {"type": "enemy", "target": "cultist", "weight": 30},
+      {"type": "enemy", "target": "skeleton", "weight": 20},
+      {"type": "enemy", "target": "ash_wisp", "weight": 25},
+      {"type": "enemy", "target": "bone_warden", "weight": 25}
+    ],
+    "world_event_chance": 15,
+    "world_events": [
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 100,
+        "skill": "lockpicking",
+        "dc": 14,
+        "reward_gold": 15,
+        "reward_item": "potion"
+      }
+    ],
+    "state_event_chance": 22,
+    "state_events": [
+      {"state_id": "shrine_corruption", "weight": 70},
+      {"state_id": "traveler_in_need", "weight": 30}
+    ]
+  },
+  "river_crossing": {
+    "name": "River Crossing",
+    "description": "A cold river cuts across the road here, bridged by old pilings and a rope-guided ferry.",
+    "region": "River Road",
+    "lore": "Whoever controls the crossing controls what reaches the village, the ruins, and the newer market roads beyond.",
+    "connected_locations": {
+      "village": "village_square",
+      "forest": "forest_path",
+      "camp": "bandit_camp",
+      "ruins": "old_ruins"
+    },
+    "enemies": [],
+    "items": ["herb"],
+    "npcs": ["ferryman"],
+    "encounters": [
+      {"type": "enemy", "target": "thief", "weight": 25},
+      {"type": "enemy", "target": "cutpurse", "weight": 25},
+      {"type": "enemy", "target": "bandit_raider", "weight": 20},
+      {"type": "enemy", "target": "wolf", "weight": 15},
+      {"type": "npc", "target": "merchant", "weight": 15}
+    ],
+    "world_event_chance": 25,
+    "world_events": [
+      {
+        "event_id": "wandering_trader",
+        "name": "Wandering Trader",
+        "type": "trader",
+        "weight": 35,
+        "skill": "persuasion",
+        "dc": 12,
+        "reward_gold": 3
+      },
+      {
+        "event_id": "injured_traveler",
+        "name": "Injured Traveler",
+        "type": "traveler",
+        "weight": 30,
+        "skill": "survival",
+        "dc": 12,
+        "reward_item": "bandage",
+        "reward_gold": 5
+      },
+      {
+        "event_id": "bandit_ambush",
+        "name": "Bandit Ambush",
+        "type": "ambush",
+        "weight": 35,
+        "enemy": "cutpurse",
+        "skill": "stealth",
+        "dc": 12
+      }
+    ],
+    "state_event_chance": 24,
+    "state_events": [
+      {"state_id": "bandit_raid", "weight": 35},
+      {"state_id": "merchant_caravan", "weight": 35},
+      {"state_id": "traveler_in_need", "weight": 15},
+      {"state_id": "wolf_infestation", "weight": 15}
+    ]
+  },
+  "old_ruins": {
+    "name": "Old Ruins",
+    "description": "Broken arches and fallen walls ring a courtyard where faded carvings still cling to the stone.",
+    "region": "Shrine March",
+    "lore": "These ruins predate the current roads, and scholars argue whether they once guarded the shrine or warned people away from it.",
+    "connected_locations": {
+      "watchtower": "old_watchtower",
+      "river": "river_crossing",
+      "cave": "whispering_cave"
+    },
+    "enemies": ["skeleton", "ash_wisp"],
+    "items": ["bandage"],
+    "npcs": ["scholar"],
+    "encounters": [
+      {"type": "enemy", "target": "skeleton", "weight": 30},
+      {"type": "enemy", "target": "ash_wisp", "weight": 25},
+      {"type": "enemy", "target": "bone_warden", "weight": 25},
+      {"type": "enemy", "target": "cultist", "weight": 20}
+    ],
+    "world_event_chance": 25,
+    "world_events": [
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 60,
+        "skill": "lockpicking",
+        "dc": 13,
+        "reward_gold": 12,
+        "reward_item": "bandage"
+      },
+      {
+        "event_id": "wandering_trader",
+        "name": "Wandering Trader",
+        "type": "trader",
+        "weight": 40,
+        "skill": "persuasion",
+        "dc": 12,
+        "reward_gold": 2
+      }
+    ],
+    "state_event_chance": 18,
+    "state_events": [
+      {"state_id": "merchant_caravan", "weight": 40},
+      {"state_id": "bandit_raid", "weight": 20},
+      {"state_id": "shrine_corruption", "weight": 40}
+    ]
+  },
+  "bandit_camp": {
+    "name": "Bandit Camp",
+    "description": "Low tents and ash-black fire pits mark a camp built for raiding rather than staying.",
+    "region": "River Road",
+    "lore": "The camp survives because the roads are useful and because fear travels faster than any wagon train.",
+    "connected_locations": {
+      "river": "river_crossing",
+      "forest": "deep_forest"
+    },
+    "enemies": ["thief", "bandit_raider"],
+    "items": ["potion"],
+    "npcs": [],
+    "encounters": [
+      {"type": "enemy", "target": "thief", "weight": 30},
+      {"type": "enemy", "target": "cutpurse", "weight": 20},
+      {"type": "enemy", "target": "bandit", "weight": 20},
+      {"type": "enemy", "target": "bandit_raider", "weight": 30}
+    ],
+    "world_event_chance": 20,
+    "world_events": [
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 50,
+        "skill": "lockpicking",
+        "dc": 13,
+        "reward_gold": 14,
+        "reward_item": "potion"
+      },
+      {
+        "event_id": "bandit_ambush",
+        "name": "Bandit Ambush",
+        "type": "ambush",
+        "weight": 50,
+        "enemy": "bandit_raider",
+        "skill": "stealth",
+        "dc": 13
+      }
+    ],
+    "state_event_chance": 14,
+    "state_events": [
+      {"state_id": "bandit_raid", "weight": 70},
+      {"state_id": "wolf_infestation", "weight": 30}
+    ]
+  },
+  "whispering_cave": {
+    "name": "Whispering Cave",
+    "description": "Cold air slips through narrow stone throats, making every sound in the cave feel half-spoken.",
+    "region": "Deep Forest",
+    "lore": "People say the cave carries voices farther than it should, which is enough reason for most locals to stay out.",
+    "connected_locations": {
+      "ruins": "old_ruins",
+      "forest": "deep_forest",
+      "shrine": "ruined_shrine"
+    },
+    "enemies": ["giant_spider"],
+    "items": ["herb"],
+    "npcs": ["hermit"],
+    "encounters": [
+      {"type": "enemy", "target": "giant_spider", "weight": 35},
+      {"type": "enemy", "target": "briar_boar", "weight": 20},
+      {"type": "enemy", "target": "cave_troll", "weight": 25},
+      {"type": "enemy", "target": "ash_wisp", "weight": 20}
+    ],
+    "world_event_chance": 25,
+    "world_events": [
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 55,
+        "skill": "lockpicking",
+        "dc": 14,
+        "reward_gold": 16,
+        "reward_item": "potion"
+      },
+      {
+        "event_id": "bandit_ambush",
+        "name": "Bandit Ambush",
+        "type": "ambush",
+        "weight": 45,
+        "enemy": "cultist",
+        "skill": "stealth",
+        "dc": 13
+      }
+    ],
+    "state_event_chance": 18,
+    "state_events": [
+      {"state_id": "shrine_corruption", "weight": 45},
+      {"state_id": "wolf_infestation", "weight": 25},
+      {"state_id": "traveler_in_need", "weight": 30}
+    ]
+  },
+  "town_gate": {
+    "name": "Town Gate",
+    "description": "A high stone arch and timber doors mark the entrance to Greyhaven, a busier town than the village roads suggest.",
+    "region": "Greyhaven",
+    "lore": "Greyhaven grew rich by taking traffic the forest villages could not hold, and it measures danger by what it interrupts.",
+    "connected_locations": {
+      "village": "village_square",
+      "market": "market_square"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["gatewarden"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "market_square": {
+    "name": "Market Square",
+    "description": "Greyhaven's central square is full of awnings, stacked crates, and enough voices to make the road feel far away.",
+    "region": "Greyhaven",
+    "lore": "Every road into Greyhaven leaves some mark here: river cargo, forest hides, shrine gossip, and mercenary coin all end up in the same square.",
+    "connected_locations": {
+      "gate": "town_gate",
+      "blacksmith": "blacksmith",
+      "mage": "mage_shop",
+      "weapons": "weapon_shop",
+      "inn": "inn"
+    },
+    "enemies": [],
+    "items": ["ration"],
+    "npcs": ["market_broker"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "blacksmith": {
+    "name": "Blacksmith",
+    "description": "The forge room glows orange beneath soot-dark beams, with finished blades hanging beside work still warm from the anvil.",
+    "connected_locations": {
+      "square": "market_square"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["blacksmith"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "mage_shop": {
+    "name": "Mage Shop",
+    "description": "Shelves of powders, sealed vials, and ward-marked cloth line a quiet room that smells faintly of ink and ozone.",
+    "connected_locations": {
+      "square": "market_square"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["arcanist"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "weapon_shop": {
+    "name": "Weapon Shop",
+    "description": "Racks of bows, polearms, and bundled shafts fill a narrow shop built for hunters, scouts, and anyone expecting trouble at range.",
+    "connected_locations": {
+      "square": "market_square"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["fletcher"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "inn": {
+    "name": "Inn",
+    "description": "The common room is warm, bright, and noisy enough to make even a guarded traveler lower their shoulders.",
+    "connected_locations": {
+      "square": "market_square"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": ["innkeeper"],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  }
+}

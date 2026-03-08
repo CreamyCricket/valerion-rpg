@@ -1,0 +1,332 @@
+{
+  "q001_clear_forest_path": {
+    "quest_id": "q001_clear_forest_path",
+    "title": "Clear the Forest Path",
+    "description": "The Elder wants the first stretch of forest road cleared before trade stops entirely.",
+    "giver": "elder",
+    "requires_acceptance": true,
+    "faction_rewards": {
+      "forest_clans": 8,
+      "kingdom_guard": 4
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "slime",
+      "count": 1,
+      "location": "forest_path",
+      "turn_in": "village_square"
+    },
+    "reward": {
+      "gold": 10,
+      "items": ["potion"]
+    }
+  },
+  "q002_wolf_pelt_delivery": {
+    "quest_id": "q002_wolf_pelt_delivery",
+    "title": "A Pelt for the Elder",
+    "description": "The Elder wants proof that the deeper forest can still be hunted safely.",
+    "giver": "elder",
+    "requires_acceptance": true,
+    "requires_events": [
+      {
+        "type": "quest_completed",
+        "details": {
+          "quest_id": "q001_clear_forest_path"
+        }
+      }
+    ],
+    "requires_npc_trust": [
+      {
+        "npc": "elder",
+        "min": 5
+      }
+    ],
+    "faction_rewards": {
+      "forest_clans": 10
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "bring_item",
+      "item": "wolf_pelt",
+      "count": 1,
+      "turn_in": "village_square"
+    },
+    "reward": {
+      "gold": 15,
+      "items": []
+    }
+  },
+  "q003_watchtower_threat": {
+    "quest_id": "q003_watchtower_threat",
+    "title": "Watchtower Sweep",
+    "description": "The Captain wants the Old Watchtower checked and the road there made usable again.",
+    "giver": "captain",
+    "requires_acceptance": true,
+    "faction_rewards": {
+      "kingdom_guard": 10
+    },
+    "trust_reward": 10,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "slime",
+      "count": 1,
+      "location": "old_watchtower",
+      "turn_in": "village_square"
+    },
+    "reward": {
+      "gold": 8,
+      "items": ["herb"]
+    }
+  },
+  "q004_scout_field_notes": {
+    "quest_id": "q004_scout_field_notes",
+    "title": "Scout Field Notes",
+    "description": "The Scout wants fresh slime residue to confirm what was using the tower approach.",
+    "giver": "scout",
+    "requires_acceptance": true,
+    "requires_events": [
+      {
+        "type": "enemy_defeated",
+        "details": {
+          "location_id": "old_watchtower"
+        }
+      }
+    ],
+    "requires_reputation": [
+      {
+        "faction": "kingdom_guard",
+        "min": 5
+      }
+    ],
+    "faction_rewards": {
+      "kingdom_guard": 8
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "bring_item",
+      "item": "slime_gel",
+      "count": 1,
+      "turn_in": "old_watchtower"
+    },
+    "reward": {
+      "gold": 6,
+      "items": ["bandage"]
+    }
+  },
+  "q005_sigil_for_the_caretaker": {
+    "quest_id": "q005_sigil_for_the_caretaker",
+    "title": "Sigil for the Caretaker",
+    "description": "The Caretaker wants the Guardian Sigil returned so the shrine's history can be preserved.",
+    "giver": "caretaker",
+    "requires_acceptance": true,
+    "requires_events": [
+      {
+        "type": "miniboss_defeated",
+        "details": {
+          "enemy_id": "shrine_guardian"
+        }
+      }
+    ],
+    "faction_rewards": {
+      "shrine_keepers": 14,
+      "cult_of_ash": -6
+    },
+    "trust_reward": 12,
+    "objective": {
+      "type": "bring_item",
+      "item": "guardian_sigil",
+      "count": 1,
+      "turn_in": "ruined_shrine"
+    },
+    "reward": {
+      "gold": 20,
+      "items": ["herb"]
+    }
+  },
+  "q006_ruins_survey": {
+    "quest_id": "q006_ruins_survey",
+    "title": "Survey the Whispering Cave",
+    "description": "The Scholar needs confirmation that the Whispering Cave still connects to the ruins below.",
+    "giver": "scholar",
+    "requires_acceptance": true,
+    "faction_rewards": {
+      "shrine_keepers": 8
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "visit_location",
+      "location": "whispering_cave",
+      "count": 1,
+      "turn_in": "old_ruins"
+    },
+    "reward": {
+      "gold": 14,
+      "items": ["bandage"]
+    }
+  },
+  "q007_ferrymans_delivery": {
+    "quest_id": "q007_ferrymans_delivery",
+    "title": "Ferry Ledger Delivery",
+    "description": "The Ferryman needs a sealed letter carried back to the village before the next crossing.",
+    "giver": "ferryman",
+    "requires_acceptance": true,
+    "blocks_world_states": [
+      {
+        "location": "river_crossing",
+        "state": "bandit_raid"
+      }
+    ],
+    "faction_rewards": {
+      "merchant_guild": 10
+    },
+    "trust_reward": 8,
+    "starting_items": ["sealed_letter"],
+    "objective": {
+      "type": "bring_item",
+      "item": "sealed_letter",
+      "count": 1,
+      "turn_in": "village_square"
+    },
+    "reward": {
+      "gold": 12,
+      "items": []
+    }
+  },
+  "q008_bandit_camp_hunt": {
+    "quest_id": "q008_bandit_camp_hunt",
+    "title": "Break the Bandit Camp",
+    "description": "The Captain wants the raiders at the Bandit Camp pushed off the road before they grow bolder.",
+    "giver": "captain",
+    "requires_acceptance": true,
+    "faction_rewards": {
+      "kingdom_guard": 12,
+      "thieves_circle": -12
+    },
+    "trust_reward": 10,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "thief",
+      "count": 1,
+      "location": "bandit_camp",
+      "turn_in": "village_square"
+    },
+    "reward": {
+      "gold": 18,
+      "items": ["potion"]
+    }
+  },
+  "q009_silk_for_the_hermit": {
+    "quest_id": "q009_silk_for_the_hermit",
+    "title": "Silk for the Hermit",
+    "description": "The Hermit needs fresh spider silk to brace a failing section of cave ladder.",
+    "giver": "hermit",
+    "requires_acceptance": true,
+    "faction_rewards": {
+      "forest_clans": 8
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "bring_item",
+      "item": "spider_silk",
+      "count": 1,
+      "turn_in": "whispering_cave"
+    },
+    "reward": {
+      "gold": 10,
+      "items": ["herb"]
+    }
+  },
+  "q010_relics_of_the_ruins": {
+    "quest_id": "q010_relics_of_the_ruins",
+    "title": "Relics of the Ruins",
+    "description": "The Scholar wants any intact bone charm recovered from the old dead that still guard the ruins.",
+    "giver": "scholar",
+    "requires_acceptance": true,
+    "requires_npc_trust": [
+      {
+        "npc": "scholar",
+        "min": 5
+      }
+    ],
+    "faction_rewards": {
+      "shrine_keepers": 10
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "bring_item",
+      "item": "bone_charm",
+      "count": 1,
+      "turn_in": "old_ruins"
+    },
+    "reward": {
+      "gold": 16,
+      "items": ["potion"]
+    }
+  },
+  "q011_road_relief": {
+    "quest_id": "q011_road_relief",
+    "title": "Road Relief",
+    "description": "The Captain wants the raiders pressing the river road broken before they spill toward the village.",
+    "giver": "captain",
+    "requires_acceptance": true,
+    "requires_world_states": [
+      {
+        "location": "river_crossing",
+        "state": "bandit_raid"
+      }
+    ],
+    "faction_rewards": {
+      "kingdom_guard": 12,
+      "thieves_circle": -12,
+      "merchant_guild": 4
+    },
+    "trust_reward": 10,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "thief",
+      "count": 1,
+      "location": "river_crossing",
+      "turn_in": "village_square"
+    },
+    "reward": {
+      "gold": 14,
+      "items": ["bandage"]
+    }
+  },
+  "q012_shrine_cleansing": {
+    "quest_id": "q012_shrine_cleansing",
+    "title": "Shrine Cleansing",
+    "description": "The Caretaker needs the latest corruption surge at the shrine put down before it roots itself again.",
+    "giver": "caretaker",
+    "requires_acceptance": true,
+    "requires_world_states": [
+      {
+        "location": "ruined_shrine",
+        "state": "shrine_corruption"
+      }
+    ],
+    "requires_reputation": [
+      {
+        "faction": "shrine_keepers",
+        "min": 5
+      }
+    ],
+    "faction_rewards": {
+      "shrine_keepers": 14,
+      "cult_of_ash": -14
+    },
+    "trust_reward": 10,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "cultist",
+      "count": 1,
+      "location": "ruined_shrine",
+      "turn_in": "ruined_shrine"
+    },
+    "reward": {
+      "gold": 18,
+      "items": ["herb"]
+    }
+  }
+}

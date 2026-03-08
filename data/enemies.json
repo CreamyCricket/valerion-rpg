@@ -1,0 +1,181 @@
+{
+  "slime": {
+    "name": "Green Slime",
+    "family": "oozes",
+    "hp": 8,
+    "defense": 9,
+    "attack": 2,
+    "behavior": "defensive",
+    "xp": 40,
+    "loot": ["slime_gel"]
+  },
+  "wolf": {
+    "name": "Wild Wolf",
+    "family": "wolves",
+    "hp": 12,
+    "defense": 10,
+    "attack": 3,
+    "behavior": "hunter",
+    "xp": 60,
+    "loot": ["wolf_pelt"]
+  },
+  "pack_wolf": {
+    "name": "Pack Wolf",
+    "family": "wolves",
+    "hp": 10,
+    "defense": 10,
+    "attack": 3,
+    "behavior": "aggressive",
+    "xp": 55,
+    "loot": ["wolf_fang"]
+  },
+  "dire_wolf": {
+    "name": "Dire Wolf",
+    "family": "wolves",
+    "hp": 18,
+    "defense": 11,
+    "attack": 4,
+    "behavior": "hunter",
+    "xp": 90,
+    "loot": ["wolf_pelt", "wolf_fang"]
+  },
+  "giant_spider": {
+    "name": "Giant Spider",
+    "family": "forest_beasts",
+    "hp": 16,
+    "defense": 12,
+    "attack": 4,
+    "behavior": "defensive",
+    "xp": 85,
+    "loot": ["spider_silk"]
+  },
+  "briar_boar": {
+    "name": "Briar Boar",
+    "family": "forest_beasts",
+    "hp": 15,
+    "defense": 11,
+    "attack": 4,
+    "behavior": "aggressive",
+    "xp": 80,
+    "loot": ["boar_tusk", "barbed_spear"]
+  },
+  "skeleton": {
+    "name": "Skeleton",
+    "family": "shrine_creatures",
+    "hp": 14,
+    "defense": 11,
+    "attack": 3,
+    "behavior": "defensive",
+    "xp": 80,
+    "loot": ["bone_charm"]
+  },
+  "cultist": {
+    "name": "Cultist",
+    "family": "shrine_creatures",
+    "hp": 13,
+    "defense": 10,
+    "attack": 3,
+    "behavior": "aggressive",
+    "faction": "cult_of_ash",
+    "xp": 75,
+    "loot": ["cultist_seal"]
+  },
+  "ash_wisp": {
+    "name": "Ash Wisp",
+    "family": "shrine_creatures",
+    "hp": 11,
+    "defense": 11,
+    "attack": 3,
+    "behavior": "defensive",
+    "faction": "cult_of_ash",
+    "xp": 68,
+    "loot": ["shrine_ash"]
+  },
+  "bone_warden": {
+    "name": "Bone Warden",
+    "family": "shrine_creatures",
+    "hp": 18,
+    "defense": 12,
+    "attack": 4,
+    "behavior": "defensive",
+    "faction": "cult_of_ash",
+    "xp": 95,
+    "loot": ["bone_charm", "ritual_knife"]
+  },
+  "thief": {
+    "name": "Thief",
+    "family": "bandits",
+    "hp": 11,
+    "defense": 10,
+    "attack": 3,
+    "behavior": "cowardly",
+    "faction": "thieves_circle",
+    "xp": 70,
+    "loot": ["stolen_satchel"]
+  },
+  "cutpurse": {
+    "name": "Cutpurse",
+    "family": "bandits",
+    "hp": 10,
+    "defense": 11,
+    "attack": 3,
+    "behavior": "cowardly",
+    "faction": "thieves_circle",
+    "xp": 62,
+    "loot": ["road_knife"]
+  },
+  "cave_troll": {
+    "name": "Cave Troll",
+    "family": "forest_beasts",
+    "hp": 24,
+    "defense": 13,
+    "attack": 5,
+    "behavior": "hunter",
+    "xp": 140,
+    "loot": ["troll_tusk"]
+  },
+  "goblin": {
+    "name": "Goblin Skirmisher",
+    "family": "raiders",
+    "hp": 10,
+    "defense": 10,
+    "attack": 2,
+    "behavior": "cowardly",
+    "xp": 50,
+    "loot": ["bandage"]
+  },
+  "bandit": {
+    "name": "Road Bandit",
+    "family": "bandits",
+    "hp": 14,
+    "defense": 11,
+    "attack": 3,
+    "behavior": "aggressive",
+    "faction": "thieves_circle",
+    "xp": 70,
+    "loot": ["potion"]
+  },
+  "bandit_raider": {
+    "name": "Bandit Raider",
+    "family": "bandits",
+    "hp": 16,
+    "defense": 11,
+    "attack": 4,
+    "behavior": "aggressive",
+    "faction": "thieves_circle",
+    "xp": 88,
+    "loot": ["raider_badge", "ration"]
+  },
+  "shrine_guardian": {
+    "name": "Shrine Guardian",
+    "family": "shrine_creatures",
+    "hp": 15,
+    "defense": 12,
+    "attack": 3,
+    "behavior": "defensive",
+    "faction": "cult_of_ash",
+    "xp": 120,
+    "loot": ["guardian_sigil"],
+    "reward_text": "The shrine grows quiet. You claim the Guardian Sigil as proof of your victory."
+  }
+}

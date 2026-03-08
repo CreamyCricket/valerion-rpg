@@ -1,0 +1,268 @@
+{
+  "player": {
+    "name": "Iria",
+    "gender": "Woman",
+    "race": "Ashenborn",
+    "player_class": "Mage",
+    "background": "Shrine-touched",
+    "bio": "A novice scholar of old embers.",
+    "hp": 20,
+    "max_hp": 20,
+    "focus": 7,
+    "max_focus": 12,
+    "base_attack": 3,
+    "level": 1,
+    "xp": 40,
+    "gold": 0,
+    "inventory": [
+      "potion",
+      "slime_gel"
+    ],
+    "equipped_weapon": null,
+    "stats": {
+      "strength": 10,
+      "agility": 11,
+      "mind": 15,
+      "vitality": 10
+    },
+    "skills": {
+      "athletics": 0,
+      "survival": 0,
+      "lore": 2,
+      "persuasion": 0,
+      "arcana": 4,
+      "stealth": 1
+    },
+    "abilities": [
+      "spark",
+      "mend"
+    ],
+    "faction_reputation": {
+      "kingdom_guard": 0,
+      "merchant_guild": 0,
+      "thieves_circle": 0,
+      "shrine_keepers": 3,
+      "forest_clans": 0,
+      "cult_of_ash": 0
+    },
+    "npc_memory": {
+      "elder": {
+        "faction": "forest_clans",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "merchant": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "scout": {
+        "faction": "kingdom_guard",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "caretaker": {
+        "faction": "shrine_keepers",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "captain": {
+        "faction": "kingdom_guard",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "ferryman": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "scholar": {
+        "faction": "shrine_keepers",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "hermit": {
+        "faction": "forest_clans",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "traveler": {
+        "faction": "forest_clans",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      }
+    },
+    "event_log": [
+      {
+        "index": 1,
+        "type": "location_visited",
+        "details": {
+          "location_id": "village_square",
+          "location_name": "Village Square"
+        }
+      },
+      {
+        "index": 2,
+        "type": "enemy_defeated",
+        "details": {
+          "enemy_id": "slime",
+          "enemy_name": "Green Slime",
+          "location_id": "village_square",
+          "location_name": "Village Square"
+        }
+      },
+      {
+        "index": 3,
+        "type": "xp_gained",
+        "details": {
+          "amount": 40,
+          "source": "slime"
+        }
+      }
+    ]
+  },
+  "current_location": "village_square",
+  "quests": {
+    "progress": {
+      "q001_clear_forest_path": 0,
+      "q002_wolf_pelt_delivery": 0,
+      "q003_watchtower_threat": 0,
+      "q004_scout_field_notes": 0,
+      "q005_sigil_for_the_caretaker": 0,
+      "q006_ruins_survey": 0,
+      "q007_ferrymans_delivery": 0,
+      "q008_bandit_camp_hunt": 0,
+      "q009_silk_for_the_hermit": 0,
+      "q010_relics_of_the_ruins": 0,
+      "q011_road_relief": 0,
+      "q012_shrine_cleansing": 0
+    },
+    "accepted": [],
+    "completed": [],
+    "demo_complete_shown": false
+  },
+  "world_state": {
+    "village_square": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "elder",
+        "merchant",
+        "captain"
+      ]
+    },
+    "shop": {
+      "enemies": [],
+      "items": [
+        "potion"
+      ],
+      "npcs": [
+        "merchant"
+      ]
+    },
+    "forest_path": {
+      "enemies": [
+        "slime"
+      ],
+      "items": [
+        "herb"
+      ],
+      "npcs": []
+    },
+    "deep_forest": {
+      "enemies": [
+        "wolf"
+      ],
+      "items": [
+        "rusty_sword"
+      ],
+      "npcs": []
+    },
+    "old_watchtower": {
+      "enemies": [
+        "slime"
+      ],
+      "items": [
+        "bandage"
+      ],
+      "npcs": [
+        "scout"
+      ]
+    },
+    "ruined_shrine": {
+      "enemies": [
+        "shrine_guardian"
+      ],
+      "items": [
+        "herb"
+      ],
+      "npcs": [
+        "caretaker"
+      ]
+    },
+    "river_crossing": {
+      "enemies": [],
+      "items": [
+        "herb"
+      ],
+      "npcs": [
+        "ferryman"
+      ]
+    },
+    "old_ruins": {
+      "enemies": [
+        "skeleton"
+      ],
+      "items": [
+        "bandage"
+      ],
+      "npcs": [
+        "scholar"
+      ]
+    },
+    "bandit_camp": {
+      "enemies": [
+        "thief"
+      ],
+      "items": [
+        "potion"
+      ],
+      "npcs": []
+    },
+    "whispering_cave": {
+      "enemies": [
+        "giant_spider"
+      ],
+      "items": [
+        "herb"
+      ],
+      "npcs": [
+        "hermit"
+      ]
+    },
+    "_events": {
+      "village_well": {
+        "resolved": false
+      }
+    },
+    "_location_states": {}
+  }
+}
