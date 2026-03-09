@@ -19,7 +19,9 @@
     },
     "reward": {
       "gold": 10,
-      "items": ["potion"]
+      "items": [
+        "potion"
+      ]
     }
   },
   "q002_wolf_pelt_delivery": {
@@ -76,7 +78,9 @@
     },
     "reward": {
       "gold": 8,
-      "items": ["herb"]
+      "items": [
+        "herb"
+      ]
     }
   },
   "q004_scout_field_notes": {
@@ -111,7 +115,9 @@
     },
     "reward": {
       "gold": 6,
-      "items": ["bandage"]
+      "items": [
+        "bandage"
+      ]
     }
   },
   "q005_sigil_for_the_caretaker": {
@@ -141,7 +147,9 @@
     },
     "reward": {
       "gold": 20,
-      "items": ["herb"]
+      "items": [
+        "herb"
+      ]
     }
   },
   "q006_ruins_survey": {
@@ -162,7 +170,9 @@
     },
     "reward": {
       "gold": 14,
-      "items": ["bandage"]
+      "items": [
+        "bandage"
+      ]
     }
   },
   "q007_ferrymans_delivery": {
@@ -181,7 +191,9 @@
       "merchant_guild": 10
     },
     "trust_reward": 8,
-    "starting_items": ["sealed_letter"],
+    "starting_items": [
+      "sealed_letter"
+    ],
     "objective": {
       "type": "bring_item",
       "item": "sealed_letter",
@@ -213,7 +225,9 @@
     },
     "reward": {
       "gold": 18,
-      "items": ["potion"]
+      "items": [
+        "potion"
+      ]
     }
   },
   "q009_silk_for_the_hermit": {
@@ -234,7 +248,9 @@
     },
     "reward": {
       "gold": 10,
-      "items": ["herb"]
+      "items": [
+        "herb"
+      ]
     }
   },
   "q010_relics_of_the_ruins": {
@@ -261,7 +277,9 @@
     },
     "reward": {
       "gold": 16,
-      "items": ["potion"]
+      "items": [
+        "potion"
+      ]
     }
   },
   "q011_road_relief": {
@@ -291,7 +309,9 @@
     },
     "reward": {
       "gold": 14,
-      "items": ["bandage"]
+      "items": [
+        "bandage"
+      ]
     }
   },
   "q012_shrine_cleansing": {
@@ -327,7 +347,9 @@
     },
     "reward": {
       "gold": 18,
-      "items": ["herb"]
+      "items": [
+        "herb"
+      ]
     }
   },
   "q013_badges_for_the_watch": {
@@ -379,7 +401,9 @@
     ],
     "reward": {
       "gold": 18,
-      "items": ["bandage_kit"]
+      "items": [
+        "bandage_kit"
+      ]
     }
   },
   "q014_ashes_for_stonewatch": {
@@ -429,7 +453,10 @@
     ],
     "reward": {
       "gold": 16,
-      "items": ["novice_grimoire", "herb_bundle"]
+      "items": [
+        "novice_grimoire",
+        "herb_bundle"
+      ]
     }
   },
   "q015_tusk_for_the_forge": {
@@ -452,7 +479,10 @@
     },
     "reward": {
       "gold": 10,
-      "items": ["hunting_spear", "iron_scrap"]
+      "items": [
+        "hunting_spear",
+        "iron_scrap"
+      ]
     }
   },
   "q016_holdfast_raiders": {
@@ -477,7 +507,9 @@
     },
     "reward": {
       "gold": 18,
-      "items": ["bandage_kit"]
+      "items": [
+        "bandage_kit"
+      ]
     }
   },
   "q017_stormbreak_sweep": {
@@ -502,7 +534,9 @@
     },
     "reward": {
       "gold": 18,
-      "items": ["torch_bundle"]
+      "items": [
+        "torch_bundle"
+      ]
     }
   },
   "q018_seal_of_the_vault": {
@@ -525,7 +559,9 @@
     },
     "reward": {
       "gold": 20,
-      "items": ["mana_tonic"]
+      "items": [
+        "mana_tonic"
+      ]
     }
   },
   "q019_roadside_losses": {
@@ -578,7 +614,9 @@
     ],
     "reward": {
       "gold": 18,
-      "items": ["bandage_kit"]
+      "items": [
+        "bandage_kit"
+      ]
     }
   },
   "q020_break_the_sundered": {
@@ -609,7 +647,9 @@
     },
     "reward": {
       "gold": 24,
-      "items": ["bandage_kit"]
+      "items": [
+        "bandage_kit"
+      ]
     }
   },
   "q021_silence_the_husk": {
@@ -639,7 +679,9 @@
     },
     "reward": {
       "gold": 26,
-      "items": ["focus_draught"]
+      "items": [
+        "focus_draught"
+      ]
     }
   },
   "q022_core_of_the_vault": {
@@ -670,7 +712,136 @@
     },
     "reward": {
       "gold": 32,
-      "items": ["greater_potion"]
+      "items": [
+        "greater_potion"
+      ]
+    }
+  },
+  "q023_missing_hunter": {
+    "quest_id": "q023_missing_hunter",
+    "category": "story",
+    "title": "Missing Hunter",
+    "description": "Scout Rowan has lost contact with a hunter who vanished near old Ashwood markers.",
+    "giver": "forest_scout_rowan",
+    "requires_acceptance": true,
+    "location": "valewood",
+    "faction_rewards": {
+      "forest_clans": 8,
+      "hunters_guild": 4
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "visit_location",
+      "location": "old_watchtower",
+      "count": 1,
+      "turn_in": "valewood"
+    },
+    "reward": {
+      "gold": 16,
+      "items": [
+        "bandage"
+      ]
+    }
+  },
+  "q024_tavern_champion": {
+    "quest_id": "q024_tavern_champion",
+    "category": "variety",
+    "title": "Tavern Champion",
+    "description": "Harbor Master Oren is sponsoring a friendly tavern challenge to boost Stormbreak morale.",
+    "giver": "harbor_master_oren",
+    "requires_acceptance": true,
+    "location": "stormbreak",
+    "requires_events": [
+      {
+        "type": "location_visited",
+        "details": {
+          "location_id": "stormbreak"
+        }
+      }
+    ],
+    "faction_rewards": {
+      "merchant_guild": 6,
+      "hunters_guild": 3
+    },
+    "trust_reward": 6,
+    "objective": {
+      "type": "visit_location",
+      "location": "stormbreak_cliffs",
+      "count": 1,
+      "turn_in": "stormbreak"
+    },
+    "reward": {
+      "gold": 12,
+      "items": [
+        "herb_bundle"
+      ]
+    }
+  },
+  "q025_shrine_cipher": {
+    "quest_id": "q025_shrine_cipher",
+    "category": "mechanic",
+    "title": "Shrine Cipher",
+    "description": "Archivist Elira needs a relic core shard recovered to decode a failing shrine cipher table.",
+    "giver": "shrine_archivist_elira",
+    "requires_acceptance": true,
+    "location": "emberfall",
+    "requires_reputation": [
+      {
+        "faction": "shrine_keepers",
+        "min": 5
+      }
+    ],
+    "faction_rewards": {
+      "shrine_keepers": 8,
+      "cult_of_ash": -4
+    },
+    "trust_reward": 8,
+    "objective": {
+      "type": "bring_item",
+      "item": "relic_core_shard",
+      "count": 1,
+      "turn_in": "emberfall"
+    },
+    "reward": {
+      "gold": 18,
+      "items": [
+        "ritual_salt"
+      ]
+    }
+  },
+  "q026_fanglord_wager": {
+    "quest_id": "q026_fanglord_wager",
+    "category": "challenge",
+    "title": "Fanglord Wager",
+    "description": "Sera posts a direct hunt challenge: bring down the Ashwood Fanglord in the ruins and report back alive.",
+    "giver": "veteran_hunter_sera",
+    "requires_acceptance": true,
+    "location": "valewood",
+    "requires_events": [
+      {
+        "type": "contract_claimed",
+        "details": {
+          "contract_id": "c008_alpha_on_ashwood_trail"
+        }
+      }
+    ],
+    "faction_rewards": {
+      "hunters_guild": 10,
+      "forest_clans": 6
+    },
+    "trust_reward": 10,
+    "objective": {
+      "type": "defeat_enemy",
+      "enemy": "elite_ashwood_fanglord",
+      "count": 1,
+      "location": "ashwood_ruins",
+      "turn_in": "valewood"
+    },
+    "reward": {
+      "gold": 28,
+      "items": [
+        "beast_hide"
+      ]
     }
   }
 }

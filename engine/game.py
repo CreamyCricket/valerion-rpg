@@ -148,6 +148,7 @@ class Game:
         "contracts",
         "routes",
         "travel",
+        "activities",
         "journal",
         "about",
         "talk",
@@ -201,6 +202,7 @@ class Game:
         else:
             self.player = Character(name=player_name)
         self.current_location = self.world.starting_location
+        self.current_dungeon_room = None
         self._load_npc_registry()
 
         self.combat = CombatEngine()
@@ -1251,16 +1253,22 @@ class Game:
         if amount <= 0:
             return []
 
+        known_before = {
+            str(ability.get("id", "")).strip().lower()
+            for ability in self.abilities.available_to(self.player)
+            if str(ability.get("id", "")).strip()
+        }
         level_ups = self.player.gain_xp(amount)
         self._log_event("xp_gained", amount=amount, source=source)
-        lines = [
+        lines = ["You feel more experienced."]
+        lines.append(
             Narrator.xp_text(
                 amount,
                 self.player.level,
                 self.player.xp,
                 self.player.xp_needed_for_next_level(),
             )
-        ]
+        )
 
         for level_up in level_ups:
             self._log_event(
@@ -1278,6 +1286,15 @@ class Game:
                     level_up.get("max_focus"),
                 )
             )
+
+        known_after = {
+            str(ability.get("id", "")).strip().lower()
+            for ability in self.abilities.available_to(self.player)
+            if str(ability.get("id", "")).strip()
+        }
+        unlocked = [ability_id for ability_id in sorted(known_after) if ability_id not in known_before]
+        for ability_id in unlocked:
+            lines.append(f"You unlocked a new skill: {self._ability_name(ability_id)}.")
 
         return lines
 
@@ -2246,6 +2263,8 @@ class Game:
             return self._cmd_routes()
         if command == "travel":
             return self._cmd_travel(arg)
+        if command == "activities":
+            return self._cmd_activities(arg)
         if command == "journal":
             return self._cmd_journal()
         if command == "about":
@@ -2289,7 +2308,125 @@ class Game:
             "Type 'help' to see valid commands."
         )
 
+    def _in_dungeon(self) -> bool:
+        return bool(self.current_dungeon_room and self.world.has_dungeon(self.current_location))
+
+    def _dungeon_exits(self) -> dict:
+        if not self._in_dungeon():
+            return {}
+        return self.world.dungeon_room_exits(self.current_location, self.current_dungeon_room or "")
+
+    def _ensure_dungeon_room_state(self) -> list[str]:
+        if not self._in_dungeon():
+            return []
+
+        location_id = self.current_location
+        room_id = self.current_dungeon_room or ""
+        lines = []
+        room_enemies = self.world.dungeon_room_enemies(location_id, room_id)
+        if not room_enemies and not self.world.dungeon_encounter_seeded(location_id, room_id):
+            encounter = self.encounters.roll_from_table(self.world.dungeon_room_possible_encounters(location_id, room_id))
+            if encounter and str(encounter.get("type", "")).strip().lower() == "enemy":
+                enemy_id = str(encounter.get("target", "")).strip().lower()
+                if self.world.has_enemy(enemy_id):
+                    self.world.add_enemy_to_dungeon_room(location_id, room_id, enemy_id)
+                    lines.append(Narrator.encounter_text(self.current_location_name(), [self.world.enemy_name(enemy_id)]))
+            self.world.mark_dungeon_encounter_seeded(location_id, room_id)
+
+        for event in self.world.dungeon_room_events(location_id, room_id):
+            event_id = str(event.get("id", "")).strip().lower()
+            if not event_id:
+                continue
+            if bool(event.get("once", True)) and self.world.dungeon_event_resolved(location_id, room_id, event_id):
+                continue
+            self.world.mark_dungeon_event_resolved(location_id, room_id, event_id)
+            text = str(event.get("text", "")).strip()
+            if text:
+                lines.append("Event: " + text)
+            reward_item = str(event.get("reward_item", "")).strip().lower()
+            if reward_item and self.world.has_item(reward_item):
+                self.world.add_item_to_dungeon_room(location_id, room_id, reward_item)
+            reward_gold = max(0, int(event.get("reward_gold", 0) or 0))
+            if reward_gold:
+                self.player.gold += reward_gold
+                lines.append(f"Event reward: {reward_gold} gold.")
+        return lines
+
+    def _dungeon_exit_label(self, target: str) -> str:
+        if target == "__exit__":
+            surface_id = self.world.dungeon_surface_exit(self.current_location) or self.current_location
+            return self.world.get_location(surface_id).get("name", surface_id)
+        return self.world.dungeon_room_name(self.current_location, target)
+
+    def _move_within_dungeon(self, query: str) -> str:
+        exits = self._dungeon_exits()
+        if not exits:
+            return "No exits from here."
+
+        normalized_query = str(query or "").strip().lower()
+        if not normalized_query:
+            return "Move where? Available exits: " + ", ".join(exits.keys())
+
+        target_room = exits.get(normalized_query)
+        if not target_room:
+            for direction, candidate_room in exits.items():
+                candidate_name = self.world.dungeon_room_name(self.current_location, candidate_room).lower()
+                if normalized_query == candidate_room or normalized_query == candidate_name:
+                    target_room = candidate_room
+                    normalized_query = direction
+                    break
+        if not target_room:
+            return "You cannot go there from here. Available exits: " + ", ".join(exits.keys())
+
+        if target_room == "__exit__":
+            surface_id = self.world.dungeon_surface_exit(self.current_location)
+            if not surface_id:
+                return "This route is blocked."
+            return self._transition_to_location(
+                surface_id,
+                [f"You climb out from {self.world.get_location(self.current_location).get('name', self.current_location)}."],
+                source="dungeon_exit",
+                allow_random_events=False,
+            )
+
+        self.current_dungeon_room = target_room
+        lines = [f"You move {normalized_query} to {self.world.dungeon_room_name(self.current_location, target_room)}."]
+        lines.extend(self._ensure_dungeon_room_state())
+        lines.append(self._cmd_look())
+        return "\n".join(lines)
+
     def _cmd_look(self) -> str:
+        if self._in_dungeon():
+            location_id = self.current_location
+            room_id = self.current_dungeon_room or ""
+            location = {
+                "name": self.world.dungeon_room_name(location_id, room_id),
+                "description": self.world.dungeon_room_description(location_id, room_id),
+            }
+            enemies = self.world.dungeon_room_enemies(location_id, room_id)
+            items = self.world.dungeon_room_items(location_id, room_id)
+            exits = self.world.dungeon_room_exits(location_id, room_id)
+            exits_display = {direction: self._dungeon_exit_label(target) for direction, target in exits.items()}
+            enemy_names = {enemy_id: self.world.enemy_name(enemy_id) for enemy_id in enemies}
+            item_names = {item_id: self.world.item_name(item_id) for item_id in items}
+            location_context = dict(self._location_lore_context())
+            location_context["location_name"] = self.world.get_location(location_id).get("name", location_id)
+            location_context["services"] = []
+            return Narrator.location_text(
+                location_id=f"{location_id}:{room_id}",
+                location=location,
+                enemies=enemies,
+                items=items,
+                exits=exits_display,
+                enemy_names=enemy_names,
+                item_names=item_names,
+                npc_names=[],
+                scene_lines=[f"Dungeon site: {self.world.get_location(location_id).get('name', location_id)}"],
+                state_lines=[],
+                history_flags=self._history_flags(),
+                location_context=location_context,
+            )
+
         location = self.world.get_location(self.current_location)
         enemies = self.world.get_enemies_at(self.current_location)
         items = self.world.get_items_at(self.current_location)
@@ -2448,6 +2585,18 @@ class Game:
         return f"You cannot inspect '{query_lower}' here."
 
     def _cmd_map(self) -> str:
+        if self._in_dungeon():
+            lines = [f"Dungeon Map: {self.world.get_location(self.current_location).get('name', self.current_location)}"]
+            dungeon = self.world.dungeons.get(self.current_location, {})
+            for room_id, room in dungeon.get("rooms", {}).items():
+                marker = " [YOU]" if room_id == self.current_dungeon_room else ""
+                exits = room.get("exits", {})
+                if exits:
+                    exit_text = ", ".join(f"{direction}->{self._dungeon_exit_label(target)}" for direction, target in exits.items())
+                else:
+                    exit_text = "none"
+                lines.append(f"- {self.world.dungeon_room_name(self.current_location, room_id)}{marker} | exits: {exit_text}")
+            return "\n".join(lines)
         return "\n".join(self.world.map_lines(self.current_location))
 
     def _cmd_search(self, arg: str) -> str:
@@ -2458,15 +2607,31 @@ class Game:
         if not target:
             return "You can search only: area, ground, or location."
 
-        location = self.world.get_location(self.current_location)
-        location_name = location.get("name", self.current_location)
-        enemy_names = [self.world.enemy_name(enemy_id) for enemy_id in self.world.get_enemies_at(self.current_location)]
-        item_names = [self.world.item_name(item_id) for item_id in self.world.get_items_at(self.current_location)]
-        npc_names = [self.TALKABLE_NPCS.get(npc_id, npc_id.title()) for npc_id in self._visible_npcs_at_location(self.current_location)]
-        exits = {
-            direction: self.world.get_location(target_id).get("name", target_id)
-            for direction, target_id in location.get("connected_locations", {}).items()
-        }
+        if self._in_dungeon():
+            location_name = self.world.dungeon_room_name(self.current_location, self.current_dungeon_room or "")
+            enemy_names = [
+                self.world.enemy_name(enemy_id)
+                for enemy_id in self.world.dungeon_room_enemies(self.current_location, self.current_dungeon_room or "")
+            ]
+            item_names = [
+                self.world.item_name(item_id)
+                for item_id in self.world.dungeon_room_items(self.current_location, self.current_dungeon_room or "")
+            ]
+            npc_names = []
+            exits = {
+                direction: self._dungeon_exit_label(target)
+                for direction, target in self.world.dungeon_room_exits(self.current_location, self.current_dungeon_room or "").items()
+            }
+        else:
+            location = self.world.get_location(self.current_location)
+            location_name = location.get("name", self.current_location)
+            enemy_names = [self.world.enemy_name(enemy_id) for enemy_id in self.world.get_enemies_at(self.current_location)]
+            item_names = [self.world.item_name(item_id) for item_id in self.world.get_items_at(self.current_location)]
+            npc_names = [self.TALKABLE_NPCS.get(npc_id, npc_id.title()) for npc_id in self._visible_npcs_at_location(self.current_location)]
+            exits = {
+                direction: self.world.get_location(target_id).get("name", target_id)
+                for direction, target_id in location.get("connected_locations", {}).items()
+            }
 
         return Narrator.search_text(
             location_name=location_name,
@@ -2694,15 +2859,28 @@ class Game:
     ) -> str:
         previous_location = self.current_location
         event_count_before = len(self.player.event_log)
+        first_visit = not self.player.has_event("location_visited", "location_id", new_location)
         self.world.clear_transient_npcs(previous_location)
+        self.current_dungeon_room = None
         self.current_location = new_location
         self._record_location_visit(self.current_location)
         location = self.world.get_location(self.current_location)
         location_name = location.get("name", self.current_location)
         lines = list(entry_lines)
+        if self.world.has_dungeon(self.current_location):
+            entry_room = self.world.dungeon_entry_room(self.current_location)
+            if entry_room:
+                self.current_dungeon_room = entry_room
+                lines.append(f"You enter {location_name} and descend to {self.world.dungeon_room_name(self.current_location, entry_room)}.")
+                lines.extend(self._ensure_dungeon_room_state())
+        if first_visit:
+            lines.append(f"Discovery: {location_name} is now added to your route journal.")
+            lines.extend(self._grant_xp(2, source=f"exploration:{new_location}"))
         lines.extend(self._refresh_identity_unlocks(source=location_name))
         lines.extend(self._hub_arrival_lines(self.current_location))
         lines.extend(self._refresh_world_recognition(source=location_name))
+        if self._town_activity_ids():
+            lines.append("Town activity available: use 'activities' to rest, gather leads, or train.")
         rank_warning = self._location_rank_warning(self.current_location)
         if rank_warning:
             lines.append(rank_warning)
@@ -2830,7 +3008,152 @@ class Game:
             allow_random_events=False,
         )
 
+    @staticmethod
+    def _town_activity_label(activity_id: str) -> str:
+        labels = {
+            "tavern_rumor": "Listen for rumors",
+            "hunter_gossip": "Talk to hunters",
+            "drink_ale": "Drink ale",
+            "market_browse": "Browse merchants",
+            "market_gossip": "Hear gossip",
+            "sparring": "Spar with local fighters",
+        }
+        return labels.get(activity_id, activity_id.replace("_", " ").title())
+
+    def _town_activity_config(self) -> dict:
+        config = getattr(self.world, "town_activities", {}).get(self.current_location, {})
+        return config if isinstance(config, dict) else {}
+
+    def _town_activity_ids(self) -> list[str]:
+        config = self._town_activity_config()
+        raw = config.get("activities", [])
+        if not isinstance(raw, list):
+            return []
+        return [str(activity_id).strip().lower() for activity_id in raw if str(activity_id).strip()]
+
+    def _town_activity_rumors(self, *, topic: str = "", limit: int = 2) -> list[str]:
+        config = self._town_activity_config()
+        pools = config.get("rumor_pools", [])
+        if not isinstance(pools, list):
+            return []
+
+        entries = []
+        for pool_id in pools:
+            pool_entries = self.world.rumors.get(str(pool_id).strip().lower(), [])
+            if not isinstance(pool_entries, list):
+                continue
+            for index, entry in enumerate(pool_entries):
+                if not isinstance(entry, dict):
+                    continue
+                text = str(entry.get("text", "")).strip()
+                if not text:
+                    continue
+                if topic and not self._topic_matches_entry(topic, entry):
+                    continue
+                entries.append((int(entry.get("priority", 0) or 0), index, text))
+
+        entries.sort(key=lambda item: (-item[0], item[1], item[2]))
+        seen = set()
+        lines = []
+        for _, _, text in entries:
+            if text in seen:
+                continue
+            seen.add(text)
+            lines.append(text)
+            if len(lines) >= max(1, limit):
+                break
+        return lines
+
+    def _resolve_town_activity(self, activity_id: str) -> str:
+        if activity_id == "tavern_rumor":
+            focus_cycle = ["bosses", "relics", "dungeons", "crisis"]
+            focus_topic = focus_cycle[len(self.player.event_log) % len(focus_cycle)]
+            rumor_lines = self._town_activity_rumors(topic=focus_topic, limit=2) or self._town_activity_rumors(limit=2)
+            lines = ["You listen to the room and piece together useful leads."]
+            if rumor_lines:
+                lines.extend(f"- {line}" for line in rumor_lines)
+            else:
+                lines.append("- No useful rumors surface right now.")
+            return "\n".join(lines)
+
+        if activity_id == "hunter_gossip":
+            rumor_lines = self._town_activity_rumors(topic="bosses", limit=1)
+            rumor_lines.extend(self._town_activity_rumors(topic="crisis", limit=1))
+            lines = ["Local hunters trade route notes, trophy stories, and threat warnings."]
+            if rumor_lines:
+                lines.extend(f"- {line}" for line in rumor_lines[:2])
+            return "\n".join(lines)
+
+        if activity_id == "drink_ale":
+            hp_before = self.player.hp
+            focus_before = self.player.focus
+            self.player.hp = min(self.player.max_hp, self.player.hp + 1)
+            self.player.focus = min(self.player.max_focus, self.player.focus + 1)
+            recovered_hp = self.player.hp - hp_before
+            recovered_focus = self.player.focus - focus_before
+            return (
+                f"You take a quiet drink and reset your breathing. "
+                f"Recovered HP +{recovered_hp}, Focus +{recovered_focus}."
+            )
+
+        if activity_id == "market_browse":
+            return self._cmd_buy("")
+
+        if activity_id == "market_gossip":
+            rumor_lines = self._town_activity_rumors(topic="dungeons", limit=1)
+            rumor_lines.extend(self._town_activity_rumors(topic="relics", limit=1))
+            lines = ["Merchants swap fast gossip between transactions."]
+            if rumor_lines:
+                lines.extend(f"- {line}" for line in rumor_lines[:2])
+            else:
+                lines.append("- The market talk stays on prices and weather.")
+            return "\n".join(lines)
+
+        if activity_id == "sparring":
+            lines = ["You run controlled rounds in the yard and tighten your timing."]
+            lines.extend(self._grant_xp(2, source="town_sparring"))
+            return "\n".join(lines)
+
+        return "That activity is not available here."
+
+    def _cmd_activities(self, arg: str = "") -> str:
+        activity_ids = self._town_activity_ids()
+        if not activity_ids:
+            return "No town activities are available here."
+
+        config = self._town_activity_config()
+        town_name = str(config.get("town_name", self.world.get_location(self.current_location).get("name", self.current_location))).strip()
+        venue = str(config.get("venue", f"{town_name} Commons")).strip()
+
+        options = activity_ids + ["leave"]
+        if not arg.strip():
+            lines = [venue]
+            for index, activity_id in enumerate(activity_ids, start=1):
+                lines.append(f"{index}. {self._town_activity_label(activity_id)}")
+            lines.append(f"{len(options)}. Leave")
+            lines.append("Use 'activities <number>' to choose.")
+            return "\n".join(lines)
+
+        query = " ".join(arg.strip().lower().split())
+        menu_index = self._menu_choice_index(query, len(options))
+        if menu_index is not None:
+            selected = options[menu_index]
+        else:
+            selected = ""
+            for activity_id in options:
+                if query == activity_id or query == self._town_activity_label(activity_id).lower():
+                    selected = activity_id
+                    break
+        if not selected:
+            return f"Unknown activity. Use 'activities' to review options in {town_name}."
+        if selected == "leave":
+            return f"You step away from {venue}."
+        return self._resolve_town_activity(selected)
+
     def _cmd_move(self, arg: str) -> str:
+        if self._in_dungeon():
+            return self._move_within_dungeon(arg)
+
         if not arg:
             exits = self.world.get_location(self.current_location).get("connected_locations", {})
             if not exits:
@@ -2853,7 +3176,7 @@ class Game:
                 )
             ],
             source="move",
-            allow_random_events=True,
+            allow_random_events=not self.world.has_dungeon(new_location),
         )
 
     def _cmd_fight(self, arg: str) -> str:
@@ -2929,12 +3252,18 @@ class Game:
         return "\n".join(lines)
 
     def _cmd_take(self, arg: str) -> str:
-        items_here = self.world.get_items_at(self.current_location)
+        if self._in_dungeon():
+            items_here = self.world.dungeon_room_items(self.current_location, self.current_dungeon_room or "")
+        else:
+            items_here = self.world.get_items_at(self.current_location)
         if not items_here:
             return "There are no items here."
 
         if arg:
-            item_id = self.world.find_item_at_location(self.current_location, arg)
+            if self._in_dungeon():
+                item_id = self.world.find_item_in_dungeon_room(self.current_location, self.current_dungeon_room or "", arg)
+            else:
+                item_id = self.world.find_item_at_location(self.current_location, arg)
             if not item_id:
                 item_names = [self.world.item_name(iid) for iid in items_here]
                 return "That item is not here. Items here: " + ", ".join(item_names)
@@ -2942,12 +3271,17 @@ class Game:
             item_id = items_here[0]
 
         event_count_before = len(self.player.event_log)
-        self.world.remove_item(self.current_location, item_id)
+        if self._in_dungeon():
+            self.world.remove_item_from_dungeon_room(self.current_location, self.current_dungeon_room or "", item_id)
+        else:
+            self.world.remove_item(self.current_location, item_id)
         self.inventory.add_item(self.player, item_id)
         self._record_important_item_acquired(item_id, source="ground_pickup")
 
         item_name = self.world.item_name(item_id)
         lines = [Narrator.item_taken(item_name)]
+        if item_id in self.world.relics:
+            lines.append(f"Relic discovery logged: {item_name}.")
         lines.extend(
             self.quests.on_item_obtained(
                 self.player,
@@ -3216,6 +3550,9 @@ class Game:
         return self._history_flags()
 
     def current_location_name(self) -> str:
+        if self._in_dungeon():
+            room_name = self.world.dungeon_room_name(self.current_location, self.current_dungeon_room or "")
+            return f"{self.world.get_location(self.current_location).get('name', self.current_location)} - {room_name}"
         return self.world.get_location(self.current_location).get("name", self.current_location)
 
     def _character_lore_context(self) -> dict:
@@ -3462,12 +3799,18 @@ class Game:
         return summary
 
     def _find_enemy_here(self, arg: str) -> tuple[str | None, str | None]:
-        enemies_here = self.world.get_enemies_at(self.current_location)
+        if self._in_dungeon():
+            enemies_here = self.world.dungeon_room_enemies(self.current_location, self.current_dungeon_room or "")
+        else:
+            enemies_here = self.world.get_enemies_at(self.current_location)
         if not enemies_here:
             return None, "There are no enemies here."
 
         if arg:
-            enemy_id = self.world.find_enemy_at_location(self.current_location, arg)
+            if self._in_dungeon():
+                enemy_id = self.world.find_enemy_in_dungeon_room(self.current_location, self.current_dungeon_room or "", arg)
+            else:
+                enemy_id = self.world.find_enemy_at_location(self.current_location, arg)
             if not enemy_id:
                 enemy_names = [self.world.enemy_name(eid) for eid in enemies_here]
                 return None, "That enemy is not here. Enemies here: " + ", ".join(enemy_names)
@@ -3477,7 +3820,10 @@ class Game:
 
     def _resolve_enemy_victory(self, enemy_id: str, enemy_name: str, result: dict, enemy_data: dict) -> list[str]:
         lines = [Narrator.combat_result(True, enemy_name)]
-        self.world.remove_enemy(self.current_location, enemy_id)
+        if self._in_dungeon():
+            self.world.remove_enemy_from_dungeon_room(self.current_location, self.current_dungeon_room or "", enemy_id)
+        else:
+            self.world.remove_enemy(self.current_location, enemy_id)
         cleared_road_encounter = self.world.clear_active_road_encounter(self.current_location, enemy_id)
         loot_ids = [str(item_id).strip().lower() for item_id in result.get("loot", []) if str(item_id).strip()]
         self._log_event(
@@ -3516,6 +3862,9 @@ class Game:
             self._record_important_item_acquired(item_id, source="combat_loot")
         loot_names = [self.world.item_name(item_id) for item_id in loot_ids]
         lines.append(Narrator.loot_text(loot_names))
+        relic_loot = [item_id for item_id in loot_ids if item_id in self.world.relics]
+        for relic_id in relic_loot:
+            lines.append(f"Relic discovery logged: {self.world.item_name(relic_id)}.")
         if loot_ids:
             carry_status = self.inventory.carry_status_line(self.player, self.world.items)
             if carry_status:
@@ -4573,6 +4922,8 @@ class Game:
             return ""
 
         first_word = normalized.split(maxsplit=1)[0]
+        if self._in_dungeon() and first_word in self.COMMAND_NAMES:
+            return None
         if first_word in self.NLP_COMMAND_TRIGGERS:
             parsed = self.intent_parser.parse(raw_command)
             if parsed.intent != "unknown":
@@ -4730,7 +5081,7 @@ class Game:
         if not learned:
             return []
         learned_names = [self.crafting.recipe_name(recipe_id, self.world.recipes, self.world.items) for recipe_id in learned]
-        return ["You pick up a few workable recipes here: " + ", ".join(learned_names) + "."]
+        return ["Recipe unlocked: " + ", ".join(learned_names) + "."]
 
     def _craft_menu_options(self) -> list[str]:
         return self.crafting.known_recipe_ids(self.player, self.world.recipes)
@@ -5039,6 +5390,7 @@ class Game:
             },
             "player": self.player.to_dict(),
             "current_location": self.current_location,
+            "current_dungeon_room": self.current_dungeon_room,
             "quests": self.quests.to_dict(),
             "contracts": self.contracts.to_dict(),
             "world_state": self.world.state_to_dict(),
@@ -5104,6 +5456,10 @@ class Game:
         else:
             self.current_location = saved_location
             location_note = ""
+        self.current_dungeon_room = None
+        saved_room = str(data.get("current_dungeon_room", "")).strip().lower()
+        if saved_room and self.world.has_dungeon(self.current_location) and self.world.dungeon_room(self.current_location, saved_room):
+            self.current_dungeon_room = saved_room
 
         quests_data = data.get("quests", {})
         if isinstance(quests_data, dict):
@@ -5153,6 +5509,7 @@ class Game:
             "claim <contract>   - Claim payment for a finished board contract at Market Square (number or name).\n"
             "routes             - Review Waycarter Network routes from the current major hub.\n"
             "travel <hub>       - Pay for guarded passage between major hubs (number or hub name).\n"
+            "activities [option]- Open local town activities for rumors, gossip, sparring, and downtime.\n"
             "do <free text>     - Optional wrapper for safe narrative input like observe, ask, or listen.\n"
             "free text          - You can also type lines like 'look around', 'go to the forest', or 'attack the slime'.\n"
             "buy <item>         - Purchase from a local vendor (number or item name).\n"

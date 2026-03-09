@@ -1,7 +1,13 @@
 {
   "stonewatch_frontier": {
     "name": "Stonewatch Frontier",
-    "locations": ["village_square", "town_gate", "market_square", "watch_barracks", "river_crossing"],
+    "locations": [
+      "village_square",
+      "town_gate",
+      "market_square",
+      "watch_barracks",
+      "river_crossing"
+    ],
     "activation_chance": 22,
     "max_active": 1,
     "events": [
@@ -16,8 +22,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "stonewatch_livestock_kills",
         "expire_after_turns": 6,
-        "contract_focus": ["c001_wolfpack_culling"],
-        "encounter_modifiers": [{"type": "enemy", "target": "wolf", "weight": 18}],
+        "contract_focus": [
+          "c001_wolfpack_culling"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "wolf",
+            "weight": 18
+          }
+        ],
         "travel_warning": "Road wardens warn that wolf packs are shadowing the Stonewatch verge."
       },
       {
@@ -30,10 +44,20 @@
         "location_id": "village_square",
         "turns_to_escalate": 2,
         "escalates_to": "stonewatch_road_attacks",
-        "contract_focus": ["c001_wolfpack_culling"],
+        "contract_focus": [
+          "c001_wolfpack_culling"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "pack_wolf", "weight": 24},
-          {"type": "enemy", "target": "wolf", "weight": 16}
+          {
+            "type": "enemy",
+            "target": "pack_wolf",
+            "weight": 24
+          },
+          {
+            "type": "enemy",
+            "target": "wolf",
+            "weight": 16
+          }
         ],
         "npc_notes": {
           "captain": "The Captain has reassigned guards to farm patrol, and every spare hand is being counted."
@@ -48,11 +72,22 @@
         "chain_id": "stonewatch_wolf_chain",
         "weight": 10,
         "location_id": "river_crossing",
-        "contract_focus": ["c001_wolfpack_culling", "c008_alpha_on_ashwood_trail"],
+        "contract_focus": [
+          "c001_wolfpack_culling",
+          "c008_alpha_on_ashwood_trail"
+        ],
         "spawn_enemy": "ashwood_packleader",
-        "resolve_on_enemy_defeat": ["ashwood_packleader", "vorgar_ironfang_alpha"],
-        "resolve_on_contract_claim": ["c008_alpha_on_ashwood_trail"],
-        "faction_effects": {"forest_clans": 5, "kingdom_guard": 4},
+        "resolve_on_enemy_defeat": [
+          "ashwood_packleader",
+          "vorgar_ironfang_alpha"
+        ],
+        "resolve_on_contract_claim": [
+          "c008_alpha_on_ashwood_trail"
+        ],
+        "faction_effects": {
+          "forest_clans": 5,
+          "kingdom_guard": 4
+        },
         "npc_notes": {
           "gatewarden": "The Gatewarden has switched to war-watch procedure and is turning back unescorted wagons."
         },
@@ -69,8 +104,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "stonewatch_toll_posts",
         "expire_after_turns": 5,
-        "contract_focus": ["c003_bandit_road_tax"],
-        "encounter_modifiers": [{"type": "enemy", "target": "thief", "weight": 16}],
+        "contract_focus": [
+          "c003_bandit_road_tax"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "thief",
+            "weight": 16
+          }
+        ],
         "travel_warning": "Guard runners report unknown toll-markers appearing along Stonewatch roads."
       },
       {
@@ -83,10 +126,20 @@
         "location_id": "river_crossing",
         "turns_to_escalate": 2,
         "escalates_to": "stonewatch_guard_lockdown",
-        "contract_focus": ["c003_bandit_road_tax"],
+        "contract_focus": [
+          "c003_bandit_road_tax"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "bandit_toll_guard", "weight": 22},
-          {"type": "enemy", "target": "cutpurse", "weight": 16}
+          {
+            "type": "enemy",
+            "target": "bandit_toll_guard",
+            "weight": 22
+          },
+          {
+            "type": "enemy",
+            "target": "cutpurse",
+            "weight": 16
+          }
         ],
         "npc_notes": {
           "market_broker": "The broker is tracking lost consignments against suspected toll points and warning regulars."
@@ -101,21 +154,99 @@
         "chain_id": "stonewatch_toll_chain",
         "weight": 9,
         "location_id": "watch_barracks",
-        "contract_focus": ["c003_bandit_road_tax", "c004_merchant_recovery"],
+        "contract_focus": [
+          "c003_bandit_road_tax",
+          "c004_merchant_recovery"
+        ],
         "spawn_enemy": "bandit_tollmaster",
-        "resolve_on_enemy_defeat": ["bandit_tollmaster"],
-        "resolve_on_contract_claim": ["c003_bandit_road_tax"],
-        "faction_effects": {"kingdom_guard": 5, "merchant_guild": 4, "thieves_circle": -6},
+        "resolve_on_enemy_defeat": [
+          "bandit_tollmaster"
+        ],
+        "resolve_on_contract_claim": [
+          "c003_bandit_road_tax"
+        ],
+        "faction_effects": {
+          "kingdom_guard": 5,
+          "merchant_guild": 4,
+          "thieves_circle": -6
+        },
         "npc_notes": {
           "road_captain_ves": "Captain Ves is running emergency manifests and rotating response teams without pause."
         },
         "travel_warning": "Gate lockdown is in effect while Stonewatch suppresses armed toll gangs."
+      },
+      {
+        "event_id": "stonewatch_ledger_dispute",
+        "name": "Ledger Dispute",
+        "summary": "Guild ledgers and guard manifests disagree on missing caravan loads.",
+        "stage": 1,
+        "chain_id": "stonewatch_ledger_chain",
+        "weight": 12,
+        "location_id": "market_square",
+        "turns_to_escalate": 2,
+        "escalates_to": "stonewatch_caravan_seizure",
+        "expire_after_turns": 5,
+        "contract_focus": [
+          "c004_merchant_recovery"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "thief",
+            "weight": 16
+          },
+          {
+            "type": "enemy",
+            "target": "cutpurse",
+            "weight": 14
+          }
+        ],
+        "npc_notes": {
+          "market_broker": "The broker is auditing manifests line by line and suspects coordinated theft."
+        },
+        "travel_warning": "Stonewatch quartermasters are delaying nonessential freight while manifests are disputed."
+      },
+      {
+        "event_id": "stonewatch_caravan_seizure",
+        "name": "Caravan Seizure",
+        "summary": "Armed raiders are seizing marked caravans before they reach Stonewatch proper.",
+        "stage": 2,
+        "chain_id": "stonewatch_ledger_chain",
+        "weight": 10,
+        "location_id": "river_crossing",
+        "contract_focus": [
+          "c003_bandit_road_tax",
+          "c004_merchant_recovery"
+        ],
+        "spawn_enemy": "bandit_raider",
+        "resolve_on_enemy_defeat": [
+          "bandit_raider",
+          "bandit_toll_guard"
+        ],
+        "resolve_on_contract_claim": [
+          "c004_merchant_recovery"
+        ],
+        "faction_effects": {
+          "merchant_guild": 4,
+          "kingdom_guard": 3,
+          "thieves_circle": -5
+        },
+        "travel_warning": "Stonewatch roadwardens now require escorted crossings after repeated caravan seizures."
       }
     ]
   },
   "ashwood_forests": {
     "name": "Ashwood Forests",
-    "locations": ["forest_path", "deep_forest", "valewood", "old_watchtower", "whispering_cave", "bandit_camp", "ruined_shrine"],
+    "locations": [
+      "forest_path",
+      "deep_forest",
+      "valewood",
+      "old_watchtower",
+      "whispering_cave",
+      "bandit_camp",
+      "ruined_shrine",
+      "ashwood_ruins"
+    ],
     "activation_chance": 24,
     "max_active": 1,
     "events": [
@@ -130,8 +261,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "ashwood_pack_hunts",
         "expire_after_turns": 6,
-        "contract_focus": ["c001_wolfpack_culling"],
-        "encounter_modifiers": [{"type": "enemy", "target": "ashwood_wolf", "weight": 20}],
+        "contract_focus": [
+          "c001_wolfpack_culling"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ashwood_wolf",
+            "weight": 20
+          }
+        ],
         "travel_warning": "Ashwood guides warn of organized pack signaling near the main trail."
       },
       {
@@ -144,10 +283,20 @@
         "location_id": "deep_forest",
         "turns_to_escalate": 2,
         "escalates_to": "ashwood_alpha_mark",
-        "contract_focus": ["c008_alpha_on_ashwood_trail"],
+        "contract_focus": [
+          "c008_alpha_on_ashwood_trail"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "ashwood_stalker", "weight": 22},
-          {"type": "enemy", "target": "dire_wolf", "weight": 18}
+          {
+            "type": "enemy",
+            "target": "ashwood_stalker",
+            "weight": 22
+          },
+          {
+            "type": "enemy",
+            "target": "dire_wolf",
+            "weight": 18
+          }
         ],
         "npc_notes": {
           "veteran_hunter_sera": "Sera has shifted to kill-triage: wounded escorts first, prey trails second."
@@ -162,11 +311,20 @@
         "chain_id": "ashwood_alpha_chain",
         "weight": 10,
         "location_id": "deep_forest",
-        "contract_focus": ["c008_alpha_on_ashwood_trail"],
+        "contract_focus": [
+          "c008_alpha_on_ashwood_trail"
+        ],
         "spawn_enemy": "vorgar_ironfang_alpha",
-        "resolve_on_enemy_defeat": ["vorgar_ironfang_alpha"],
-        "resolve_on_contract_claim": ["c008_alpha_on_ashwood_trail"],
-        "faction_effects": {"forest_clans": 6, "hunters_guild": 5},
+        "resolve_on_enemy_defeat": [
+          "vorgar_ironfang_alpha"
+        ],
+        "resolve_on_contract_claim": [
+          "c008_alpha_on_ashwood_trail"
+        ],
+        "faction_effects": {
+          "forest_clans": 6,
+          "hunters_guild": 5
+        },
         "travel_warning": "Ashwood trail signs now mark active alpha territory."
       },
       {
@@ -180,8 +338,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "ashwood_corruption_bloom",
         "expire_after_turns": 5,
-        "contract_focus": ["c002_shrine_ash_clearing"],
-        "encounter_modifiers": [{"type": "enemy", "target": "ash_wisp", "weight": 20}],
+        "contract_focus": [
+          "c002_shrine_ash_clearing"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ash_wisp",
+            "weight": 20
+          }
+        ],
         "travel_warning": "Pilgrims report unstable shrine whispers along Ashwood approaches."
       },
       {
@@ -194,10 +360,20 @@
         "location_id": "ruined_shrine",
         "turns_to_escalate": 2,
         "escalates_to": "ashwood_wraith_manifest",
-        "contract_focus": ["c005_corrupted_grove"],
+        "contract_focus": [
+          "c005_corrupted_grove"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "cultist", "weight": 18},
-          {"type": "enemy", "target": "elite_huskbound_wraith", "weight": 12}
+          {
+            "type": "enemy",
+            "target": "cultist",
+            "weight": 18
+          },
+          {
+            "type": "enemy",
+            "target": "elite_huskbound_wraith",
+            "weight": 12
+          }
         ],
         "npc_notes": {
           "shrine_archivist_elira": "Elira is requesting ash samples from every safe party returning from the old shrine routes."
@@ -212,18 +388,88 @@
         "chain_id": "ashwood_shrine_chain",
         "weight": 9,
         "location_id": "ruined_shrine",
-        "contract_focus": ["c005_corrupted_grove", "c007_silence_the_weeping_shrine"],
+        "contract_focus": [
+          "c005_corrupted_grove",
+          "c007_silence_the_weeping_shrine"
+        ],
         "spawn_enemy": "corrupted_shrine_wraith",
-        "resolve_on_enemy_defeat": ["corrupted_shrine_wraith", "weeping_husk"],
-        "resolve_on_contract_claim": ["c007_silence_the_weeping_shrine"],
-        "faction_effects": {"shrine_keepers": 6, "cult_of_ash": -6},
+        "resolve_on_enemy_defeat": [
+          "corrupted_shrine_wraith",
+          "weeping_husk"
+        ],
+        "resolve_on_contract_claim": [
+          "c007_silence_the_weeping_shrine"
+        ],
+        "faction_effects": {
+          "shrine_keepers": 6,
+          "cult_of_ash": -6
+        },
         "travel_warning": "Shrine wardens warn that a manifest remnant now holds the Ashwood ruin-line."
+      },
+      {
+        "event_id": "ashwood_rival_tracks",
+        "name": "Rival Tracks",
+        "summary": "Competing hunter teams are racing through Valewood markers and disturbing patrol routes.",
+        "stage": 1,
+        "chain_id": "ashwood_rival_chain",
+        "weight": 12,
+        "location_id": "valewood",
+        "turns_to_escalate": 2,
+        "escalates_to": "ashwood_rival_challenge",
+        "expire_after_turns": 6,
+        "contract_focus": [
+          "c008_alpha_on_ashwood_trail"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ashwood_stalker",
+            "weight": 18
+          },
+          {
+            "type": "enemy",
+            "target": "pack_wolf",
+            "weight": 14
+          }
+        ],
+        "travel_warning": "Valewood clan markers warn that rival hunter parties are cutting through active beast lanes."
+      },
+      {
+        "event_id": "ashwood_rival_challenge",
+        "name": "Rival Challenge",
+        "summary": "A high-risk hunt challenge in Ashwood is drawing predators and reckless crews to the same ground.",
+        "stage": 2,
+        "chain_id": "ashwood_rival_chain",
+        "weight": 10,
+        "location_id": "old_watchtower",
+        "contract_focus": [
+          "c008_alpha_on_ashwood_trail"
+        ],
+        "spawn_enemy": "elite_ashwood_fanglord",
+        "resolve_on_enemy_defeat": [
+          "elite_ashwood_fanglord",
+          "vorgar_ironfang_alpha"
+        ],
+        "resolve_on_contract_claim": [
+          "c008_alpha_on_ashwood_trail"
+        ],
+        "faction_effects": {
+          "hunters_guild": 5,
+          "forest_clans": 3
+        },
+        "travel_warning": "Ashwood watch posts are signaling challenge flags and advising only veteran crews to enter."
       }
     ]
   },
   "emberfall_ashlands": {
     "name": "Emberfall Ashlands",
-    "locations": ["emberfall", "town_shrine", "ruined_shrine", "ashen_stair"],
+    "locations": [
+      "emberfall",
+      "town_shrine",
+      "ruined_shrine",
+      "ashen_stair",
+      "emberfall_catacombs"
+    ],
     "activation_chance": 20,
     "max_active": 1,
     "events": [
@@ -238,8 +484,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "emberfall_ward_stress",
         "expire_after_turns": 6,
-        "contract_focus": ["c002_shrine_ash_clearing"],
-        "encounter_modifiers": [{"type": "enemy", "target": "ash_wisp", "weight": 16}],
+        "contract_focus": [
+          "c002_shrine_ash_clearing"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ash_wisp",
+            "weight": 16
+          }
+        ],
         "travel_warning": "Emberfall escorts are warning travelers about volatile ash drift."
       },
       {
@@ -252,10 +506,20 @@
         "location_id": "emberfall",
         "turns_to_escalate": 2,
         "escalates_to": "emberfall_guardian_breach",
-        "contract_focus": ["c007_silence_the_weeping_shrine"],
+        "contract_focus": [
+          "c007_silence_the_weeping_shrine"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "ash_adept", "weight": 18},
-          {"type": "enemy", "target": "cultist", "weight": 16}
+          {
+            "type": "enemy",
+            "target": "ash_adept",
+            "weight": 18
+          },
+          {
+            "type": "enemy",
+            "target": "cultist",
+            "weight": 16
+          }
         ],
         "npc_notes": {
           "shrine_caretaker": "Shrine keepers are rotating ward duty in double shifts to hold the ash pressure."
@@ -270,11 +534,20 @@
         "chain_id": "emberfall_ash_chain",
         "weight": 9,
         "location_id": "ashen_stair",
-        "contract_focus": ["c007_silence_the_weeping_shrine"],
+        "contract_focus": [
+          "c007_silence_the_weeping_shrine"
+        ],
         "spawn_enemy": "cinder_guardian",
-        "resolve_on_enemy_defeat": ["cinder_guardian"],
-        "resolve_on_contract_claim": ["c007_silence_the_weeping_shrine"],
-        "faction_effects": {"shrine_keepers": 7, "cult_of_ash": -7},
+        "resolve_on_enemy_defeat": [
+          "cinder_guardian"
+        ],
+        "resolve_on_contract_claim": [
+          "c007_silence_the_weeping_shrine"
+        ],
+        "faction_effects": {
+          "shrine_keepers": 7,
+          "cult_of_ash": -7
+        },
         "travel_warning": "Emberfall has posted breach notices and is dispatching ward escorts only."
       },
       {
@@ -288,8 +561,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "emberfall_sigil_flare",
         "expire_after_turns": 5,
-        "contract_focus": ["c009_blackroot_ash_mark"],
-        "encounter_modifiers": [{"type": "enemy", "target": "ash_wisp", "weight": 14}],
+        "contract_focus": [
+          "c009_blackroot_ash_mark"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ash_wisp",
+            "weight": 14
+          }
+        ],
         "travel_warning": "Relic handlers are restricting Emberfall carriage loading due to sigil interference."
       },
       {
@@ -302,10 +583,20 @@
         "location_id": "ashen_stair",
         "turns_to_escalate": 2,
         "escalates_to": "emberfall_relic_disturbance",
-        "contract_focus": ["c009_blackroot_ash_mark"],
+        "contract_focus": [
+          "c009_blackroot_ash_mark"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "blackroot_stalker", "weight": 20},
-          {"type": "enemy", "target": "blackroot_ambusher", "weight": 16}
+          {
+            "type": "enemy",
+            "target": "blackroot_stalker",
+            "weight": 20
+          },
+          {
+            "type": "enemy",
+            "target": "blackroot_ambusher",
+            "weight": 16
+          }
         ],
         "travel_warning": "Ashland escorts report sigil flare-outs near vault approach lanes."
       },
@@ -317,18 +608,87 @@
         "chain_id": "emberfall_relic_chain",
         "weight": 8,
         "location_id": "ashen_stair",
-        "contract_focus": ["c009_blackroot_ash_mark", "c010_vault_keeper_expedition"],
+        "contract_focus": [
+          "c009_blackroot_ash_mark",
+          "c010_vault_keeper_expedition"
+        ],
         "spawn_enemy": "elite_vault_warden",
-        "resolve_on_enemy_defeat": ["elite_vault_warden"],
-        "resolve_on_contract_claim": ["c009_blackroot_ash_mark"],
-        "faction_effects": {"shrine_keepers": 6, "merchant_guild": 3},
+        "resolve_on_enemy_defeat": [
+          "elite_vault_warden"
+        ],
+        "resolve_on_contract_claim": [
+          "c009_blackroot_ash_mark"
+        ],
+        "faction_effects": {
+          "shrine_keepers": 6,
+          "merchant_guild": 3
+        },
         "travel_warning": "Emberfall route clerks classify current relic traffic as red-seal hazard."
+      },
+      {
+        "event_id": "emberfall_ash_squalls",
+        "name": "Ash Squalls",
+        "summary": "Volatile ash gusts are stripping visibility on Emberfall roads and shrine steps.",
+        "stage": 1,
+        "chain_id": "emberfall_squall_chain",
+        "weight": 12,
+        "location_id": "emberfall",
+        "turns_to_escalate": 2,
+        "escalates_to": "emberfall_shrine_blackout",
+        "expire_after_turns": 6,
+        "contract_focus": [
+          "c002_shrine_ash_clearing",
+          "c007_silence_the_weeping_shrine"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ash_wisp",
+            "weight": 18
+          },
+          {
+            "type": "enemy",
+            "target": "cultist",
+            "weight": 14
+          }
+        ],
+        "travel_warning": "Emberfall guides report ash squalls severe enough to halt unescorted movement."
+      },
+      {
+        "event_id": "emberfall_shrine_blackout",
+        "name": "Shrine Blackout",
+        "summary": "A ward blackout has darkened shrine corridors and emboldened hostile remnants.",
+        "stage": 2,
+        "chain_id": "emberfall_squall_chain",
+        "weight": 9,
+        "location_id": "town_shrine",
+        "contract_focus": [
+          "c007_silence_the_weeping_shrine"
+        ],
+        "spawn_enemy": "shrine_guardian",
+        "resolve_on_enemy_defeat": [
+          "shrine_guardian",
+          "cinder_guardian"
+        ],
+        "resolve_on_contract_claim": [
+          "c007_silence_the_weeping_shrine"
+        ],
+        "faction_effects": {
+          "shrine_keepers": 5,
+          "cult_of_ash": -4
+        },
+        "travel_warning": "Emberfall has posted ward-blackout notices around shrine districts."
       }
     ]
   },
   "ironridge_mountains": {
     "name": "Ironridge Mountains",
-    "locations": ["ironridge_pass", "ironridge_square", "ironridge_forge"],
+    "locations": [
+      "ironridge_pass",
+      "ironridge_square",
+      "ironridge_forge",
+      "ironridge_deep_mine"
+    ],
     "activation_chance": 20,
     "max_active": 1,
     "events": [
@@ -343,8 +703,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "ironridge_convoy_hits",
         "expire_after_turns": 6,
-        "contract_focus": ["c006_break_gorgos_toll"],
-        "encounter_modifiers": [{"type": "enemy", "target": "ridge_raider", "weight": 18}],
+        "contract_focus": [
+          "c006_break_gorgos_toll"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ridge_raider",
+            "weight": 18
+          }
+        ],
         "travel_warning": "Ridge caravans are delaying heavy wagons after toll-watch sightings."
       },
       {
@@ -357,10 +725,20 @@
         "location_id": "ironridge_pass",
         "turns_to_escalate": 2,
         "escalates_to": "ironridge_pass_sundered",
-        "contract_focus": ["c006_break_gorgos_toll"],
+        "contract_focus": [
+          "c006_break_gorgos_toll"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "bandit_toll_guard", "weight": 18},
-          {"type": "enemy", "target": "elite_ironpass_bulwark", "weight": 12}
+          {
+            "type": "enemy",
+            "target": "bandit_toll_guard",
+            "weight": 18
+          },
+          {
+            "type": "enemy",
+            "target": "elite_ironpass_bulwark",
+            "weight": 12
+          }
         ],
         "npc_notes": {
           "thane_brom": "Brom has shifted hold staff to convoy triage and is posting emergency protection rates."
@@ -375,11 +753,21 @@
         "chain_id": "ironridge_toll_chain",
         "weight": 10,
         "location_id": "ironridge_pass",
-        "contract_focus": ["c006_break_gorgos_toll"],
+        "contract_focus": [
+          "c006_break_gorgos_toll"
+        ],
         "spawn_enemy": "gorgos_the_sundered",
-        "resolve_on_enemy_defeat": ["gorgos_the_sundered"],
-        "resolve_on_contract_claim": ["c006_break_gorgos_toll"],
-        "faction_effects": {"kingdom_guard": 7, "merchant_guild": 5, "thieves_circle": -7},
+        "resolve_on_enemy_defeat": [
+          "gorgos_the_sundered"
+        ],
+        "resolve_on_contract_claim": [
+          "c006_break_gorgos_toll"
+        ],
+        "faction_effects": {
+          "kingdom_guard": 7,
+          "merchant_guild": 5,
+          "thieves_circle": -7
+        },
         "travel_warning": "Ironridge authorities classify the pass as active war-zone until the toll warlord falls."
       },
       {
@@ -393,8 +781,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "ironridge_forge_pressure",
         "expire_after_turns": 5,
-        "contract_focus": ["c004_merchant_recovery"],
-        "encounter_modifiers": [{"type": "enemy", "target": "ore_thief", "weight": 18}],
+        "contract_focus": [
+          "c004_merchant_recovery"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ore_thief",
+            "weight": 18
+          }
+        ],
         "travel_warning": "Ironridge ledgers flag repeated ore losses on outbound routes."
       },
       {
@@ -407,10 +803,21 @@
         "location_id": "ironridge_forge",
         "turns_to_escalate": 2,
         "escalates_to": "ironridge_black_haul",
-        "contract_focus": ["c004_merchant_recovery", "c006_break_gorgos_toll"],
+        "contract_focus": [
+          "c004_merchant_recovery",
+          "c006_break_gorgos_toll"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "ridge_raider", "weight": 16},
-          {"type": "enemy", "target": "ore_thief", "weight": 16}
+          {
+            "type": "enemy",
+            "target": "ridge_raider",
+            "weight": 16
+          },
+          {
+            "type": "enemy",
+            "target": "ore_thief",
+            "weight": 16
+          }
         ],
         "travel_warning": "Ironridge forge masters are prioritizing guard steel over civilian work."
       },
@@ -422,18 +829,87 @@
         "chain_id": "ironridge_ore_chain",
         "weight": 9,
         "location_id": "ironridge_pass",
-        "contract_focus": ["c006_break_gorgos_toll"],
+        "contract_focus": [
+          "c006_break_gorgos_toll"
+        ],
         "spawn_enemy": "elite_ironpass_bulwark",
-        "resolve_on_enemy_defeat": ["elite_ironpass_bulwark"],
-        "resolve_on_contract_claim": ["c006_break_gorgos_toll"],
-        "faction_effects": {"merchant_guild": 5, "kingdom_guard": 4},
+        "resolve_on_enemy_defeat": [
+          "elite_ironpass_bulwark"
+        ],
+        "resolve_on_contract_claim": [
+          "c006_break_gorgos_toll"
+        ],
+        "faction_effects": {
+          "merchant_guild": 5,
+          "kingdom_guard": 4
+        },
         "travel_warning": "Ironridge route wardens warn of armed ore-raider hauls on side chutes."
+      },
+      {
+        "event_id": "ironridge_scree_fall",
+        "name": "Scree Fall",
+        "summary": "Fresh scree collapse has narrowed pass lanes and strained Ironridge patrol rotations.",
+        "stage": 1,
+        "chain_id": "ironridge_scree_chain",
+        "weight": 12,
+        "location_id": "ironridge_pass",
+        "turns_to_escalate": 2,
+        "escalates_to": "ironridge_forge_shortfall",
+        "expire_after_turns": 5,
+        "contract_focus": [
+          "c006_break_gorgos_toll"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "stone_ram",
+            "weight": 18
+          },
+          {
+            "type": "enemy",
+            "target": "ridge_raider",
+            "weight": 16
+          }
+        ],
+        "travel_warning": "Ironridge pass wardens warn of unstable scree and delayed patrol relief."
+      },
+      {
+        "event_id": "ironridge_forge_shortfall",
+        "name": "Forge Shortfall",
+        "summary": "Ore theft and route pressure are forcing Ironridge forge crews into rationed output.",
+        "stage": 2,
+        "chain_id": "ironridge_scree_chain",
+        "weight": 10,
+        "location_id": "ironridge_square",
+        "contract_focus": [
+          "c004_merchant_recovery",
+          "c006_break_gorgos_toll"
+        ],
+        "spawn_enemy": "ore_thief",
+        "resolve_on_enemy_defeat": [
+          "ore_thief",
+          "elite_ironpass_bulwark"
+        ],
+        "resolve_on_contract_claim": [
+          "c006_break_gorgos_toll"
+        ],
+        "faction_effects": {
+          "merchant_guild": 3,
+          "kingdom_guard": 3,
+          "thieves_circle": -4
+        },
+        "travel_warning": "Ironridge dispatchers are prioritizing armed ore convoys until forge shortages stabilize."
       }
     ]
   },
   "stormbreak_coast": {
     "name": "Stormbreak Coast",
-    "locations": ["stormbreak", "stormbreak_cliffs", "stormbreak_cove"],
+    "locations": [
+      "stormbreak",
+      "stormbreak_cliffs",
+      "stormbreak_cove",
+      "stormbreak_smuggler_caves"
+    ],
     "activation_chance": 23,
     "max_active": 1,
     "events": [
@@ -448,8 +924,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "stormbreak_ferry_strikes",
         "expire_after_turns": 6,
-        "contract_focus": ["c003_bandit_road_tax"],
-        "encounter_modifiers": [{"type": "enemy", "target": "wreck_diver", "weight": 16}],
+        "contract_focus": [
+          "c003_bandit_road_tax"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "wreck_diver",
+            "weight": 16
+          }
+        ],
         "travel_warning": "Stormbreak ferries are running under coast-watch escort due to tide shadows."
       },
       {
@@ -462,10 +946,20 @@
         "location_id": "stormbreak_cliffs",
         "turns_to_escalate": 2,
         "escalates_to": "stormbreak_breakwater_raid",
-        "contract_focus": ["c003_bandit_road_tax"],
+        "contract_focus": [
+          "c003_bandit_road_tax"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "sea_raider", "weight": 22},
-          {"type": "enemy", "target": "wreck_diver", "weight": 16}
+          {
+            "type": "enemy",
+            "target": "sea_raider",
+            "weight": 22
+          },
+          {
+            "type": "enemy",
+            "target": "wreck_diver",
+            "weight": 16
+          }
         ],
         "npc_notes": {
           "harbor_master_oren": "Oren has moved to emergency berth scheduling and keeps escort ledgers open at all hours."
@@ -480,11 +974,21 @@
         "chain_id": "stormbreak_raider_chain",
         "weight": 10,
         "location_id": "stormbreak_cove",
-        "contract_focus": ["c003_bandit_road_tax", "c004_merchant_recovery"],
+        "contract_focus": [
+          "c003_bandit_road_tax",
+          "c004_merchant_recovery"
+        ],
         "spawn_enemy": "sea_raider",
-        "resolve_on_enemy_defeat": ["sea_raider"],
-        "resolve_on_contract_claim": ["c003_bandit_road_tax"],
-        "faction_effects": {"merchant_guild": 5, "kingdom_guard": 4},
+        "resolve_on_enemy_defeat": [
+          "sea_raider"
+        ],
+        "resolve_on_contract_claim": [
+          "c003_bandit_road_tax"
+        ],
+        "faction_effects": {
+          "merchant_guild": 5,
+          "kingdom_guard": 4
+        },
         "travel_warning": "Stormbreak breakwater is under raid protocol; coast routes are restricted."
       },
       {
@@ -498,8 +1002,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "stormbreak_shore_pack",
         "expire_after_turns": 5,
-        "contract_focus": ["c008_alpha_on_ashwood_trail"],
-        "encounter_modifiers": [{"type": "enemy", "target": "ashwood_stalker", "weight": 14}],
+        "contract_focus": [
+          "c008_alpha_on_ashwood_trail"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ashwood_stalker",
+            "weight": 14
+          }
+        ],
         "travel_warning": "Stormbreak trail signs warn of aggressive hunter emergency zones."
       },
       {
@@ -512,10 +1024,20 @@
         "location_id": "stormbreak_cliffs",
         "turns_to_escalate": 2,
         "escalates_to": "stormbreak_tide_alpha",
-        "contract_focus": ["c008_alpha_on_ashwood_trail"],
+        "contract_focus": [
+          "c008_alpha_on_ashwood_trail"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "dire_wolf", "weight": 16},
-          {"type": "enemy", "target": "sea_raider", "weight": 14}
+          {
+            "type": "enemy",
+            "target": "dire_wolf",
+            "weight": 16
+          },
+          {
+            "type": "enemy",
+            "target": "sea_raider",
+            "weight": 14
+          }
         ],
         "travel_warning": "Stormbreak scouts report mixed pack movement crossing major coast paths."
       },
@@ -527,18 +1049,86 @@
         "chain_id": "stormbreak_hunter_chain",
         "weight": 9,
         "location_id": "stormbreak_cove",
-        "contract_focus": ["c008_alpha_on_ashwood_trail"],
+        "contract_focus": [
+          "c008_alpha_on_ashwood_trail"
+        ],
         "spawn_enemy": "elite_ashwood_fanglord",
-        "resolve_on_enemy_defeat": ["elite_ashwood_fanglord"],
-        "resolve_on_contract_claim": ["c008_alpha_on_ashwood_trail"],
-        "faction_effects": {"hunters_guild": 5, "forest_clans": 3},
+        "resolve_on_enemy_defeat": [
+          "elite_ashwood_fanglord"
+        ],
+        "resolve_on_contract_claim": [
+          "c008_alpha_on_ashwood_trail"
+        ],
+        "faction_effects": {
+          "hunters_guild": 5,
+          "forest_clans": 3
+        },
         "travel_warning": "Stormbreak hunting routes are red-marked for dominant predator activity."
+      },
+      {
+        "event_id": "stormbreak_wreck_sightings",
+        "name": "Wreck Sightings",
+        "summary": "Broken hulls and salvage markers are drawing risky crews into Stormbreak surf lanes.",
+        "stage": 1,
+        "chain_id": "stormbreak_salvage_chain",
+        "weight": 12,
+        "location_id": "stormbreak_cove",
+        "turns_to_escalate": 2,
+        "escalates_to": "stormbreak_salvage_war",
+        "expire_after_turns": 5,
+        "contract_focus": [
+          "c004_merchant_recovery"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "wreck_diver",
+            "weight": 20
+          },
+          {
+            "type": "enemy",
+            "target": "sea_raider",
+            "weight": 16
+          }
+        ],
+        "travel_warning": "Stormbreak ferrymasters warn that salvage traffic is clogging safe approach lanes."
+      },
+      {
+        "event_id": "stormbreak_salvage_war",
+        "name": "Salvage War",
+        "summary": "Rival salvage crews backed by raiders are fighting over wreck claims near Stormbreak.",
+        "stage": 2,
+        "chain_id": "stormbreak_salvage_chain",
+        "weight": 9,
+        "location_id": "stormbreak",
+        "contract_focus": [
+          "c004_merchant_recovery"
+        ],
+        "spawn_enemy": "sea_raider",
+        "resolve_on_enemy_defeat": [
+          "sea_raider",
+          "wreck_diver"
+        ],
+        "resolve_on_contract_claim": [
+          "c004_merchant_recovery"
+        ],
+        "faction_effects": {
+          "merchant_guild": 4,
+          "hunters_guild": 2,
+          "thieves_circle": -5
+        },
+        "travel_warning": "Stormbreak harbor has posted armed marshals on salvage piers after repeated crew clashes."
       }
     ]
   },
   "vaultreach_ruins": {
     "name": "Vaultreach Ruins",
-    "locations": ["vaultreach", "ashen_stair", "ashen_vault"],
+    "locations": [
+      "vaultreach",
+      "ashen_stair",
+      "ashen_vault",
+      "vaultreach_lower_archives"
+    ],
     "activation_chance": 19,
     "max_active": 1,
     "events": [
@@ -553,8 +1143,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "vaultreach_guardian_drift",
         "expire_after_turns": 6,
-        "contract_focus": ["c009_blackroot_ash_mark"],
-        "encounter_modifiers": [{"type": "enemy", "target": "ash_wisp", "weight": 16}],
+        "contract_focus": [
+          "c009_blackroot_ash_mark"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ash_wisp",
+            "weight": 16
+          }
+        ],
         "travel_warning": "Vaultreach scribes caution that relic resonance is rising near the stair."
       },
       {
@@ -567,10 +1165,20 @@
         "location_id": "ashen_stair",
         "turns_to_escalate": 2,
         "escalates_to": "vaultreach_keeper_wake",
-        "contract_focus": ["c010_vault_keeper_expedition"],
+        "contract_focus": [
+          "c010_vault_keeper_expedition"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "elite_vault_warden", "weight": 20},
-          {"type": "enemy", "target": "bone_warden", "weight": 16}
+          {
+            "type": "enemy",
+            "target": "elite_vault_warden",
+            "weight": 20
+          },
+          {
+            "type": "enemy",
+            "target": "bone_warden",
+            "weight": 16
+          }
         ],
         "travel_warning": "Vaultreach route guides report guardian drift on active descent corridors."
       },
@@ -582,11 +1190,20 @@
         "chain_id": "vaultreach_keeper_chain",
         "weight": 10,
         "location_id": "ashen_vault",
-        "contract_focus": ["c010_vault_keeper_expedition"],
+        "contract_focus": [
+          "c010_vault_keeper_expedition"
+        ],
         "spawn_enemy": "vault_keeper",
-        "resolve_on_enemy_defeat": ["vault_keeper"],
-        "resolve_on_contract_claim": ["c010_vault_keeper_expedition"],
-        "faction_effects": {"shrine_keepers": 7, "kingdom_guard": 4},
+        "resolve_on_enemy_defeat": [
+          "vault_keeper"
+        ],
+        "resolve_on_contract_claim": [
+          "c010_vault_keeper_expedition"
+        ],
+        "faction_effects": {
+          "shrine_keepers": 7,
+          "kingdom_guard": 4
+        },
         "travel_warning": "Vaultreach has issued keeper-wake notices; descent is restricted to sealed parties."
       },
       {
@@ -600,8 +1217,16 @@
         "turns_to_escalate": 2,
         "escalates_to": "vaultreach_blackroot_push",
         "expire_after_turns": 5,
-        "contract_focus": ["c009_blackroot_ash_mark"],
-        "encounter_modifiers": [{"type": "enemy", "target": "cultist", "weight": 18}],
+        "contract_focus": [
+          "c009_blackroot_ash_mark"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "cultist",
+            "weight": 18
+          }
+        ],
         "travel_warning": "Vaultreach patrols are removing fresh ash-cult marks from convoy stone."
       },
       {
@@ -614,10 +1239,20 @@
         "location_id": "ashen_stair",
         "turns_to_escalate": 2,
         "escalates_to": "vaultreach_relic_breach",
-        "contract_focus": ["c009_blackroot_ash_mark"],
+        "contract_focus": [
+          "c009_blackroot_ash_mark"
+        ],
         "encounter_modifiers": [
-          {"type": "enemy", "target": "blackroot_ambusher", "weight": 20},
-          {"type": "enemy", "target": "blackroot_stalker", "weight": 16}
+          {
+            "type": "enemy",
+            "target": "blackroot_ambusher",
+            "weight": 20
+          },
+          {
+            "type": "enemy",
+            "target": "blackroot_stalker",
+            "weight": 16
+          }
         ],
         "travel_warning": "Vaultreach convoy officers warn of Blackroot pressure near sealed steps."
       },
@@ -629,12 +1264,77 @@
         "chain_id": "vaultreach_cult_chain",
         "weight": 9,
         "location_id": "ashen_vault",
-        "contract_focus": ["c009_blackroot_ash_mark", "c010_vault_keeper_expedition"],
+        "contract_focus": [
+          "c009_blackroot_ash_mark",
+          "c010_vault_keeper_expedition"
+        ],
         "spawn_enemy": "ash_herald",
-        "resolve_on_enemy_defeat": ["ash_herald"],
-        "resolve_on_contract_claim": ["c009_blackroot_ash_mark"],
-        "faction_effects": {"shrine_keepers": 6, "cult_of_ash": -7},
+        "resolve_on_enemy_defeat": [
+          "ash_herald"
+        ],
+        "resolve_on_contract_claim": [
+          "c009_blackroot_ash_mark"
+        ],
+        "faction_effects": {
+          "shrine_keepers": 6,
+          "cult_of_ash": -7
+        },
         "travel_warning": "Vaultreach relay stones are signaling an active relic breach attempt."
+      },
+      {
+        "event_id": "vaultreach_seal_drift",
+        "name": "Seal Drift",
+        "summary": "Archive seals are misaligning in Vaultreach lower stacks and opening unsafe access routes.",
+        "stage": 1,
+        "chain_id": "vaultreach_construct_chain",
+        "weight": 11,
+        "location_id": "vaultreach_lower_archives",
+        "turns_to_escalate": 2,
+        "escalates_to": "vaultreach_construct_stir",
+        "expire_after_turns": 6,
+        "contract_focus": [
+          "c009_blackroot_ash_mark",
+          "c010_vault_keeper_expedition"
+        ],
+        "encounter_modifiers": [
+          {
+            "type": "enemy",
+            "target": "ash_adept",
+            "weight": 16
+          },
+          {
+            "type": "enemy",
+            "target": "elite_vault_warden",
+            "weight": 14
+          }
+        ],
+        "travel_warning": "Vaultreach archivists are restricting lower-stack access while seal drift is tracked."
+      },
+      {
+        "event_id": "vaultreach_construct_stir",
+        "name": "Construct Stir",
+        "summary": "Dormant archive constructs are waking and forcing emergency lockdown in Vaultreach routes.",
+        "stage": 2,
+        "chain_id": "vaultreach_construct_chain",
+        "weight": 8,
+        "location_id": "ashen_vault",
+        "contract_focus": [
+          "c010_vault_keeper_expedition"
+        ],
+        "spawn_enemy": "elite_vault_warden",
+        "resolve_on_enemy_defeat": [
+          "elite_vault_warden",
+          "vault_keeper"
+        ],
+        "resolve_on_contract_claim": [
+          "c010_vault_keeper_expedition"
+        ],
+        "faction_effects": {
+          "hunters_guild": 3,
+          "shrine_keepers": 4,
+          "cult_of_ash": -4
+        },
+        "travel_warning": "Vaultreach has sealed several archive doors after construct activity breached containment lines."
       }
     ]
   }

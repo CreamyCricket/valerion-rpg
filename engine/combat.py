@@ -113,6 +113,12 @@ class CombatEngine:
         "ash_horror": {"attack_stat": "mind", "skill_focus": ["spellcasting", "lore"], "allowed_abilities": ["ashen_brand", "cinder_burst", "warding_hex"], "preferred_abilities": ["ashen_brand", "warding_hex", "cinder_burst"]},
         "vault_sentinel": {"attack_stat": "strength", "skill_focus": ["defense", "lore"], "allowed_abilities": ["fortified_shell", "core_lance", "stomp"], "preferred_abilities": ["fortified_shell", "core_lance", "stomp"]},
     }
+    STATUS_LIBRARY = {
+        "bleed": {"name": "Bleed", "default_duration": 3, "kind": "dot", "damage": 1},
+        "poison": {"name": "Poison", "default_duration": 3, "kind": "dot", "damage": 1},
+        "stun": {"name": "Stun", "default_duration": 1, "kind": "control"},
+        "mark": {"name": "Mark", "default_duration": 2, "kind": "vulnerability", "damage_bonus": 1},
+    }
     ENEMY_ABILITIES = {
         "bite": {
             "name": "Bite",
@@ -152,6 +158,7 @@ class CombatEngine:
             "damage": 2,
             "accuracy_bonus": 1,
             "target_attack_penalty": 1,
+            "apply_status": {"id": "poison", "duration": 3},
         },
         "web_trap": {
             "name": "Web Trap",
@@ -174,6 +181,7 @@ class CombatEngine:
             "scale_skill": "swordsmanship",
             "damage": 2,
             "accuracy_bonus": 1,
+            "apply_status": {"id": "bleed", "duration": 2},
         },
         "dirty_trick": {
             "name": "Dirty Trick",
@@ -229,6 +237,7 @@ class CombatEngine:
             "accuracy_bonus": 1,
             "buff": {"defense_bonus": 1},
             "target_attack_penalty": 1,
+            "apply_status": {"id": "mark", "duration": 2},
         },
         "maul": {
             "name": "Maul",
@@ -370,6 +379,7 @@ class CombatEngine:
             "accuracy_bonus": 1,
             "target_attack_penalty": 1,
             "target_defense_penalty": 1,
+            "apply_status": {"id": "stun", "duration": 1},
         },
         "desperate_rally": {
             "name": "Desperate Rally",
@@ -520,11 +530,28 @@ class CombatEngine:
         max_abilities = self._max_enemy_abilities(level)
         resolved_ids = []
 
+        ability_overrides = {}
         for raw_ability in requested if isinstance(requested, list) else []:
-            ability_id = self._normalize_key(raw_ability)
+            if isinstance(raw_ability, dict):
+                ability_id = self._normalize_key(raw_ability.get("id", ""))
+            else:
+                ability_id = self._normalize_key(raw_ability)
             ability = self.ENEMY_ABILITIES.get(ability_id)
             if not ability or ability_id not in allowed or level < int(ability.get("min_level", 1)):
                 continue
+            if isinstance(raw_ability, dict):
+                override = {}
+                telegraph = str(raw_ability.get("telegraph", "")).strip()
+                if telegraph:
+                    override["telegraph"] = telegraph
+                delay = raw_ability.get("delay")
+                if delay is not None:
+                    try:
+                        override["delay"] = max(0, int(delay))
+                    except (TypeError, ValueError):
+                        pass
+                if override:
+                    ability_overrides[ability_id] = override
             if ability_id not in resolved_ids:
                 resolved_ids.append(ability_id)
             if len(resolved_ids) >= max_abilities:
@@ -540,7 +567,13 @@ class CombatEngine:
                 if len(resolved_ids) >= max_abilities:
                     break
 
-        return [{"id": ability_id, **self.ENEMY_ABILITIES[ability_id]} for ability_id in resolved_ids]
+        resolved = []
+        for ability_id in resolved_ids:
+            entry = {"id": ability_id, **self.ENEMY_ABILITIES[ability_id]}
+            if ability_id in ability_overrides:
+                entry.update(ability_overrides[ability_id])
+            resolved.append(entry)
+        return resolved
 
     def _enemy_profile(self, enemy_id: str, enemy_data: dict, combat_modifiers: dict | None = None) -> dict:
         combat_modifiers = combat_modifiers or {}
@@ -735,12 +768,102 @@ class CombatEngine:
                 parts.append(f"{sign}{abs(amount)} {label}")
         return ", ".join(parts)
 
+    def _normalize_status_id(self, status_id: str) -> str:
+        normalized = self._normalize_key(status_id)
+        return normalized if normalized in self.STATUS_LIBRARY else ""
+
+    def _status_name(self, status_id: str) -> str:
+        normalized = self._normalize_status_id(status_id)
+        if not normalized:
+            return "Status"
+        return str(self.STATUS_LIBRARY[normalized].get("name", normalized.title()))
+
+    def _apply_status(self, state: dict, status_id: str, duration: int) -> int:
+        normalized = self._normalize_status_id(status_id)
+        if not normalized:
+            return 0
+        statuses = state.setdefault("statuses", {})
+        turns = max(1, int(duration))
+        current = max(0, int(statuses.get(normalized, 0) or 0))
+        statuses[normalized] = max(current, turns)
+        return int(statuses[normalized])
+
+    def _apply_status_payload(self, target_state: dict, payload) -> list[tuple[str, int]]:
+        if not payload:
+            return []
+        entries = payload if isinstance(payload, list) else [payload]
+        applied = []
+        for entry in entries:
+            if isinstance(entry, str):
+                status_id = self._normalize_status_id(entry)
+                duration = int(self.STATUS_LIBRARY.get(status_id, {}).get("default_duration", 1))
+            elif isinstance(entry, dict):
+                status_id = self._normalize_status_id(entry.get("id", ""))
+                duration = int(entry.get("duration", self.STATUS_LIBRARY.get(status_id, {}).get("default_duration", 1)) or 1)
+            else:
+                continue
+            if not status_id:
+                continue
+            turns = self._apply_status(target_state, status_id, duration)
+            applied.append((status_id, turns))
+        return applied
+
+    def _status_damage_bonus(self, target_state: dict) -> int:
+        statuses = target_state.get("statuses", {})
+        if not isinstance(statuses, dict):
+            return 0
+        if int(statuses.get("mark", 0) or 0) > 0:
+            return int(self.STATUS_LIBRARY["mark"].get("damage_bonus", 0))
+        return 0
+
+    def _resolve_turn_start_statuses(self, state: dict) -> tuple[int, bool, list[str]]:
+        statuses = state.get("statuses", {})
+        if not isinstance(statuses, dict) or not statuses:
+            return 0, False, []
+
+        total_damage = 0
+        stunned = False
+        lines = []
+        for status_id in list(statuses.keys()):
+            turns = max(0, int(statuses.get(status_id, 0) or 0))
+            if turns <= 0:
+                statuses.pop(status_id, None)
+                continue
+
+            status = self.STATUS_LIBRARY.get(status_id, {})
+            status_name = str(status.get("name", status_id.title()))
+            kind = str(status.get("kind", "")).strip().lower()
+
+            if kind == "dot":
+                damage = max(0, int(status.get("damage", 0) or 0))
+                if damage > 0:
+                    total_damage += damage
+                    lines.append(f"suffers {status_name} ({turns} turns) and takes {damage} damage")
+            elif status_id == "stun":
+                stunned = True
+                lines.append(f"is afflicted by {status_name}")
+
+            turns -= 1
+            if turns > 0:
+                statuses[status_id] = turns
+            else:
+                statuses.pop(status_id, None)
+
+        return total_damage, stunned, lines
+
     def _available_enemy_abilities(self, profile: dict, enemy_focus: int) -> list[dict]:
         return [ability for ability in profile["abilities"] if int(ability.get("cost", 0)) <= enemy_focus]
 
     def _find_enemy_ability(self, profile: dict, ability_id: str, enemy_focus: int) -> dict | None:
         normalized = self._normalize_key(ability_id)
         for ability in self._available_enemy_abilities(profile, enemy_focus):
+            if ability.get("id") == normalized:
+                return ability
+        return None
+
+    def _find_enemy_ability_any(self, profile: dict, ability_id: str) -> dict | None:
+        normalized = self._normalize_key(ability_id)
+        for ability in profile.get("abilities", []):
             if ability.get("id") == normalized:
                 return ability
         return None
@@ -885,7 +1008,7 @@ class CombatEngine:
             return None
 
         if forced_ability_id:
-            forced = self._find_enemy_ability(profile, forced_ability_id, enemy_focus)
+            forced = self._find_enemy_ability_any(profile, forced_ability_id)
             if forced:
                 return forced
 
@@ -973,6 +1096,15 @@ class CombatEngine:
         turn: int,
         forced_ability_id: str | None = None,
     ) -> tuple[str, int]:
+        queued_ability_id = str(enemy_state.get("telegraphed_ability_id", "")).strip().lower()
+        if queued_ability_id:
+            remaining = max(0, int(enemy_state.get("telegraph_turns_remaining", 0) or 0))
+            if remaining > 0:
+                enemy_state["telegraph_turns_remaining"] = remaining - 1
+            if int(enemy_state.get("telegraph_turns_remaining", 0)) <= 0:
+                forced_ability_id = queued_ability_id
+                enemy_state["telegraphed_ability_id"] = ""
+
         ability = self._select_enemy_ability(
             profile,
             behavior,
@@ -985,6 +1117,14 @@ class CombatEngine:
         )
         if not ability:
             return self._basic_enemy_attack(player, profile, enemy_name, enemy_attack, items_data, enemy_state, player_state, behavior, turn), enemy_focus
+
+        if not forced_ability_id:
+            telegraph_text = str(ability.get("telegraph", "")).strip()
+            telegraph_delay = max(0, int(ability.get("delay", 0) or 0))
+            if telegraph_text and telegraph_delay > 0:
+                enemy_state["telegraphed_ability_id"] = str(ability.get("id", "")).strip().lower()
+                enemy_state["telegraph_turns_remaining"] = telegraph_delay
+                return f"Turn {turn}: {enemy_name} {telegraph_text}.", enemy_focus
 
         enemy_focus -= int(ability.get("cost", 0))
         effect = ability
@@ -1019,7 +1159,13 @@ class CombatEngine:
                 f"against your DEF {player_defense} and fails to connect."
             ), enemy_focus
 
-        base_damage = max(0, int(effect.get("damage", 0)) + self._enemy_ability_scale_bonus(profile, effect) + int(enemy_state.get("damage_bonus", 0)))
+        base_damage = max(
+            0,
+            int(effect.get("damage", 0))
+            + self._enemy_ability_scale_bonus(profile, effect)
+            + int(enemy_state.get("damage_bonus", 0))
+            + self._status_damage_bonus(player_state),
+        )
         critical = base_damage > 0 and roll["die"] >= self._crit_threshold(self._enemy_crit_chance(profile, attack_stat, enemy_state) + int(effect.get("crit_bonus", 0)))
         if critical:
             base_damage += max(1, base_damage // 2)
@@ -1039,6 +1185,9 @@ class CombatEngine:
             enemy_state["used_buffs"].add(ability["id"])
         if penalty_summary:
             details.append(penalty_summary)
+        applied_statuses = self._apply_status_payload(player_state, effect.get("apply_status"))
+        for status_id, turns in applied_statuses:
+            details.append(f"inflicts {self._status_name(status_id)} ({turns} turns)")
         if heal_amount:
             details.append(f"heals {heal_amount} HP")
         if drained:
@@ -1096,21 +1245,38 @@ class CombatEngine:
             "crit_bonus": 0,
             "used_buffs": set(),
             "used_phase_rules": set(),
+            "telegraphed_ability_id": "",
+            "telegraph_turns_remaining": 0,
+            "statuses": {},
         }
         player_state = {
             "attack_penalty": 0,
             "defense_penalty": 0,
             "dodge_penalty": 0,
+            "statuses": {},
         }
 
         while player.is_alive() and enemy_hp > 0:
+            player_status_damage, player_stunned, player_status_lines = self._resolve_turn_start_statuses(player_state)
+            if player_status_damage > 0:
+                player.hp = max(0, player.hp - player_status_damage)
+            for status_line in player_status_lines:
+                if "suffers" in status_line:
+                    log.append(f"Turn {turn}: You {status_line} (your HP: {player.hp}/{player.max_hp}).")
+            if player_stunned:
+                log.append(f"Turn {turn}: You are stunned and lose your turn.")
+                turn += 1
+                continue
+            if not player.is_alive():
+                break
+
             player_attack = max(1, player.attack_value(items_data))
             player_attack_modifier = max(1, player.attack_roll_modifier(items_data) - int(player_state.get("attack_penalty", 0)))
             player_roll = self.dice.roll_d20(player_attack_modifier)
             effective_enemy_defense = self._enemy_defense_value(profile, enemy_defense, enemy_state, behavior)
             effective_enemy_defense = max(5, effective_enemy_defense - int(player.combat_boosts.get("enemy_defense_penalty", 0)))
             if player_roll["total"] >= effective_enemy_defense:
-                player_damage = max(1, player_attack - self._enemy_resilience(profile, enemy_state))
+                player_damage = max(1, player_attack - self._enemy_resilience(profile, enemy_state) + self._status_damage_bonus(enemy_state))
                 critical_hit = player_roll["die"] >= player.crit_threshold(items_data)
                 if critical_hit:
                     player_damage = player.critical_damage(player_damage)
@@ -1130,6 +1296,20 @@ class CombatEngine:
 
             if enemy_hp <= 0:
                 break
+
+            enemy_status_damage, enemy_stunned, enemy_status_lines = self._resolve_turn_start_statuses(enemy_state)
+            if enemy_status_damage > 0:
+                enemy_hp = max(0, enemy_hp - enemy_status_damage)
+                enemy_state["hp"] = enemy_hp
+            for status_line in enemy_status_lines:
+                if "suffers" in status_line:
+                    log.append(f"Turn {turn}: {enemy_name} {status_line} (enemy HP: {enemy_hp}).")
+            if enemy_hp <= 0:
+                break
+            if enemy_stunned:
+                log.append(f"Turn {turn}: {enemy_name} is stunned and loses its turn.")
+                turn += 1
+                continue
 
             if behavior == "cowardly" and enemy_hp <= max(1, int(enemy_state["max_hp"] * 0.3)):
                 enemy_fled = True

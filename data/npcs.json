@@ -2,7 +2,10 @@
   "elder": {
     "name": "Elder",
     "role": "Village elder",
-    "aliases": ["village elder", "elder of the village"],
+    "aliases": [
+      "village elder",
+      "elder of the village"
+    ],
     "dialogue": "The Elder watches the roads like someone counting losses before they happen, because in a small village every journey changes more than one life.",
     "faction": "forest_clans",
     "important": true
@@ -10,16 +13,27 @@
   "merchant": {
     "name": "Merchant",
     "role": "Trader",
-    "aliases": ["shopkeeper", "trader", "traveling merchant"],
+    "aliases": [
+      "shopkeeper",
+      "trader",
+      "traveling merchant"
+    ],
     "dialogue": "The Merchant keeps one eye on stock, one eye on the door, and enough patience to treat coin, rumor, and danger as parts of the same trade.",
     "faction": "merchant_guild",
     "important": true,
-    "shop_inventory": ["potion", "herb", "bandage"]
+    "shop_inventory": [
+      "potion",
+      "herb",
+      "bandage"
+    ]
   },
   "scout": {
     "name": "Scout",
     "role": "Pathfinder",
-    "aliases": ["forest scout", "watchtower scout"],
+    "aliases": [
+      "forest scout",
+      "watchtower scout"
+    ],
     "dialogue": "The Scout reads the road in snapped twigs and trampled mud, as if every passing threat signed its own report.",
     "faction": "kingdom_guard",
     "important": true
@@ -27,7 +41,10 @@
   "caretaker": {
     "name": "Caretaker",
     "role": "Shrine keeper",
-    "aliases": ["shrine caretaker", "shrine keeper"],
+    "aliases": [
+      "shrine caretaker",
+      "shrine keeper"
+    ],
     "dialogue": "The Caretaker handles every cracked rune as if care itself might be the only thing still holding the shrine's history together.",
     "faction": "shrine_keepers",
     "important": true
@@ -35,7 +52,10 @@
   "captain": {
     "name": "Captain",
     "role": "Village guard captain",
-    "aliases": ["guard captain", "captain of the guard"],
+    "aliases": [
+      "guard captain",
+      "captain of the guard"
+    ],
     "dialogue": "The Captain speaks like someone who has no time for ornament and too much experience with small threats turning into funerals.",
     "faction": "kingdom_guard",
     "important": true
@@ -43,7 +63,10 @@
   "ferryman": {
     "name": "Ferryman",
     "role": "River guide",
-    "aliases": ["river ferryman", "boatman"],
+    "aliases": [
+      "river ferryman",
+      "boatman"
+    ],
     "dialogue": "The Ferryman remembers every face that boards in haste, every cart that creaks too heavily, and every crossing people later wish they had delayed.",
     "faction": "merchant_guild",
     "important": true
@@ -51,7 +74,10 @@
   "scholar": {
     "name": "Scholar",
     "role": "Ruins scholar",
-    "aliases": ["ruins scholar", "researcher"],
+    "aliases": [
+      "ruins scholar",
+      "researcher"
+    ],
     "dialogue": "The Scholar treats the ruins like a wounded archive, convinced the old stones still say useful things if someone listens carefully enough.",
     "faction": "shrine_keepers",
     "important": true
@@ -59,7 +85,10 @@
   "hermit": {
     "name": "Hermit",
     "role": "Cave hermit",
-    "aliases": ["cave hermit", "recluse"],
+    "aliases": [
+      "cave hermit",
+      "recluse"
+    ],
     "dialogue": "The Hermit trusts cave echoes more than most travelers, insisting stone lies less often than frightened people do.",
     "faction": "forest_clans",
     "important": true
@@ -67,7 +96,10 @@
   "traveler": {
     "name": "Traveler",
     "role": "Road-worn traveler",
-    "aliases": ["injured traveler", "wanderer"],
+    "aliases": [
+      "injured traveler",
+      "wanderer"
+    ],
     "dialogue": "The Traveler looks like someone who has already spent too much pride staying on their feet this long.",
     "faction": "forest_clans",
     "important": true
@@ -75,7 +107,11 @@
   "gatewarden": {
     "name": "Gatewarden",
     "role": "Stonewatch gate warden",
-    "aliases": ["town guard", "warden", "gate guard"],
+    "aliases": [
+      "town guard",
+      "warden",
+      "gate guard"
+    ],
     "dialogue": "The Gatewarden checks wagons, faces, and weather with the same patient care, because Stonewatch stays calm only if its threshold stays watched.",
     "faction": "kingdom_guard",
     "important": true,
@@ -108,7 +144,12 @@
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "roads", "travel", "ironridge"],
+        "topics": [
+          "rumors",
+          "roads",
+          "travel",
+          "ironridge"
+        ],
         "text": "Ironridge keeps the mountain line open, but the pass only truly relaxes after Gorgos the Sundered stops owning it."
       }
     ]
@@ -116,7 +157,11 @@
   "market_broker": {
     "name": "Market Broker",
     "role": "Square broker",
-    "aliases": ["broker", "market seller", "factor"],
+    "aliases": [
+      "broker",
+      "market seller",
+      "factor"
+    ],
     "dialogue": "The Market Broker tracks shortages, caravan delays, and salvage prices with the calm of someone who knows town coin moves on rumor almost as often as goods.",
     "faction": "merchant_guild",
     "important": true,
@@ -146,84 +191,206 @@
     "rumors": [
       {
         "priority": 3,
-        "topics": ["rumors", "contracts", "wolves", "forest"],
+        "topics": [
+          "rumors",
+          "contracts",
+          "wolves",
+          "forest"
+        ],
         "text": "Wolfpack Culling still pays because Ashwood packs keep testing the line whenever the road looks soft."
       },
       {
         "priority": 2,
-        "topics": ["rumors", "contracts", "vault", "relics"],
+        "topics": [
+          "rumors",
+          "contracts",
+          "vault",
+          "relics"
+        ],
         "text": "Blackroot Ash Mark is the sort of contract people whisper about before they earn the right to read the posting."
       }
     ],
-    "shop_inventory": ["bread_ration", "bandage_kit", "torch_bundle", "herb_bundle", "iron_scrap", "healing_potion"],
-    "buy_types": ["weapon", "armor", "consumable", "utility", "gear", "loot"]
+    "shop_inventory": [
+      "bread_ration",
+      "bandage_kit",
+      "torch_bundle",
+      "herb_bundle",
+      "iron_scrap",
+      "healing_potion"
+    ],
+    "buy_types": [
+      "weapon",
+      "armor",
+      "consumable",
+      "utility",
+      "gear",
+      "loot"
+    ]
   },
   "blacksmith": {
     "name": "Blacksmith",
     "role": "Forge master",
-    "aliases": ["smith", "forge master", "armorer"],
+    "aliases": [
+      "smith",
+      "forge master",
+      "armorer"
+    ],
     "dialogue": "The Blacksmith speaks like steel ought to be honest, with no patience for flashy junk and plenty for people who mean to survive what they buy or bring in for work.",
     "faction": "merchant_guild",
     "important": true,
-    "shop_inventory": ["iron_scrap", "iron_sword", "war_axe", "battle_axe", "padded_coat", "chain_vest", "iron_mail", "iron_shield"],
-    "buy_types": ["weapon", "armor", "loot"]
+    "shop_inventory": [
+      "iron_scrap",
+      "iron_sword",
+      "war_axe",
+      "battle_axe",
+      "padded_coat",
+      "chain_vest",
+      "iron_mail",
+      "iron_shield"
+    ],
+    "buy_types": [
+      "weapon",
+      "armor",
+      "loot"
+    ]
   },
   "arcanist": {
     "name": "Arcanist",
     "role": "Mage supplier",
-    "aliases": ["mage merchant", "mage seller", "spell merchant"],
+    "aliases": [
+      "mage merchant",
+      "mage seller",
+      "spell merchant"
+    ],
     "dialogue": "The Arcanist arranges powders, glass, and warded tools with exact care, treating reagents, tonics, and focus pieces as things that punish sloppy buyers.",
     "faction": "shrine_keepers",
     "important": true,
-    "shop_inventory": ["herb_bundle", "slime_gel", "shrine_ash", "apprentice_staff", "spell_focus", "ember_focus", "mana_tonic", "focus_draught", "novice_grimoire", "warded_cloak"],
-    "buy_types": ["weapon", "consumable", "gear", "loot"]
+    "shop_inventory": [
+      "herb_bundle",
+      "slime_gel",
+      "shrine_ash",
+      "apprentice_staff",
+      "spell_focus",
+      "ember_focus",
+      "mana_tonic",
+      "focus_draught",
+      "novice_grimoire",
+      "warded_cloak"
+    ],
+    "buy_types": [
+      "weapon",
+      "consumable",
+      "gear",
+      "loot"
+    ]
   },
   "fletcher": {
     "name": "Fletcher",
     "role": "Weapons merchant",
-    "aliases": ["bowyer", "weapons dealer", "arrow maker"],
+    "aliases": [
+      "bowyer",
+      "weapons dealer",
+      "arrow maker"
+    ],
     "dialogue": "The Fletcher talks about balance, reach, and timing with the dry certainty of someone who expects customers to know what kind of road they are paying for.",
     "faction": "merchant_guild",
     "important": true,
-    "shop_inventory": ["wolf_pelt", "spider_silk", "dagger", "hunting_spear", "hunting_bow", "longbow", "leather_armor", "wolfhide_vest"],
-    "buy_types": ["weapon", "armor", "loot"]
+    "shop_inventory": [
+      "wolf_pelt",
+      "spider_silk",
+      "dagger",
+      "hunting_spear",
+      "hunting_bow",
+      "longbow",
+      "leather_armor",
+      "wolfhide_vest"
+    ],
+    "buy_types": [
+      "weapon",
+      "armor",
+      "loot"
+    ]
   },
   "innkeeper": {
     "name": "Innkeeper",
     "role": "Inn host",
-    "aliases": ["host", "bartender", "keeper"],
+    "aliases": [
+      "host",
+      "bartender",
+      "keeper"
+    ],
     "dialogue": "The Innkeeper keeps a warm room, cheap food, and enough discretion to let road-worn strangers feel human again before morning, so long as they pay before they vanish.",
     "faction": "merchant_guild",
     "important": true,
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "roads", "travel", "stormbreak"],
+        "topics": [
+          "rumors",
+          "roads",
+          "travel",
+          "stormbreak"
+        ],
         "text": "Stormbreak's ferries still run, but only fools mistake a paid berth for a safe coast."
       },
       {
         "priority": 1,
-        "topics": ["rumors", "routes", "emberfall", "vaultreach"],
+        "topics": [
+          "rumors",
+          "routes",
+          "emberfall",
+          "vaultreach"
+        ],
         "text": "Emberfall sends people on under ward and ledger, and Vaultreach sends back only the ones the line did not break."
       }
     ],
-    "shop_inventory": ["bread_ration", "bandage_kit", "torch_bundle", "herb_bundle"],
-    "buy_types": ["consumable", "utility", "loot"]
+    "shop_inventory": [
+      "bread_ration",
+      "bandage_kit",
+      "torch_bundle",
+      "herb_bundle"
+    ],
+    "buy_types": [
+      "consumable",
+      "utility",
+      "loot"
+    ]
   },
   "quartermaster": {
     "name": "Quartermaster",
     "role": "Watch quartermaster",
-    "aliases": ["watch quartermaster", "barracks quartermaster", "armory clerk"],
+    "aliases": [
+      "watch quartermaster",
+      "barracks quartermaster",
+      "armory clerk"
+    ],
     "dialogue": "The Quartermaster keeps Stonewatch's watch supplied with plain gear, sharper records, and a suspicion of anyone who wastes either, especially on the town's coin.",
     "faction": "kingdom_guard",
     "important": true,
-    "shop_inventory": ["iron_scrap", "iron_shield", "padded_coat", "chain_vest", "bandage_kit", "torch_bundle"],
-    "buy_types": ["weapon", "armor", "consumable", "utility", "loot"]
+    "shop_inventory": [
+      "iron_scrap",
+      "iron_shield",
+      "padded_coat",
+      "chain_vest",
+      "bandage_kit",
+      "torch_bundle"
+    ],
+    "buy_types": [
+      "weapon",
+      "armor",
+      "consumable",
+      "utility",
+      "loot"
+    ]
   },
   "shrine_caretaker": {
     "name": "Shrine Caretaker",
     "role": "Town shrine keeper",
-    "aliases": ["town caretaker", "shrine keeper", "temple caretaker"],
+    "aliases": [
+      "town caretaker",
+      "shrine keeper",
+      "temple caretaker"
+    ],
     "dialogue": "The Shrine Caretaker keeps the little town altar swept, lit, and useful, insisting that watched flames, clean ash, and steady hands matter as much as prayer does.",
     "faction": "shrine_keepers",
     "important": true,
@@ -244,7 +411,12 @@
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "emberfall", "ash", "guardian"],
+        "topics": [
+          "rumors",
+          "emberfall",
+          "ash",
+          "guardian"
+        ],
         "text": "Emberfall still holds because people there keep choosing ward-duty over comfort, especially when the ash roads grow louder."
       }
     ]
@@ -252,7 +424,11 @@
   "aldric": {
     "name": "Aldric",
     "role": "Frontier trader",
-    "aliases": ["aldric the trader", "trader aldric", "aldric trader"],
+    "aliases": [
+      "aldric the trader",
+      "trader aldric",
+      "aldric trader"
+    ],
     "dialogue": "Aldric counts losses with a trader's calm and a survivor's memory, talking about roads, raiders, and recovered cargo as if all three belong on the same ledger line.",
     "dialogue_set": {
       "default": "Aldric counts losses with a trader's calm and a survivor's memory, talking about roads, raiders, and recovered cargo as if all three belong on the same ledger line."
@@ -276,14 +452,30 @@
         "text": "Aldric taps the counter once. \"You brought merchant work back across a bad road. That kind of steadiness buys more than coin.\""
       }
     ],
-    "rumor_pools": ["stonewatch_board", "merchant_guild_halls"],
-    "shop_inventory": ["bread_ration", "torch_bundle", "bandage_kit", "iron_scrap"],
-    "buy_types": ["consumable", "utility", "loot"]
+    "rumor_pools": [
+      "stonewatch_board",
+      "merchant_guild_halls"
+    ],
+    "shop_inventory": [
+      "bread_ration",
+      "torch_bundle",
+      "bandage_kit",
+      "iron_scrap"
+    ],
+    "buy_types": [
+      "consumable",
+      "utility",
+      "loot"
+    ]
   },
   "hold_warden": {
     "name": "Hold Warden",
     "role": "Ironridge pass warden",
-    "aliases": ["ridge warden", "hold guard", "pass warden"],
+    "aliases": [
+      "ridge warden",
+      "hold guard",
+      "pass warden"
+    ],
     "dialogue": "The Hold Warden speaks like a road ledger with a spear behind it, counting caravans, raiders, and broken axle stories with equal care.",
     "faction": "kingdom_guard",
     "important": true,
@@ -313,7 +505,12 @@
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "gorgos", "pass", "ironridge"],
+        "topics": [
+          "rumors",
+          "gorgos",
+          "pass",
+          "ironridge"
+        ],
         "text": "No caravan master forgets Gorgos the Sundered for long; the pass tolls itself in broken wheels until someone answers him properly."
       }
     ]
@@ -321,7 +518,11 @@
   "thane_brom": {
     "name": "Thane Brom",
     "role": "Ironridge thane",
-    "aliases": ["thane", "hold thane", "brom"],
+    "aliases": [
+      "thane",
+      "hold thane",
+      "brom"
+    ],
     "dialogue": "Thane Brom carries himself like someone used to weighing people by what they finish, not by how loudly they promise it.",
     "dialogue_set": {
       "default": "Thane Brom carries himself like someone used to weighing people by what they finish, not by how loudly they promise it."
@@ -345,29 +546,54 @@
         "text": "Thane Brom's tone turns practical rather than testing. \"C-rank means the hold can speak plainly to you.\""
       }
     ],
-    "rumor_pools": ["ironridge_convoys"]
+    "rumor_pools": [
+      "ironridge_convoys"
+    ]
   },
   "ledger_clerk": {
     "name": "Ledger Clerk",
     "role": "Caravan clerk",
-    "aliases": ["clerk", "caravan clerk", "quarter clerk"],
+    "aliases": [
+      "clerk",
+      "caravan clerk",
+      "quarter clerk"
+    ],
     "dialogue": "The Ledger Clerk keeps slate, ink, and caravan tallies moving in steady order, treating supplies as seriously as soldiers treat arrows.",
     "faction": "merchant_guild",
     "important": true,
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "routes", "travel", "vaultreach"],
+        "topics": [
+          "rumors",
+          "routes",
+          "travel",
+          "vaultreach"
+        ],
         "text": "Restricted vault transit does not care how impatient you are; the books only open after rank and Blackroot Ash Mark both say you belong there."
       }
     ],
-    "shop_inventory": ["bread_ration", "torch_bundle", "bandage_kit"],
-    "buy_types": ["consumable", "utility", "loot"]
+    "shop_inventory": [
+      "bread_ration",
+      "torch_bundle",
+      "bandage_kit"
+    ],
+    "buy_types": [
+      "consumable",
+      "utility",
+      "loot"
+    ]
   },
   "forgemistress": {
     "name": "Hesta Runehand",
     "role": "Ironridge smith",
-    "aliases": ["forge mistress", "ridge smith", "mistress", "hesta", "hesta runehand"],
+    "aliases": [
+      "forge mistress",
+      "ridge smith",
+      "mistress",
+      "hesta",
+      "hesta runehand"
+    ],
     "dialogue": "The Forge-Mistress judges gear by balance, temper, and whether it comes back bent, which she considers a confession rather than an accident.",
     "dialogue_set": {
       "default": "The Forge-Mistress judges gear by balance, temper, and whether it comes back bent, which she considers a confession rather than an accident."
@@ -391,14 +617,32 @@
         "text": "Hesta treats you less like a passing buyer and more like someone worth fitting properly for the road."
       }
     ],
-    "rumor_pools": ["ironridge_convoys"],
-    "shop_inventory": ["war_axe", "battle_axe", "chain_vest", "iron_mail", "iron_shield", "iron_ore", "forge_stone"],
-    "buy_types": ["weapon", "armor", "loot"]
+    "rumor_pools": [
+      "ironridge_convoys"
+    ],
+    "shop_inventory": [
+      "war_axe",
+      "battle_axe",
+      "chain_vest",
+      "iron_mail",
+      "iron_shield",
+      "iron_ore",
+      "forge_stone"
+    ],
+    "buy_types": [
+      "weapon",
+      "armor",
+      "loot"
+    ]
   },
   "coast_ranger": {
     "name": "Coast Ranger",
     "role": "Breakwater scout",
-    "aliases": ["ranger", "coast scout", "shore ranger"],
+    "aliases": [
+      "ranger",
+      "coast scout",
+      "shore ranger"
+    ],
     "dialogue": "The Coast Ranger watches surf, tracks, and broken rigging with the same hard patience, because trouble on the shore almost always arrives in pieces first.",
     "faction": "kingdom_guard",
     "important": true,
@@ -421,7 +665,12 @@
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "coast", "stormbreak", "routes"],
+        "topics": [
+          "rumors",
+          "coast",
+          "stormbreak",
+          "routes"
+        ],
         "text": "Stormbreak Cove looks like broken timber and easy salvage until the raiders decide you are part of the wreckage."
       }
     ]
@@ -429,7 +678,13 @@
   "vault_scholar": {
     "name": "Scholar Ilya",
     "role": "Ash-vault researcher",
-    "aliases": ["vault researcher", "researcher", "ash scholar", "ilya", "scholar ilya"],
+    "aliases": [
+      "vault researcher",
+      "researcher",
+      "ash scholar",
+      "ilya",
+      "scholar ilya"
+    ],
     "dialogue": "The Vault Scholar studies soot marks and cult sigils with unnerving calm, intent on learning what the ash-vault once kept before the wrong people finish claiming it.",
     "dialogue_set": {
       "default": "The Vault Scholar studies soot marks and cult sigils with unnerving calm, intent on learning what the ash-vault once kept before the wrong people finish claiming it."
@@ -447,21 +702,42 @@
         "text": "Ilya's reserve breaks for a moment. \"Then the Vault Keeper truly fell. Good. Some lines can be studied only after someone survives them.\""
       }
     ],
-    "rumor_pools": ["vaultreach_relics", "emberfall_wards"],
+    "rumor_pools": [
+      "vaultreach_relics",
+      "emberfall_wards"
+    ],
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "vault", "relics", "guardian"],
+        "topics": [
+          "rumors",
+          "vault",
+          "relics",
+          "guardian"
+        ],
         "text": "Vaultreach only looks calm because the warded line is doing its work every hour you are not down in the dark seeing it strain."
       }
     ],
-    "shop_inventory": ["relic_core_shard", "ancient_alloy", "construct_salvage", "focus_draught"],
-    "buy_types": ["loot", "gear", "consumable"]
+    "shop_inventory": [
+      "relic_core_shard",
+      "ancient_alloy",
+      "construct_salvage",
+      "focus_draught"
+    ],
+    "buy_types": [
+      "loot",
+      "gear",
+      "consumable"
+    ]
   },
   "guild_broker_maren": {
     "name": "Broker Maren",
     "role": "Guild broker",
-    "aliases": ["maren", "broker maren", "guild broker"],
+    "aliases": [
+      "maren",
+      "broker maren",
+      "guild broker"
+    ],
     "dialogue": "Broker Maren keeps contract notices, freight letters, and rumor slips under the same steady hand, convinced the realm survives when information reaches the right person before panic does.",
     "dialogue_set": {
       "default": "Broker Maren keeps contract notices, freight letters, and rumor slips under the same steady hand, convinced the realm survives when information reaches the right person before panic does."
@@ -491,11 +767,18 @@
         "text": "Maren no longer introduces you to the work like a stranger; she speaks as if your name already belongs on the frontier rolls."
       }
     ],
-    "rumor_pools": ["stonewatch_board", "merchant_guild_halls"],
+    "rumor_pools": [
+      "stonewatch_board",
+      "merchant_guild_halls"
+    ],
     "rumors": [
       {
         "priority": 3,
-        "topics": ["rumors", "contracts", "work"],
+        "topics": [
+          "rumors",
+          "contracts",
+          "work"
+        ],
         "text": "If you want the realm to remember your name, take contracts that keep other people sleeping through the night."
       }
     ]
@@ -503,7 +786,12 @@
   "veteran_hunter_sera": {
     "name": "Sera Vale",
     "role": "Veteran hunter",
-    "aliases": ["sera", "sera vale", "veteran hunter", "hunter sera"],
+    "aliases": [
+      "sera",
+      "sera vale",
+      "veteran hunter",
+      "hunter sera"
+    ],
     "dialogue": "Sera Vale speaks like someone who has buried more beasts than trophies, measuring every trail by what it costs the people who live nearby.",
     "dialogue_set": {
       "default": "Sera Vale speaks like someone who has buried more beasts than trophies, measuring every trail by what it costs the people who live nearby."
@@ -521,21 +809,54 @@
         "text": "Sera studies you like a peer now that the Ashwood alpha hunt has your mark on it."
       }
     ],
-    "rumor_pools": ["valewood_trails"],
+    "rumor_pools": [
+      "valewood_trails"
+    ],
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "beasts", "ashwood", "alpha"],
+        "topics": [
+          "rumors",
+          "beasts",
+          "ashwood",
+          "alpha"
+        ],
         "text": "Alpha on Ashwood Trail pays because one smart beast can thin a road faster than a dozen loud fools."
+      },
+      {
+        "priority": 4,
+        "topics": [
+          "quests",
+          "work"
+        ],
+        "text": "If you want a real challenge, bring down the Ashwood Fanglord and come back standing."
       }
     ],
-    "shop_inventory": ["tracking_kit", "beast_hide", "wolf_pelt", "wolf_fang", "rare_herb", "hunting_spear", "hunting_bow"],
-    "buy_types": ["weapon", "utility", "loot", "gear"]
+    "shop_inventory": [
+      "tracking_kit",
+      "beast_hide",
+      "wolf_pelt",
+      "wolf_fang",
+      "rare_herb",
+      "hunting_spear",
+      "hunting_bow"
+    ],
+    "buy_types": [
+      "weapon",
+      "utility",
+      "loot",
+      "gear"
+    ]
   },
   "shrine_archivist_elira": {
     "name": "Archivist Elira",
     "role": "Shrine archivist",
-    "aliases": ["elira", "archivist", "archivist elira", "shrine archivist"],
+    "aliases": [
+      "elira",
+      "archivist",
+      "archivist elira",
+      "shrine archivist"
+    ],
     "dialogue": "Archivist Elira handles every copied ward and soot-marked register like a surviving oath, certain that written memory is part of how Valerion keeps its line from failing twice.",
     "dialogue_set": {
       "default": "Archivist Elira handles every copied ward and soot-marked register like a surviving oath, certain that written memory is part of how Valerion keeps its line from failing twice."
@@ -553,21 +874,51 @@
         "text": "Elira's manner softens once she knows you returned the sigil instead of treating it like salvage."
       }
     ],
-    "rumor_pools": ["emberfall_wards", "vaultreach_relics"],
+    "rumor_pools": [
+      "emberfall_wards",
+      "vaultreach_relics"
+    ],
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "shrine", "emberfall", "vaultreach"],
+        "topics": [
+          "rumors",
+          "shrine",
+          "emberfall",
+          "vaultreach"
+        ],
         "text": "Silence the Weeping Shrine if you mean to prove you can keep ward-duty without flinching when the old places answer back."
+      },
+      {
+        "priority": 4,
+        "topics": [
+          "quests",
+          "work"
+        ],
+        "text": "A relic core shard would let us finish the cipher and keep the ward math from drifting."
       }
     ],
-    "shop_inventory": ["ritual_salt", "shrine_ash", "rare_herb", "focus_draught", "ember_focus"],
-    "buy_types": ["consumable", "loot", "gear"]
+    "shop_inventory": [
+      "ritual_salt",
+      "shrine_ash",
+      "rare_herb",
+      "focus_draught",
+      "ember_focus"
+    ],
+    "buy_types": [
+      "consumable",
+      "loot",
+      "gear"
+    ]
   },
   "caravan_master_dain": {
     "name": "Master Dain",
     "role": "Caravan master",
-    "aliases": ["dain", "master dain", "caravan master"],
+    "aliases": [
+      "dain",
+      "master dain",
+      "caravan master"
+    ],
     "dialogue": "Master Dain talks in distances, axle strain, and oaths kept at the next gate, treating every caravan as one more answer to the question of whether the realm still holds together.",
     "dialogue_set": {
       "default": "Master Dain talks in distances, axle strain, and oaths kept at the next gate, treating every caravan as one more answer to the question of whether the realm still holds together."
@@ -585,11 +936,20 @@
         "text": "Dain stops explaining the roads like you are new to them once your board rank proves you have paid enough miles into the line."
       }
     ],
-    "rumor_pools": ["ironridge_convoys", "stormbreak_harbor"],
+    "rumor_pools": [
+      "ironridge_convoys",
+      "stormbreak_harbor"
+    ],
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "routes", "travel", "ironridge", "stormbreak"],
+        "topics": [
+          "rumors",
+          "routes",
+          "travel",
+          "ironridge",
+          "stormbreak"
+        ],
         "text": "Waycarter lines are not shortcuts; they are the realm spending coin and discipline so the roads stay worth having."
       }
     ]
@@ -597,7 +957,11 @@
   "road_captain_ves": {
     "name": "Captain Ves",
     "role": "Road captain",
-    "aliases": ["ves", "captain ves", "road captain"],
+    "aliases": [
+      "ves",
+      "captain ves",
+      "road captain"
+    ],
     "dialogue": "Captain Ves watches traffic like a battlefield quartermaster, certain that a held line fails first in the details people wave aside as small.",
     "dialogue_set": {
       "default": "Captain Ves watches traffic like a battlefield quartermaster, certain that a held line fails first in the details people wave aside as small."
@@ -621,11 +985,18 @@
         "text": "After Gorgos fell, Ves stopped speaking of the pass as a wound that had to stay open and started speaking of it as a line that might hold again."
       }
     ],
-    "rumor_pools": ["ironridge_convoys"],
+    "rumor_pools": [
+      "ironridge_convoys"
+    ],
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "rank", "roads", "contracts"],
+        "topics": [
+          "rumors",
+          "rank",
+          "roads",
+          "contracts"
+        ],
         "text": "The harder contracts are not glory work; they are what keep ordinary wagons ordinary instead of memorials."
       }
     ]
@@ -633,7 +1004,11 @@
   "merchant_factor_celene": {
     "name": "Factor Celene",
     "role": "Merchant Guild factor",
-    "aliases": ["celene", "factor celene", "guild factor"],
+    "aliases": [
+      "celene",
+      "factor celene",
+      "guild factor"
+    ],
     "dialogue": "Factor Celene speaks like every shipment has two prices: the coin on the page and the cost if the road fails before dawn.",
     "dialogue_set": {
       "default": "Factor Celene speaks like every shipment has two prices: the coin on the page and the cost if the road fails before dawn."
@@ -651,14 +1026,33 @@
         "text": "Celene flips straight to practical terms. \"Good. A known name means I can skip the warnings and get to the routes that matter.\""
       }
     ],
-    "rumor_pools": ["merchant_guild_halls", "stormbreak_harbor"],
-    "shop_inventory": ["bread_ration", "torch_bundle", "mana_tonic", "rare_herb", "ancient_alloy", "relic_core_shard"],
-    "buy_types": ["consumable", "utility", "loot", "gear"]
+    "rumor_pools": [
+      "merchant_guild_halls",
+      "stormbreak_harbor"
+    ],
+    "shop_inventory": [
+      "bread_ration",
+      "torch_bundle",
+      "mana_tonic",
+      "rare_herb",
+      "ancient_alloy",
+      "relic_core_shard"
+    ],
+    "buy_types": [
+      "consumable",
+      "utility",
+      "loot",
+      "gear"
+    ]
   },
   "forest_scout_rowan": {
     "name": "Scout Rowan",
     "role": "Forest Clan scout",
-    "aliases": ["rowan", "scout rowan", "forest scout"],
+    "aliases": [
+      "rowan",
+      "scout rowan",
+      "forest scout"
+    ],
     "dialogue": "Scout Rowan speaks softly enough that the woods seem to lean in, giving every trail report the weight of a warning worth surviving.",
     "dialogue_set": {
       "default": "Scout Rowan speaks softly enough that the woods seem to lean in, giving every trail report the weight of a warning worth surviving."
@@ -676,14 +1070,40 @@
         "text": "Rowan no longer measures every word before giving it to you. The Forest Clans have already judged your tread."
       }
     ],
-    "rumor_pools": ["valewood_trails"],
-    "shop_inventory": ["tracking_kit", "beast_hide", "rare_herb", "wolf_fang", "torch_bundle"],
-    "buy_types": ["utility", "loot", "consumable"]
+    "rumor_pools": [
+      "valewood_trails"
+    ],
+    "shop_inventory": [
+      "tracking_kit",
+      "beast_hide",
+      "rare_herb",
+      "wolf_fang",
+      "torch_bundle"
+    ],
+    "buy_types": [
+      "utility",
+      "loot",
+      "consumable"
+    ],
+    "rumors": [
+      {
+        "priority": 4,
+        "topics": [
+          "quests",
+          "work"
+        ],
+        "text": "If you are heading toward the old watch line, keep an eye out for a missing hunter signal."
+      }
+    ]
   },
   "harbor_master_oren": {
     "name": "Harbor Master Oren",
     "role": "Stormbreak harbor master",
-    "aliases": ["oren", "harbor master", "harbor master oren"],
+    "aliases": [
+      "oren",
+      "harbor master",
+      "harbor master oren"
+    ],
     "dialogue": "Harbor Master Oren watches ropes, manifests, and weather with the calm of someone who knows a coast falls apart first in its bookkeeping.",
     "dialogue_set": {
       "default": "Harbor Master Oren watches ropes, manifests, and weather with the calm of someone who knows a coast falls apart first in its bookkeeping."
@@ -701,14 +1121,41 @@
         "text": "Oren gives you the courtesy usually reserved for escorts and officers. \"Anyone the line trusts with D-rank work gets a straight answer here.\""
       }
     ],
-    "rumor_pools": ["stormbreak_harbor"],
-    "shop_inventory": ["torch_bundle", "bandage_kit", "mana_tonic", "rare_herb", "spider_silk", "ancient_alloy"],
-    "buy_types": ["consumable", "utility", "loot"]
+    "rumor_pools": [
+      "stormbreak_harbor"
+    ],
+    "shop_inventory": [
+      "torch_bundle",
+      "bandage_kit",
+      "mana_tonic",
+      "rare_herb",
+      "spider_silk",
+      "ancient_alloy"
+    ],
+    "buy_types": [
+      "consumable",
+      "utility",
+      "loot"
+    ],
+    "rumors": [
+      {
+        "priority": 4,
+        "topics": [
+          "quests",
+          "work"
+        ],
+        "text": "Stormbreak keeps morale by testing crews in friendly contests before the hard work begins again."
+      }
+    ]
   },
   "relic_dealer_nessa": {
     "name": "Nessa Vey",
     "role": "Relic dealer",
-    "aliases": ["nessa", "nessa vey", "relic dealer"],
+    "aliases": [
+      "nessa",
+      "nessa vey",
+      "relic dealer"
+    ],
     "dialogue": "Nessa Vey talks about relics with the caution of someone who has seen too many old protections sold by fools and bought by worse ones.",
     "dialogue_set": {
       "default": "Nessa Vey talks about relics with the caution of someone who has seen too many old protections sold by fools and bought by worse ones."
@@ -726,14 +1173,31 @@
         "text": "Nessa's eyes sharpen immediately. \"Blackroot Ash Mark behind you? Then you've already seen the kind of relic work that ruins amateurs.\""
       }
     ],
-    "rumor_pools": ["vaultreach_relics", "emberfall_wards"],
-    "shop_inventory": ["relic_core_shard", "ancient_alloy", "construct_salvage", "ember_focus", "focus_draught"],
-    "buy_types": ["loot", "gear", "consumable"]
+    "rumor_pools": [
+      "vaultreach_relics",
+      "emberfall_wards"
+    ],
+    "shop_inventory": [
+      "relic_core_shard",
+      "ancient_alloy",
+      "construct_salvage",
+      "ember_focus",
+      "focus_draught"
+    ],
+    "buy_types": [
+      "loot",
+      "gear",
+      "consumable"
+    ]
   },
   "havik_ironborn": {
     "name": "Havik Ironborn",
     "role": "Guard-aligned veteran hunter",
-    "aliases": ["havik", "ironborn", "havik ironborn"],
+    "aliases": [
+      "havik",
+      "ironborn",
+      "havik ironborn"
+    ],
     "dialogue": "Havik Ironborn carries himself like a veteran who thinks clean patrol work matters more than loud stories, though he has enough scars to know the stories come anyway.",
     "dialogue_set": {
       "default": "Havik Ironborn carries himself like a veteran who thinks clean patrol work matters more than loud stories, though he has enough scars to know the stories come anyway."
@@ -761,7 +1225,12 @@
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "gorgos", "ironridge", "contracts"],
+        "topics": [
+          "rumors",
+          "gorgos",
+          "ironridge",
+          "contracts"
+        ],
         "text": "Ironridge's worst hunts are never about glory. They are about making the road ordinary again."
       }
     ]
@@ -769,7 +1238,10 @@
   "dessa": {
     "name": "Dessa",
     "role": "Rising Hunter Guild star",
-    "aliases": ["dessa", "hunter dessa"],
+    "aliases": [
+      "dessa",
+      "hunter dessa"
+    ],
     "dialogue": "Dessa wears confidence like polished armor and speaks as if every posted contract is already halfway hers unless somebody proves otherwise.",
     "dialogue_set": {
       "default": "Dessa wears confidence like polished armor and speaks as if every posted contract is already halfway hers unless somebody proves otherwise."
@@ -791,7 +1263,12 @@
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "contracts", "hunts", "guild"],
+        "topics": [
+          "rumors",
+          "contracts",
+          "hunts",
+          "guild"
+        ],
         "text": "Dessa says the board only matters once the jobs start carrying marks that can actually make a name."
       }
     ]
@@ -799,7 +1276,11 @@
   "old_crane": {
     "name": "Old Crane",
     "role": "Veteran monster slayer",
-    "aliases": ["crane", "old crane", "veteran crane"],
+    "aliases": [
+      "crane",
+      "old crane",
+      "veteran crane"
+    ],
     "dialogue": "Old Crane speaks like a man who has outlived too many confident hunters and sees no reason to rush a warning that will still be true tomorrow.",
     "dialogue_set": {
       "default": "Old Crane speaks like a man who has outlived too many confident hunters and sees no reason to rush a warning that will still be true tomorrow."
@@ -827,7 +1308,12 @@
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "bosses", "alpha", "gorgos"],
+        "topics": [
+          "rumors",
+          "bosses",
+          "alpha",
+          "gorgos"
+        ],
         "text": "Old Crane warns that boss marks always start killing people long before the board learns the right name for them."
       }
     ]
@@ -835,7 +1321,10 @@
   "sable": {
     "name": "Sable",
     "role": "Suspicious relic hunter",
-    "aliases": ["sable", "relic hunter sable"],
+    "aliases": [
+      "sable",
+      "relic hunter sable"
+    ],
     "dialogue": "Sable keeps her tone unreadable and her attention fixed on old wards, broken seals, and whether everyone nearby is pretending to know more than they do.",
     "dialogue_set": {
       "default": "Sable keeps her tone unreadable and her attention fixed on old wards, broken seals, and whether everyone nearby is pretending to know more than they do."
@@ -863,7 +1352,12 @@
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "vault", "relics", "ruins"],
+        "topics": [
+          "rumors",
+          "vault",
+          "relics",
+          "ruins"
+        ],
         "text": "Sable says relic hunters die fastest when they mistake an old ward for a dead one."
       }
     ]
@@ -871,7 +1365,11 @@
   "brother_aldun": {
     "name": "Brother Aldun",
     "role": "Shrine-bound hunter",
-    "aliases": ["aldun", "brother aldun", "brother"],
+    "aliases": [
+      "aldun",
+      "brother aldun",
+      "brother"
+    ],
     "dialogue": "Brother Aldun speaks softly enough that shrine bells seem louder around him, with the calm of someone who thinks hunting and prayer are both ways of keeping a line from failing.",
     "dialogue_set": {
       "default": "Brother Aldun speaks softly enough that shrine bells seem louder around him, with the calm of someone who thinks hunting and prayer are both ways of keeping a line from failing."
@@ -899,7 +1397,12 @@
     "rumors": [
       {
         "priority": 2,
-        "topics": ["rumors", "shrine", "emberfall", "hunts"],
+        "topics": [
+          "rumors",
+          "shrine",
+          "emberfall",
+          "hunts"
+        ],
         "text": "Aldun says shrine hunts go bad the moment a hunter starts treating an old duty like easy salvage."
       }
     ]
@@ -907,7 +1410,12 @@
   "traveling_bard_kellan": {
     "name": "Kellan Grey",
     "role": "Traveling bard",
-    "aliases": ["kellan", "bard", "traveling bard", "kellan grey"],
+    "aliases": [
+      "kellan",
+      "bard",
+      "traveling bard",
+      "kellan grey"
+    ],
     "dialogue": "Kellan Grey wears a road-dusted smile and listens like a collector of victories, failures, and the names people will be singing by next market day.",
     "dialogue_set": {
       "default": "Kellan Grey wears a road-dusted smile and listens like a collector of victories, failures, and the names people will be singing by next market day."
@@ -925,6 +1433,9 @@
         "text": "Kellan grins like he has found the ending of a verse. \"So it was you at Ironridge. The guild halls are already ahead of me on that chorus.\""
       }
     ],
-    "rumor_pools": ["bard_ballads", "stonewatch_board"]
+    "rumor_pools": [
+      "bard_ballads",
+      "stonewatch_board"
+    ]
   }
 }

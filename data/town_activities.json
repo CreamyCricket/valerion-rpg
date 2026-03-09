@@ -1,0 +1,80 @@
+{
+  "village_square": {
+    "town_name": "Village Square",
+    "venue": "Village Hearth",
+    "rumor_pools": ["stonewatch_board", "bard_ballads"],
+    "activities": [
+      "tavern_rumor",
+      "drink_ale"
+    ]
+  },
+  "market_square": {
+    "town_name": "Stonewatch",
+    "venue": "Stonewatch Tavern",
+    "rumor_pools": ["stonewatch_board", "merchant_guild_halls", "bard_ballads"],
+    "activities": [
+      "tavern_rumor",
+      "hunter_gossip",
+      "drink_ale",
+      "market_browse",
+      "market_gossip",
+      "sparring"
+    ]
+  },
+  "valewood": {
+    "town_name": "Valewood",
+    "venue": "Valewood Lodge",
+    "rumor_pools": ["valewood_trails", "stonewatch_board", "bard_ballads"],
+    "activities": [
+      "tavern_rumor",
+      "hunter_gossip",
+      "drink_ale",
+      "sparring"
+    ]
+  },
+  "emberfall": {
+    "town_name": "Emberfall",
+    "venue": "Emberfall Commons",
+    "rumor_pools": ["emberfall_wards", "vaultreach_relics", "bard_ballads"],
+    "activities": [
+      "tavern_rumor",
+      "market_gossip",
+      "drink_ale",
+      "sparring"
+    ]
+  },
+  "ironridge_square": {
+    "town_name": "Ironridge",
+    "venue": "Ironridge Mess Hall",
+    "rumor_pools": ["ironridge_convoys", "stonewatch_board", "bard_ballads"],
+    "activities": [
+      "tavern_rumor",
+      "hunter_gossip",
+      "market_gossip",
+      "sparring"
+    ]
+  },
+  "stormbreak": {
+    "town_name": "Stormbreak",
+    "venue": "Stormbreak Tavern",
+    "rumor_pools": ["stormbreak_harbor", "merchant_guild_halls", "bard_ballads"],
+    "activities": [
+      "tavern_rumor",
+      "hunter_gossip",
+      "drink_ale",
+      "market_gossip",
+      "sparring"
+    ]
+  },
+  "vaultreach": {
+    "town_name": "Vaultreach",
+    "venue": "Vaultreach Archive Hall",
+    "rumor_pools": ["vaultreach_relics", "emberfall_wards", "bard_ballads"],
+    "activities": [
+      "tavern_rumor",
+      "market_gossip",
+      "drink_ale",
+      "sparring"
+    ]
+  }
+}

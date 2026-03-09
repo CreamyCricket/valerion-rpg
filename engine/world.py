@@ -153,9 +153,12 @@ class World:
         self.road_encounters = self._load_json(base / "road_encounters.json")
         self.regional_event_zones = self._load_json(base / "regional_events.json")
         self.titles = self._load_json(base / "titles.json")
+        self.dungeons = self._normalize_dungeon_catalog(self._load_json(base / "dungeons.json"))
+        self.town_activities = self._load_json(base / "town_activities.json")
 
         # Runtime world state. Locations change when items are taken or enemies are defeated.
         self.state_locations = copy.deepcopy(self.locations)
+        self.state_dungeons = self._default_dungeon_state()
         self.state_events = self._default_events()
         self.location_states = {location_id: [] for location_id in self.locations}
         self.active_regional_events_by_region = {}
@@ -254,6 +257,134 @@ class World:
             merged[item_id] = dict(item_data)
         return merged
 
+    def _normalize_dungeon_catalog(self, dungeons: dict) -> dict[str, dict]:
+        normalized_catalog = {}
+        if not isinstance(dungeons, dict):
+            return normalized_catalog
+
+        for location_id, dungeon_data in dungeons.items():
+            normalized_location = self._normalize_entity_id(location_id)
+            if normalized_location not in self.locations or not isinstance(dungeon_data, dict):
+                continue
+
+            rooms_source = dungeon_data.get("rooms", [])
+            if not isinstance(rooms_source, list):
+                continue
+
+            normalized_rooms = {}
+            for room_entry in rooms_source:
+                if not isinstance(room_entry, dict):
+                    continue
+                room_id = self._normalize_entity_id(room_entry.get("id", ""))
+                if not room_id:
+                    continue
+
+                exits = {}
+                raw_exits = room_entry.get("exits", {})
+                if isinstance(raw_exits, dict):
+                    for direction, target in raw_exits.items():
+                        normalized_direction = str(direction).strip().lower()
+                        normalized_target = self._normalize_entity_id(target)
+                        if normalized_direction and normalized_target:
+                            exits[normalized_direction] = normalized_target
+
+                enemies = []
+                for enemy_id in room_entry.get("enemies", []):
+                    normalized_enemy = self._normalize_entity_id(enemy_id)
+                    if normalized_enemy and self.has_enemy(normalized_enemy) and normalized_enemy not in enemies:
+                        enemies.append(normalized_enemy)
+
+                items = []
+                for item_id in room_entry.get("items", []):
+                    normalized_item = self._normalize_entity_id(item_id)
+                    if normalized_item and self.has_item(normalized_item) and normalized_item not in items:
+                        items.append(normalized_item)
+
+                possible_encounters = self.filter_encounter_entries(room_entry.get("possible_encounters", []))
+                events = []
+                raw_events = room_entry.get("events", [])
+                if isinstance(raw_events, list):
+                    for index, event in enumerate(raw_events, start=1):
+                        if not isinstance(event, dict):
+                            continue
+                        event_id = self._normalize_entity_id(event.get("id", f"{room_id}_event_{index}"))
+                        if not event_id:
+                            continue
+                        reward_item = self._normalize_entity_id(event.get("reward_item", ""))
+                        if reward_item and not self.has_item(reward_item):
+                            reward_item = ""
+                        events.append(
+                            {
+                                "id": event_id,
+                                "text": str(event.get("text", "")).strip(),
+                                "reward_item": reward_item,
+                                "reward_gold": max(0, self._safe_int(event.get("reward_gold"), 0)),
+                                "once": bool(event.get("once", True)),
+                            }
+                        )
+
+                normalized_rooms[room_id] = {
+                    "id": room_id,
+                    "name": str(room_entry.get("name", self._fallback_name(room_id))).strip() or self._fallback_name(room_id),
+                    "description": str(room_entry.get("description", "")).strip(),
+                    "exits": exits,
+                    "enemies": enemies,
+                    "items": items,
+                    "possible_encounters": possible_encounters,
+                    "events": events,
+                }
+
+            if not normalized_rooms:
+                continue
+
+            entry_room = self._normalize_entity_id(dungeon_data.get("entry_room", ""))
+            if entry_room not in normalized_rooms:
+                entry_room = next(iter(normalized_rooms.keys()))
+
+            # Only allow exits that target valid rooms or the reserved "__exit__" token.
+            for room in normalized_rooms.values():
+                validated_exits = {}
+                for direction, target in room.get("exits", {}).items():
+                    if target == "__exit__" or target in normalized_rooms:
+                        validated_exits[direction] = target
+                room["exits"] = validated_exits
+
+            surface_exit = self._normalize_entity_id(dungeon_data.get("surface_exit", ""))
+            if surface_exit not in self.locations:
+                connected = self.locations.get(normalized_location, {}).get("connected_locations", {})
+                if isinstance(connected, dict) and connected:
+                    first_target = self._normalize_entity_id(next(iter(connected.values())))
+                    surface_exit = first_target if first_target in self.locations else ""
+
+            normalized_catalog[normalized_location] = {
+                "name": str(dungeon_data.get("name", self.locations.get(normalized_location, {}).get("name", self._fallback_name(normalized_location)))).strip(),
+                "entry_room": entry_room,
+                "surface_exit": surface_exit,
+                "rooms": normalized_rooms,
+                "contract_hooks": [
+                    self._normalize_entity_id(contract_id)
+                    for contract_id in dungeon_data.get("contract_hooks", [])
+                    if self._normalize_entity_id(contract_id)
+                ],
+                "rumor_hooks": [str(hook).strip() for hook in dungeon_data.get("rumor_hooks", []) if str(hook).strip()],
+            }
+
+        return normalized_catalog
+
+    def _default_dungeon_state(self) -> dict:
+        state = {}
+        for location_id, dungeon in self.dungeons.items():
+            room_state = {}
+            for room_id, room in dungeon.get("rooms", {}).items():
+                room_state[room_id] = {
+                    "enemies": list(room.get("enemies", [])),
+                    "items": list(room.get("items", [])),
+                    "events_resolved": [],
+                    "encounter_seeded": False,
+                }
+            state[location_id] = {"rooms": room_state}
+        return state
+
     @staticmethod
     def _load_json(path: Path) -> dict:
         try:
@@ -275,6 +406,140 @@ class World:
 
     def get_npcs_at(self, location_id: str) -> list[str]:
         return self.get_location(location_id).get("npcs", [])
+
+    def has_dungeon(self, location_id: str) -> bool:
+        return self._normalize_entity_id(location_id) in self.dungeons
+
+    def dungeon_entry_room(self, location_id: str) -> str:
+        dungeon = self.dungeons.get(self._normalize_entity_id(location_id), {})
+        return str(dungeon.get("entry_room", "")).strip().lower()
+
+    def dungeon_surface_exit(self, location_id: str) -> str:
+        dungeon = self.dungeons.get(self._normalize_entity_id(location_id), {})
+        return str(dungeon.get("surface_exit", "")).strip().lower()
+
+    def dungeon_room(self, location_id: str, room_id: str) -> dict:
+        dungeon = self.dungeons.get(self._normalize_entity_id(location_id), {})
+        rooms = dungeon.get("rooms", {}) if isinstance(dungeon, dict) else {}
+        return rooms.get(self._normalize_entity_id(room_id), {})
+
+    def dungeon_room_state(self, location_id: str, room_id: str) -> dict:
+        dungeon = self.state_dungeons.get(self._normalize_entity_id(location_id), {})
+        rooms = dungeon.get("rooms", {}) if isinstance(dungeon, dict) else {}
+        return rooms.get(self._normalize_entity_id(room_id), {})
+
+    def dungeon_room_exits(self, location_id: str, room_id: str) -> dict:
+        room = self.dungeon_room(location_id, room_id)
+        exits = room.get("exits", {})
+        return exits if isinstance(exits, dict) else {}
+
+    def dungeon_room_enemies(self, location_id: str, room_id: str) -> list[str]:
+        return list(self.dungeon_room_state(location_id, room_id).get("enemies", []))
+
+    def dungeon_room_items(self, location_id: str, room_id: str) -> list[str]:
+        return list(self.dungeon_room_state(location_id, room_id).get("items", []))
+
+    def dungeon_room_possible_encounters(self, location_id: str, room_id: str) -> list[dict]:
+        room = self.dungeon_room(location_id, room_id)
+        entries = room.get("possible_encounters", [])
+        return self.filter_encounter_entries(entries if isinstance(entries, list) else [])
+
+    def dungeon_room_events(self, location_id: str, room_id: str) -> list[dict]:
+        room = self.dungeon_room(location_id, room_id)
+        events = room.get("events", [])
+        return copy.deepcopy(events if isinstance(events, list) else [])
+
+    def dungeon_room_name(self, location_id: str, room_id: str) -> str:
+        room = self.dungeon_room(location_id, room_id)
+        return str(room.get("name", self._fallback_name(room_id))).strip() or self._fallback_name(room_id)
+
+    def dungeon_room_description(self, location_id: str, room_id: str) -> str:
+        room = self.dungeon_room(location_id, room_id)
+        return str(room.get("description", "")).strip()
+
+    def mark_dungeon_encounter_seeded(self, location_id: str, room_id: str) -> None:
+        room_state = self.dungeon_room_state(location_id, room_id)
+        if room_state:
+            room_state["encounter_seeded"] = True
+
+    def dungeon_encounter_seeded(self, location_id: str, room_id: str) -> bool:
+        return bool(self.dungeon_room_state(location_id, room_id).get("encounter_seeded", False))
+
+    def add_enemy_to_dungeon_room(self, location_id: str, room_id: str, enemy_id: str) -> None:
+        room_state = self.dungeon_room_state(location_id, room_id)
+        normalized_enemy = self._normalize_entity_id(enemy_id)
+        if not room_state or not self.has_enemy(normalized_enemy):
+            return
+        enemies = room_state.setdefault("enemies", [])
+        if normalized_enemy not in enemies:
+            enemies.append(normalized_enemy)
+
+    def remove_enemy_from_dungeon_room(self, location_id: str, room_id: str, enemy_id: str) -> None:
+        room_state = self.dungeon_room_state(location_id, room_id)
+        enemies = room_state.get("enemies", []) if room_state else []
+        normalized_enemy = self._normalize_entity_id(enemy_id)
+        if normalized_enemy in enemies:
+            enemies.remove(normalized_enemy)
+
+    def add_item_to_dungeon_room(self, location_id: str, room_id: str, item_id: str) -> None:
+        room_state = self.dungeon_room_state(location_id, room_id)
+        normalized_item = self._normalize_entity_id(item_id)
+        if not room_state or not self.has_item(normalized_item):
+            return
+        items = room_state.setdefault("items", [])
+        if normalized_item not in items:
+            items.append(normalized_item)
+
+    def remove_item_from_dungeon_room(self, location_id: str, room_id: str, item_id: str) -> None:
+        room_state = self.dungeon_room_state(location_id, room_id)
+        items = room_state.get("items", []) if room_state else []
+        normalized_item = self._normalize_entity_id(item_id)
+        if normalized_item in items:
+            items.remove(normalized_item)
+
+    def dungeon_event_resolved(self, location_id: str, room_id: str, event_id: str) -> bool:
+        room_state = self.dungeon_room_state(location_id, room_id)
+        resolved = room_state.get("events_resolved", []) if room_state else []
+        return self._normalize_entity_id(event_id) in resolved
+
+    def mark_dungeon_event_resolved(self, location_id: str, room_id: str, event_id: str) -> None:
+        room_state = self.dungeon_room_state(location_id, room_id)
+        if not room_state:
+            return
+        resolved = room_state.setdefault("events_resolved", [])
+        normalized_event = self._normalize_entity_id(event_id)
+        if normalized_event and normalized_event not in resolved:
+            resolved.append(normalized_event)
+
+    def find_enemy_in_dungeon_room(self, location_id: str, room_id: str, query: str) -> str | None:
+        query = " ".join(query.strip().lower().split())
+        normalized_query = query
+        for prefix in ("the ", "a ", "an "):
+            if normalized_query.startswith(prefix):
+                normalized_query = normalized_query[len(prefix):].strip()
+        for enemy_id in self.dungeon_room_enemies(location_id, room_id):
+            enemy = self.enemies.get(enemy_id, {})
+            enemy_name = " ".join(str(enemy.get("name", "")).strip().lower().split())
+            simplified_name = enemy_name
+            for prefix in ("the ", "a ", "an "):
+                if simplified_name.startswith(prefix):
+                    simplified_name = simplified_name[len(prefix):].strip()
+            if (
+                normalized_query == enemy_id.lower()
+                or normalized_query == enemy_name
+                or normalized_query == simplified_name
+                or (normalized_query and normalized_query in enemy_name)
+            ):
+                return enemy_id
+        return None
+
+    def find_item_in_dungeon_room(self, location_id: str, room_id: str, query: str) -> str | None:
+        query = query.strip().lower()
+        for item_id in self.dungeon_room_items(location_id, room_id):
+            item = self.items.get(item_id, {})
+            if query == item_id.lower() or query == str(item.get("name", "")).lower():
+                return item_id
+        return None
 
     @staticmethod
     def _normalize_entity_id(entity_id: str) -> str:
@@ -1453,6 +1718,11 @@ class World:
             for region_id, entries in self.active_regional_events_by_region.items()
             if entries
         }
+        world_state["_dungeons"] = {
+            location_id: copy.deepcopy(entry)
+            for location_id, entry in self.state_dungeons.items()
+            if isinstance(entry, dict)
+        }
         if self.active_road_encounter:
             world_state["_road_encounter"] = copy.deepcopy(self.active_road_encounter)
         return world_state
@@ -1585,6 +1855,46 @@ class World:
                     "location_id": location_id,
                     "enemy_id": enemy_id,
                 }
+
+        self.state_dungeons = self._default_dungeon_state()
+        dungeons_data = data.get("_dungeons", {})
+        if isinstance(dungeons_data, dict):
+            for location_id, dungeon_state in dungeons_data.items():
+                normalized_location = self._normalize_entity_id(location_id)
+                if normalized_location not in self.state_dungeons or not isinstance(dungeon_state, dict):
+                    continue
+                saved_rooms = dungeon_state.get("rooms", {})
+                if not isinstance(saved_rooms, dict):
+                    continue
+                for room_id, room_state in saved_rooms.items():
+                    normalized_room = self._normalize_entity_id(room_id)
+                    if normalized_room not in self.state_dungeons[normalized_location].get("rooms", {}):
+                        continue
+                    if not isinstance(room_state, dict):
+                        continue
+                    target_state = self.state_dungeons[normalized_location]["rooms"][normalized_room]
+                    saved_enemies = room_state.get("enemies", [])
+                    if isinstance(saved_enemies, list):
+                        target_state["enemies"] = [
+                            self._normalize_entity_id(enemy_id)
+                            for enemy_id in saved_enemies
+                            if self.has_enemy(enemy_id)
+                        ]
+                    saved_items = room_state.get("items", [])
+                    if isinstance(saved_items, list):
+                        target_state["items"] = [
+                            self._normalize_entity_id(item_id)
+                            for item_id in saved_items
+                            if self.has_item(item_id)
+                        ]
+                    saved_events = room_state.get("events_resolved", [])
+                    if isinstance(saved_events, list):
+                        target_state["events_resolved"] = [
+                            self._normalize_entity_id(event_id)
+                            for event_id in saved_events
+                            if self._normalize_entity_id(event_id)
+                        ]
+                    target_state["encounter_seeded"] = bool(room_state.get("encounter_seeded", target_state.get("encounter_seeded", False)))
 
     def set_active_road_encounter(self, encounter_id: str, name: str, route_id: str, location_id: str, enemy_id: str) -> None:
         normalized_location = str(location_id).strip().lower()

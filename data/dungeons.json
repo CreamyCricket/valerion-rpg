@@ -1,0 +1,440 @@
+{
+  "ashwood_ruins": {
+    "name": "Ashwood Ruins",
+    "entry_room": "collapsed_gate",
+    "surface_exit": "forest_path",
+    "contract_hooks": ["c001_wolfpack_culling", "c008_alpha_on_ashwood_trail"],
+    "rumor_hooks": ["ashwood ruins", "ruin den"],
+    "rooms": [
+      {
+        "id": "collapsed_gate",
+        "name": "Collapsed Gate",
+        "description": "Broken pillars and wet roots choke the ruin entrance.",
+        "exits": {
+          "hall": "shattered_hall",
+          "out": "__exit__"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "ashwood_wolf",
+            "weight": 100
+          }
+        ],
+        "items": ["bandage"],
+        "events": [
+          {
+            "id": "gate_marks",
+            "text": "Old claw marks on the stone point toward a deeper den.",
+            "once": true
+          }
+        ]
+      },
+      {
+        "id": "shattered_hall",
+        "name": "Shattered Hall",
+        "description": "A roofless hall where moonlight cuts across cracked mosaics.",
+        "exits": {
+          "gate": "collapsed_gate",
+          "den": "wolf_den",
+          "reliquary": "sunken_reliquary"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "ashwood_stalker",
+            "weight": 100
+          }
+        ],
+        "events": [
+          {
+            "id": "mosaic_cache",
+            "text": "A loosened mosaic tile hides a shard wrapped in cloth.",
+            "reward_item": "relic_core_shard",
+            "once": true
+          }
+        ]
+      },
+      {
+        "id": "wolf_den",
+        "name": "Wolf Den",
+        "description": "Fresh fur and bone piles mark this chamber as active territory.",
+        "exits": {
+          "hall": "shattered_hall"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "elite_ashwood_fanglord",
+            "weight": 100
+          }
+        ],
+        "items": ["beast_hide"]
+      },
+      {
+        "id": "sunken_reliquary",
+        "name": "Sunken Reliquary",
+        "description": "A lowered sanctuary ringed by ash-scarred ward stones.",
+        "exits": {
+          "hall": "shattered_hall"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "ashwood_packleader",
+            "weight": 100
+          }
+        ],
+        "events": [
+          {
+            "id": "relic_sigil",
+            "text": "A ward sigil flares once, revealing a preserved ring in the basin.",
+            "reward_item": "ashbound_ring",
+            "once": true
+          }
+        ]
+      }
+    ]
+  },
+  "ironridge_deep_mine": {
+    "name": "Ironridge Deep Mine",
+    "entry_room": "lift_platform",
+    "surface_exit": "ironridge_square",
+    "contract_hooks": ["c006_clear_ironridge_pass"],
+    "rumor_hooks": ["deep mine", "ironridge shafts"],
+    "rooms": [
+      {
+        "id": "lift_platform",
+        "name": "Lift Platform",
+        "description": "A rusted ore lift creaks above a dark shaft.",
+        "exits": {
+          "shaft": "ore_tunnels",
+          "out": "__exit__"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "ridge_raider",
+            "weight": 100
+          }
+        ]
+      },
+      {
+        "id": "ore_tunnels",
+        "name": "Ore Tunnels",
+        "description": "Narrow cuts in the mountain wall glitter with half-broken veins.",
+        "exits": {
+          "lift": "lift_platform",
+          "store": "blasting_store",
+          "forge": "abandoned_forge"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "bandit_toll_guard",
+            "weight": 100
+          }
+        ],
+        "items": ["iron_ore"]
+      },
+      {
+        "id": "blasting_store",
+        "name": "Blasting Store",
+        "description": "Collapsed powder crates and chain hooks fill this side chamber.",
+        "exits": {
+          "tunnels": "ore_tunnels"
+        },
+        "events": [
+          {
+            "id": "miners_stash",
+            "text": "A foreman's chest survived the collapse with supply coin and ore.",
+            "reward_gold": 12,
+            "reward_item": "iron_ore",
+            "once": true
+          }
+        ]
+      },
+      {
+        "id": "abandoned_forge",
+        "name": "Abandoned Forge",
+        "description": "A blackened forge pit still radiates heat from old ward-runes.",
+        "exits": {
+          "tunnels": "ore_tunnels",
+          "pit": "deep_vein_pit"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "elite_ironpass_bulwark",
+            "weight": 100
+          }
+        ],
+        "items": ["ancient_alloy"]
+      },
+      {
+        "id": "deep_vein_pit",
+        "name": "Deep Vein Pit",
+        "description": "The mine's deepest cut opens over an unstable crystal seam.",
+        "exits": {
+          "forge": "abandoned_forge"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "ridge_raider",
+            "weight": 100
+          }
+        ]
+      }
+    ]
+  },
+  "emberfall_catacombs": {
+    "name": "Emberfall Shrine Catacombs",
+    "entry_room": "prayer_steps",
+    "surface_exit": "emberfall",
+    "contract_hooks": ["c007_silence_the_weeping_shrine", "c009_blackroot_ash_mark"],
+    "rumor_hooks": ["emberfall catacombs", "shrine catacombs"],
+    "rooms": [
+      {
+        "id": "prayer_steps",
+        "name": "Prayer Steps",
+        "description": "Tight stone steps descend beneath soot-marked prayer walls.",
+        "exits": {
+          "crypt": "ward_crypt",
+          "out": "__exit__"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "ash_wisp",
+            "weight": 100
+          }
+        ]
+      },
+      {
+        "id": "ward_crypt",
+        "name": "Ward Crypt",
+        "description": "A circular crypt lined with cracked ward lanterns and old names.",
+        "exits": {
+          "steps": "prayer_steps",
+          "bonehall": "bonehall",
+          "sanctum": "cinder_sanctum"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "cultist",
+            "weight": 100
+          }
+        ],
+        "items": ["ritual_salt"]
+      },
+      {
+        "id": "bonehall",
+        "name": "Bonehall",
+        "description": "A side passage packed with ossuaries and cold ash drifts.",
+        "exits": {
+          "crypt": "ward_crypt"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "bone_warden",
+            "weight": 100
+          }
+        ],
+        "events": [
+          {
+            "id": "keeper_votive",
+            "text": "A shrine keeper's votive chain rests untouched beneath the dust.",
+            "reward_item": "shrineward_votive_chain",
+            "once": true
+          }
+        ]
+      },
+      {
+        "id": "cinder_sanctum",
+        "name": "Cinder Sanctum",
+        "description": "An inner sanctum where embers drift in circles over a cracked altar.",
+        "exits": {
+          "crypt": "ward_crypt"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "cinder_guardian",
+            "weight": 100
+          }
+        ],
+        "items": ["ash_mark_cinder"]
+      }
+    ]
+  },
+  "stormbreak_smuggler_caves": {
+    "name": "Stormbreak Smuggler Caves",
+    "entry_room": "tide_entry",
+    "surface_exit": "stormbreak",
+    "contract_hooks": ["c011_break_stormbreak_raiders"],
+    "rumor_hooks": ["smuggler caves", "stormbreak caves"],
+    "rooms": [
+      {
+        "id": "tide_entry",
+        "name": "Tide Entry",
+        "description": "Saltwater drips from a low cave mouth hidden behind old netting.",
+        "exits": {
+          "dock": "hidden_dock",
+          "out": "__exit__"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "sea_raider",
+            "weight": 100
+          }
+        ]
+      },
+      {
+        "id": "hidden_dock",
+        "name": "Hidden Dock",
+        "description": "A narrow inlet where skiffs are chained in silence.",
+        "exits": {
+          "entry": "tide_entry",
+          "stores": "salt_store",
+          "hollow": "raider_hollow"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "bandit_raider",
+            "weight": 100
+          }
+        ]
+      },
+      {
+        "id": "salt_store",
+        "name": "Salt Store",
+        "description": "Crates of salted provisions and stolen guild seals crowd the wall.",
+        "exits": {
+          "dock": "hidden_dock"
+        },
+        "events": [
+          {
+            "id": "navigator_cache",
+            "text": "A sealed locker holds a compass marked with old Stormbreak routes.",
+            "reward_item": "stormbreak_navigator_compass",
+            "once": true
+          }
+        ],
+        "items": ["relic_core_shard"]
+      },
+      {
+        "id": "raider_hollow",
+        "name": "Raider Hollow",
+        "description": "The cave opens into a dry hollow scarred by blade drills.",
+        "exits": {
+          "dock": "hidden_dock"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "bandit_tollmaster",
+            "weight": 100
+          }
+        ],
+        "items": ["bandage"]
+      }
+    ]
+  },
+  "vaultreach_lower_archives": {
+    "name": "Vaultreach Lower Archives",
+    "entry_room": "sealed_stair",
+    "surface_exit": "vaultreach",
+    "contract_hooks": ["c010_vault_keeper_expedition"],
+    "rumor_hooks": ["lower archives", "vaultreach archives"],
+    "rooms": [
+      {
+        "id": "sealed_stair",
+        "name": "Sealed Stair",
+        "description": "A steep archive stair drops below lantern lines and warning sigils.",
+        "exits": {
+          "gallery": "ledger_gallery",
+          "out": "__exit__"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "ash_adept",
+            "weight": 100
+          }
+        ]
+      },
+      {
+        "id": "ledger_gallery",
+        "name": "Ledger Gallery",
+        "description": "Broken record shelves and brass tablets line a long chamber.",
+        "exits": {
+          "stair": "sealed_stair",
+          "annex": "annex_vault",
+          "reactor": "core_reactor"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "elite_vault_warden",
+            "weight": 100
+          }
+        ],
+        "items": ["ancient_alloy"]
+      },
+      {
+        "id": "annex_vault",
+        "name": "Annex Vault",
+        "description": "A compact archive vault where relic tags still hang from empty racks.",
+        "exits": {
+          "gallery": "ledger_gallery"
+        },
+        "events": [
+          {
+            "id": "ward_plate",
+            "text": "A locked coffer opens to reveal a preserved ward plate.",
+            "reward_item": "vaultkeeper_ward_plate",
+            "once": true
+          }
+        ],
+        "items": ["vault_core"]
+      },
+      {
+        "id": "core_reactor",
+        "name": "Core Reactor",
+        "description": "The archive heart hums with unstable core-light and drifting ash.",
+        "exits": {
+          "gallery": "ledger_gallery",
+          "keeper": "keeper_vault"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "cinder_guardian",
+            "weight": 100
+          }
+        ]
+      },
+      {
+        "id": "keeper_vault",
+        "name": "Keeper Vault",
+        "description": "An armored chamber where the final registry stands intact.",
+        "exits": {
+          "reactor": "core_reactor"
+        },
+        "possible_encounters": [
+          {
+            "type": "enemy",
+            "target": "vault_keeper",
+            "weight": 100
+          }
+        ],
+        "items": ["vault_core_blade"]
+      }
+    ]
+  }
+}

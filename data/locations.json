@@ -86,7 +86,8 @@
       "village": "village_square",
       "deeper": "deep_forest",
       "tower": "old_watchtower",
-      "river": "river_crossing"
+      "river": "river_crossing",
+      "ruins": "ashwood_ruins"
     },
     "enemies": [
       "slime"
@@ -1168,7 +1169,8 @@
     },
     "connected_locations": {
       "shrine": "town_shrine",
-      "reach": "vaultreach"
+      "reach": "vaultreach",
+      "catacombs": "emberfall_catacombs"
     },
     "enemies": [],
     "items": [],
@@ -1336,7 +1338,8 @@
     },
     "connected_locations": {
       "pass": "ironridge_pass",
-      "forge": "ironridge_forge"
+      "forge": "ironridge_forge",
+      "mine": "ironridge_deep_mine"
     },
     "enemies": [],
     "items": [],
@@ -1493,7 +1496,8 @@
       "campaign_role": "Stormbreak ties the frontier inland roads to the sea and stages the approach toward the ash coast."
     },
     "connected_locations": {
-      "cliffs": "stormbreak_cliffs"
+      "cliffs": "stormbreak_cliffs",
+      "caves": "stormbreak_smuggler_caves"
     },
     "enemies": [],
     "items": [],
@@ -1687,7 +1691,8 @@
     },
     "connected_locations": {
       "emberfall": "emberfall",
-      "stair": "ashen_stair"
+      "stair": "ashen_stair",
+      "archives": "vaultreach_lower_archives"
     },
     "enemies": [],
     "items": [],
@@ -1771,5 +1776,150 @@
     ],
     "state_event_chance": 0,
     "state_events": []
+  },
+  "ashwood_ruins": {
+    "name": "Ashwood Ruins",
+    "description": "Collapsed ward-stones and old halls sink beneath Ashwood roots.",
+    "region": "Ashwood Forests",
+    "lore": "The ruins once marked a guarded shrine route. Now hunters use them as a proving ground before deeper contracts.",
+    "connected_locations": {
+      "forest": "forest_path"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": [],
+    "encounters": [],
+    "world_event_chance": 8,
+    "world_events": [],
+    "state_event_chance": 10,
+    "state_events": [],
+    "dungeon": {
+      "tier": "D",
+      "enemy_pool": [
+        "ashwood_wolf",
+        "ashwood_stalker"
+      ],
+      "elite_pool": [
+        "elite_ashwood_fanglord"
+      ],
+      "boss_pool": [
+        "ashwood_packleader"
+      ]
+    }
+  },
+  "ironridge_deep_mine": {
+    "name": "Ironridge Deep Mine",
+    "description": "A sealed mine entrance reinforced with fresh hold sigils.",
+    "region": "Ironridge Hold",
+    "lore": "Ironridge closed the lower shaft after repeated raider pressure and unstable veins. Recovery crews still post bounties for secure access.",
+    "connected_locations": {
+      "square": "ironridge_square"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": [],
+    "encounters": [],
+    "world_event_chance": 10,
+    "world_events": [],
+    "state_event_chance": 12,
+    "state_events": [],
+    "dungeon": {
+      "tier": "C",
+      "enemy_pool": [
+        "ridge_raider",
+        "bandit_toll_guard"
+      ],
+      "elite_pool": [
+        "elite_ironpass_bulwark"
+      ],
+      "boss_pool": []
+    }
+  },
+  "emberfall_catacombs": {
+    "name": "Emberfall Shrine Catacombs",
+    "description": "Old ward tunnels descend beneath Emberfall's shrine district.",
+    "region": "Emberfall Ashlands",
+    "lore": "Shrine keepers interred failed ward relics below Emberfall. Only trained teams are meant to enter when ash pressure spikes.",
+    "connected_locations": {
+      "emberfall": "emberfall"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": [],
+    "encounters": [],
+    "world_event_chance": 12,
+    "world_events": [],
+    "state_event_chance": 14,
+    "state_events": [],
+    "dungeon": {
+      "tier": "C",
+      "enemy_pool": [
+        "ash_wisp",
+        "cultist",
+        "bone_warden"
+      ],
+      "elite_pool": [],
+      "boss_pool": [
+        "cinder_guardian"
+      ]
+    }
+  },
+  "stormbreak_smuggler_caves": {
+    "name": "Stormbreak Smuggler Caves",
+    "description": "A hidden shoreline route used by raiders and black-market crews.",
+    "region": "Stormbreak Coast",
+    "lore": "Stormbreak wardens watch these caves whenever harbor manifests go missing. Smuggler crews rotate lookouts by tide.",
+    "connected_locations": {
+      "stormbreak": "stormbreak"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": [],
+    "encounters": [],
+    "world_event_chance": 10,
+    "world_events": [],
+    "state_event_chance": 12,
+    "state_events": [],
+    "dungeon": {
+      "tier": "C",
+      "enemy_pool": [
+        "sea_raider",
+        "bandit_raider"
+      ],
+      "elite_pool": [],
+      "boss_pool": [
+        "bandit_tollmaster"
+      ]
+    }
+  },
+  "vaultreach_lower_archives": {
+    "name": "Vaultreach Lower Archives",
+    "description": "A sealed archive descent beneath Vaultreach's relic quarter.",
+    "region": "Ashen Vault",
+    "lore": "The lower archives catalog pre-fall relic movements. Access is tightly controlled and often tied to high-risk contracts.",
+    "connected_locations": {
+      "vaultreach": "vaultreach"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": [],
+    "encounters": [],
+    "world_event_chance": 14,
+    "world_events": [],
+    "state_event_chance": 16,
+    "state_events": [],
+    "dungeon": {
+      "tier": "B",
+      "enemy_pool": [
+        "ash_adept",
+        "elite_vault_warden"
+      ],
+      "elite_pool": [
+        "elite_vault_warden"
+      ],
+      "boss_pool": [
+        "vault_keeper"
+      ]
+    }
   }
 }

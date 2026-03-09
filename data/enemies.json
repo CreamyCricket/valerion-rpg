@@ -793,7 +793,11 @@
     "abilities": [
       "maul",
       "thick_hide",
-      "crushing_blow"
+      {
+        "id": "crushing_blow",
+        "telegraph": "raises its weapon for a crushing strike",
+        "delay": 1
+      }
     ],
     "hp": 24,
     "defense": 13,
@@ -1522,7 +1526,11 @@
     "abilities": [
       "maul",
       "thick_hide",
-      "crushing_blow"
+      {
+        "id": "crushing_blow",
+        "telegraph": "raises its weapon for a crushing strike",
+        "delay": 1
+      }
     ],
     "hp": 25,
     "defense": 13,
