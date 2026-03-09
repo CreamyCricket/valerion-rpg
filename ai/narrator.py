@@ -2,7 +2,7 @@ class Narrator:
     """Provides text only; it never mutates game state and only reflects current mechanics."""
     @staticmethod
     def intro() -> str:
-        return "Welcome to Valerion. Type 'help' to see commands."
+        return "Welcome to Valerion, the old kingdom still held together by oath, ward, and road. Type 'help' to see commands."
 
     @staticmethod
     def new_game_intro(chapter_progress: dict, location_name: str, character_context: dict | None = None) -> str:
@@ -63,18 +63,9 @@ class Narrator:
             lines.append(
                 "Skills: "
                 + ", ".join(
-                    f"{skill_name.title()} {int(skill_values.get(skill_name, 0))}"
+                    f"{skill_name.replace('_', ' ').title()} {int(skill_values.get(skill_name, 0))}"
                     f" (prof {int(skill_proficiencies.get(skill_name, 0))})"
-                    for skill_name in (
-                        "swordsmanship",
-                        "archery",
-                        "defense",
-                        "spellcasting",
-                        "stealth",
-                        "survival",
-                        "lore",
-                        "persuasion",
-                    )
+                    for skill_name in skill_values
                 )
             )
         inventory = character_context.get("inventory", [])
@@ -155,9 +146,9 @@ class Narrator:
         )
 
         skill_bits = []
-        for skill_name in ("swordsmanship", "archery", "defense", "spellcasting", "stealth", "survival", "lore", "persuasion"):
+        for skill_name in (skills.keys() if isinstance(skills, dict) else []):
             entry = skills.get(skill_name, {}) if isinstance(skills, dict) else {}
-            skill_bits.append(f"{skill_name.title()} {int(entry.get('total', 0))}")
+            skill_bits.append(f"{skill_name.replace('_', ' ').title()} {int(entry.get('total', 0))}")
         lines.append("Skills: " + ", ".join(skill_bits))
 
         lines.append(
@@ -228,6 +219,10 @@ class Narrator:
         economy_note = str(location_context.get("economy_note", "")).strip()
         if economy_note:
             lines.append("Economy: " + economy_note)
+
+        hub_lines = Narrator._hub_lines(location_context)
+        if hub_lines:
+            lines.extend(hub_lines)
 
         dungeon_lines = Narrator._dungeon_lines(location_context)
         if dungeon_lines:
@@ -303,6 +298,10 @@ class Narrator:
         return f"World event: {event_name} at {location_name}. {effect_summary}"
 
     @staticmethod
+    def road_encounter_text(encounter_name: str, outcome_summary: str) -> str:
+        return f"Road encounter: {encounter_name}. {outcome_summary}"
+
+    @staticmethod
     def enemy_fled_text(enemy_name: str) -> str:
         return f"{enemy_name} flees the fight."
 
@@ -319,12 +318,12 @@ class Narrator:
     @staticmethod
     def skills_text(skills: dict[str, dict[str, int]]) -> str:
         lines = ["Skills"]
-        for skill_name in ("swordsmanship", "archery", "defense", "spellcasting", "stealth", "survival", "lore", "persuasion"):
+        for skill_name in (skills.keys() if isinstance(skills, dict) else []):
             entry = skills.get(skill_name, {}) if isinstance(skills, dict) else {}
             total = int(entry.get("total", 0))
             proficiency = int(entry.get("proficiency", 0))
-            stat_name = str(entry.get("stat", "mind")).title()
-            lines.append(f"- {skill_name.title()}: {total} (prof {proficiency}, {stat_name})")
+            stat_name = str(entry.get("stat", "mind")).replace("_", " ").title()
+            lines.append(f"- {skill_name.replace('_', ' ').title()}: {total} (prof {proficiency}, {stat_name})")
         return "\n".join(lines)
 
     @staticmethod
@@ -344,6 +343,17 @@ class Narrator:
     @staticmethod
     def ability_text(name: str, detail: str) -> str:
         return f"{name}: {detail}"
+
+    @staticmethod
+    def class_unlock_text(class_name: str, source: str = "") -> str:
+        reason = f" after {source}" if str(source).strip() else ""
+        return f"Milestone reached{reason}. {class_name} is now available for future characters."
+
+    @staticmethod
+    def race_unlock_text(race_name: str, source: str = "", homeland: str = "") -> str:
+        reason = f" after {source}" if str(source).strip() else ""
+        homeland_text = f" The old ties of {homeland} answer your deeds." if str(homeland).strip() else ""
+        return f"Milestone reached{reason}. {race_name} is now available for future characters.{homeland_text}"
 
     @staticmethod
     def combat_header_text(
@@ -405,10 +415,18 @@ class Narrator:
         offered_quests: list[str],
         service_lines: list[str] | None = None,
         memory_lines: list[str] | None = None,
+        reaction_lines: list[str] | None = None,
+        rumor_lines: list[str] | None = None,
     ) -> str:
         lines = [f"{npc_name} ({role})", dialogue]
         if memory_lines:
             lines.extend(memory_lines)
+        if reaction_lines:
+            lines.append("World reaction:")
+            lines.extend(f"- {line}" for line in reaction_lines)
+        if rumor_lines:
+            lines.append("Rumors:")
+            lines.extend(f"- {line}" for line in rumor_lines)
         if service_lines:
             lines.extend(service_lines)
         if offered_quests:
@@ -416,6 +434,33 @@ class Narrator:
             lines.extend(f"- {offer}" for offer in offered_quests)
             lines.append("Use 'accept <quest>' to take one.")
         return "\n".join(lines)
+
+    @staticmethod
+    def npc_topic_text(
+        npc_name: str,
+        role: str,
+        topic: str,
+        reply: str,
+        reaction_lines: list[str] | None = None,
+        rumor_lines: list[str] | None = None,
+    ) -> str:
+        lines = [f"{npc_name} ({role})"]
+        if reply:
+            lines.append(reply)
+        else:
+            lines.append(f"{npc_name} answers about {topic} with the practical focus of someone who lives on the line.")
+        if reaction_lines:
+            lines.append("What changes in their tone:")
+            lines.extend(f"- {line}" for line in reaction_lines)
+        if rumor_lines:
+            lines.append("What they pass on:")
+            lines.extend(f"- {line}" for line in rumor_lines)
+        return "\n".join(lines)
+
+    @staticmethod
+    def npc_reaction_spread_text(location_name: str, region_name: str = "") -> str:
+        place = str(region_name).strip() or str(location_name).strip() or "the frontier"
+        return f"Word of your deeds has clearly spread through {place}."
 
     @staticmethod
     def reputation_change_text(faction_name: str, amount: int, score: int, tier: str) -> str:
@@ -540,6 +585,9 @@ class Narrator:
         economy_note = str(location_context.get("economy_note", "")).strip()
         if economy_note:
             lines.append("Economy: " + economy_note)
+        hub_lines = Narrator._hub_lines(location_context, inspect_mode=True)
+        if hub_lines:
+            lines.extend(hub_lines)
         dungeon_lines = Narrator._dungeon_lines(location_context, inspect_mode=True)
         if dungeon_lines:
             lines.extend(dungeon_lines)
@@ -880,6 +928,9 @@ class Narrator:
         character_context: dict | None = None,
         location_context: dict | None = None,
         history_flags: dict | None = None,
+        world_reaction_lines: list[str] | None = None,
+        hunter_guild_summary: dict | None = None,
+        title_summary: dict | None = None,
     ) -> str:
         character_context = character_context or {}
         location_context = location_context or {}
@@ -893,6 +944,17 @@ class Narrator:
             f"Gold: {gold}",
             f"Equipped weapon: {equipped_weapon}",
         ]
+        hunter_guild_summary = hunter_guild_summary or {}
+        guild_rank = str(hunter_guild_summary.get("rank", "")).strip()
+        if guild_rank:
+            guild_line = f"Hunter Guild rank: {guild_rank} ({int(hunter_guild_summary.get('points', 0) or 0)} marks)"
+            if hunter_guild_summary.get("next_threshold") is not None:
+                guild_line += f" | {int(hunter_guild_summary.get('needed', 0) or 0)} to next standing"
+            lines.append(guild_line)
+        title_summary = title_summary or {}
+        title_names = title_summary.get("names", [])
+        if isinstance(title_names, list) and title_names:
+            lines.append("Earned titles: " + ", ".join(str(name) for name in title_names))
 
         character_hook = Narrator._character_hook(character_context)
         if character_hook:
@@ -933,6 +995,9 @@ class Narrator:
         turn_line = Narrator._campaign_turn_line(history_flags, chapter_progress)
         if turn_line:
             lines.append(turn_line)
+        if world_reaction_lines:
+            lines.append("World acknowledgement:")
+            lines.extend(f"- {line}" for line in world_reaction_lines)
 
         lines.append(
             "Adventure memory: "
@@ -969,6 +1034,9 @@ class Narrator:
         character_context: dict | None = None,
         location_context: dict | None = None,
         history_flags: dict | None = None,
+        world_reaction_lines: list[str] | None = None,
+        hunter_guild_summary: dict | None = None,
+        title_summary: dict | None = None,
     ) -> str:
         character_context = character_context or {}
         location_context = location_context or {}
@@ -979,6 +1047,16 @@ class Narrator:
             f"{player_name} is currently in {location_name}. The campaign is unfolding one clear step at a time.",
             f"Current arc: {chapter_progress.get('title', 'Arc 1: Village Roads')}",
         ]
+        hunter_guild_summary = hunter_guild_summary or {}
+        guild_rank = str(hunter_guild_summary.get("rank", "")).strip()
+        if guild_rank:
+            lines.append(
+                f"Hunter Guild standing: {guild_rank} ({int(hunter_guild_summary.get('points', 0) or 0)} marks)"
+            )
+        title_summary = title_summary or {}
+        title_names = title_summary.get("names", [])
+        if isinstance(title_names, list) and title_names:
+            lines.append("Known titles: " + ", ".join(str(name) for name in title_names))
         character_hook = Narrator._character_hook(character_context)
         if character_hook:
             lines.append(character_hook)
@@ -996,6 +1074,9 @@ class Narrator:
         turn_line = Narrator._campaign_turn_line(history_flags, chapter_progress)
         if turn_line:
             lines.append(turn_line)
+        if world_reaction_lines:
+            lines.append("World acknowledgement:")
+            lines.extend(f"- {line}" for line in world_reaction_lines)
 
         if completed_quests:
             lines.append("Completed quests:")
@@ -1173,12 +1254,15 @@ class Narrator:
             threat_text = "unknown"
 
         label = str(location_context.get("dungeon_label", f"Rank {tier}")).strip()
+        danger = str(location_context.get("dungeon_danger", "")).strip()
         families = [str(name) for name in location_context.get("dungeon_families", []) if str(name).strip()]
         loot_band = str(location_context.get("dungeon_loot_band", "")).strip()
         event_risk = str(location_context.get("dungeon_event_risk", "")).strip()
 
-        lines = [f"Dungeon rank: {label} | Threat {threat_text}"]
+        lines = [f"Gate rank: {label} | Threat {threat_text}"]
         details = []
+        if danger:
+            details.append("Danger: " + danger)
         if families:
             details.append("Families: " + ", ".join(families))
         if loot_band:
@@ -1191,12 +1275,31 @@ class Narrator:
         return lines
 
     @staticmethod
-    def history_text(events: list[dict], event_memory: dict | None = None) -> str:
+    def history_text(
+        events: list[dict],
+        event_memory: dict | None = None,
+        world_reaction_lines: list[str] | None = None,
+        hunter_guild_summary: dict | None = None,
+        title_summary: dict | None = None,
+    ) -> str:
         if not events:
             return "History\nNo important events recorded yet."
 
         event_memory = event_memory or {}
         lines = ["History"]
+        hunter_guild_summary = hunter_guild_summary or {}
+        guild_rank = str(hunter_guild_summary.get("rank", "")).strip()
+        if guild_rank:
+            lines.append(
+                f"Hunter Guild standing: {guild_rank} ({int(hunter_guild_summary.get('points', 0) or 0)} marks)"
+            )
+        title_summary = title_summary or {}
+        title_names = title_summary.get("names", [])
+        if isinstance(title_names, list) and title_names:
+            lines.append("Recorded titles: " + ", ".join(str(name) for name in title_names))
+        if world_reaction_lines:
+            lines.append("Current acknowledgement:")
+            lines.extend(f"- {line}" for line in world_reaction_lines)
         memory_lines = Narrator._event_memory_lines(event_memory)
         if memory_lines:
             lines.append("Remembered milestones:")
@@ -1237,6 +1340,13 @@ class Narrator:
     @staticmethod
     def event_line(event: dict) -> str:
         return Narrator._event_line(event)
+
+    @staticmethod
+    def title_unlock_text(title_name: str, description: str = "") -> str:
+        line = f"Title earned: {title_name}."
+        if description:
+            line += f" {description}"
+        return line
 
     @staticmethod
     def _event_line(event: dict) -> str:
@@ -1341,6 +1451,45 @@ class Narrator:
                 return f"{event_name} ended at {location}: {outcome}."
             return f"{event_name} ended at {location}."
 
+        if event_type == "regional_event_started":
+            event_name = details.get("event_name", details.get("event_id", "Regional event"))
+            region_name = details.get("region_name", details.get("region_id", "the region"))
+            location = details.get("location_name", details.get("location_id", "unknown location"))
+            return f"{event_name} began in {region_name} at {location}."
+
+        if event_type == "regional_event_escalated":
+            event_name = details.get("event_name", details.get("event_id", "Regional event"))
+            region_name = details.get("region_name", details.get("region_id", "the region"))
+            location = details.get("location_name", details.get("location_id", "unknown location"))
+            outcome = details.get("outcome")
+            if outcome:
+                return f"{event_name} escalated in {region_name} at {location}: {outcome}."
+            return f"{event_name} escalated in {region_name} at {location}."
+
+        if event_type == "regional_event_resolved":
+            event_name = details.get("event_name", details.get("event_id", "Regional event"))
+            region_name = details.get("region_name", details.get("region_id", "the region"))
+            location = details.get("location_name", details.get("location_id", "unknown location"))
+            outcome = details.get("outcome")
+            if outcome:
+                return f"{event_name} resolved in {region_name} at {location}: {outcome}."
+            return f"{event_name} resolved in {region_name} at {location}."
+
+        if event_type == "title_unlocked":
+            title_name = details.get("title_name", details.get("title_id", "Unknown title"))
+            source = str(details.get("source", "")).strip()
+            if source:
+                return f"Earned the title {title_name} through {source}."
+            return f"Earned the title {title_name}."
+
+        if event_type == "road_encounter":
+            encounter_name = details.get("encounter_name", details.get("encounter_id", "Road encounter"))
+            location = details.get("location_name", details.get("location_id", "the road"))
+            outcome = details.get("outcome")
+            if outcome:
+                return f"{encounter_name} on the road to {location}: {outcome}."
+            return f"{encounter_name} occurred on the road to {location}."
+
         if event_type == "reputation_changed":
             faction = details.get("faction_name", details.get("faction_id", "Faction"))
             amount = details.get("amount", 0)
@@ -1357,6 +1506,13 @@ class Narrator:
                 return f"{npc_name}'s trust changed by {amount:+} (now {trust})."
             return f"{npc_name}'s trust changed by {amount:+}."
 
+        if event_type == "world_recognition":
+            text = str(details.get("text", "")).strip()
+            if text:
+                return text
+            key = details.get("key", "recognition")
+            return f"Word spread through the realm about {key}."
+
         return f"{event_type or 'event'}: {details}"
 
     @staticmethod
@@ -1371,8 +1527,14 @@ class Narrator:
         enemy_names: list[str],
         npc_names: list[str],
         exits: dict,
+        location_context: dict | None = None,
     ) -> str:
+        location_context = location_context or {}
         lines = [f"You search the {target} in {location_name}."]
+
+        dungeon_lines = Narrator._dungeon_lines(location_context)
+        if dungeon_lines:
+            lines.extend(dungeon_lines)
 
         if item_names:
             lines.append("Visible items: " + ", ".join(item_names))
@@ -1416,12 +1578,42 @@ class Narrator:
     @staticmethod
     def about_text() -> str:
         return (
-            "Valerion keeps rules and state in an engine-first rules layer while "
+            "In-world, Valerion is the old kingdom, the surviving frontier order, and the ideal people still choose to hold together through oath, ward, and sacred duty. "
+            "Mechanically, Valerion keeps rules and state in an engine-first rules layer while "
             "the AI narrates only the results the engine has already resolved. The engine owns combat rolls, HP, "
             "inventory, encounters, quest progress, faction reputation, NPC memory, location state changes, and world events. A small parser also accepts safe read-only "
             "free text such as looking, inspecting, asking, greeting, listening, and studying, plus a few validated "
             "actions like moving, fighting, taking, and using items."
         )
+
+    @staticmethod
+    def _hub_lines(location_context: dict, inspect_mode: bool = False) -> list[str]:
+        hub_name = str(location_context.get("hub_name", "")).strip()
+        if not hub_name:
+            return []
+
+        lines = []
+        role = str(location_context.get("hub_progression_role", "")).strip()
+        travel_identity = str(location_context.get("hub_travel_identity", "")).strip()
+        faction_tie = str(location_context.get("hub_faction_tie", "")).strip()
+        race_tie = str(location_context.get("hub_race_tie", "")).strip()
+        class_tie = str(location_context.get("hub_class_tie", "")).strip()
+        campaign_role = str(location_context.get("hub_campaign_role", "")).strip()
+
+        lines.append(("Major hub: " if inspect_mode else "Hub: ") + hub_name)
+        if role:
+            lines.append("Held line: " + role)
+        if travel_identity:
+            lines.append("Travel identity: " + travel_identity)
+        if faction_tie:
+            lines.append("Faction tie: " + faction_tie)
+        if race_tie:
+            lines.append("Race tie: " + race_tie)
+        if class_tie:
+            lines.append("Class tie: " + class_tie)
+        if campaign_role:
+            lines.append("Campaign role: " + campaign_role)
+        return lines
 
     @staticmethod
     def do_greet_text(npc_name: str) -> str:

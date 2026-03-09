@@ -1,0 +1,196 @@
+{
+  "meta": {
+    "travel_chance": 15
+  },
+  "encounters": [
+    {
+      "encounter_id": "road_wolf_pack",
+      "name": "Wolf Pack",
+      "category": "combat",
+      "weight": 14,
+      "modes": ["carriage", "escorted_caravan"],
+      "destination_regions": ["Stonewatch", "Valewood"],
+      "enemy": "pack_wolf",
+      "intro": "Halfway down the road, the escort horses shy as a lean wolf pack ghosts out of the brush.",
+      "outcome": "The caravan drives through, but one of the beasts keeps pace long enough to reach the road gate with you."
+    },
+    {
+      "encounter_id": "road_bandit_ambush",
+      "name": "Bandit Ambush",
+      "category": "combat",
+      "weight": 14,
+      "modes": ["carriage", "escorted_caravan", "ferry"],
+      "enemy": "bandit_raider",
+      "intro": "Halfway down the road, you hear raised voices near a broken wagon and then the rush of boots from the ditch.",
+      "outcome": "The line pushes through the ambush, but one raider breaks clear and reaches the next stop still hunting for an opening."
+    },
+    {
+      "encounter_id": "road_corrupted_shrine_guardian",
+      "name": "Corrupted Shrine Guardian",
+      "category": "combat",
+      "weight": 10,
+      "modes": ["shrine_escort", "restricted_vault_transit"],
+      "destinations": ["emberfall", "vaultreach"],
+      "enemy": "shrine_guardian",
+      "intro": "A ward-stone on the roadside cracks open with a low moan, and an old guardian shape lurches into the escort line.",
+      "outcome": "The escort keeps formation and forces the thing back, but it follows the road long enough to reach your destination."
+    },
+    {
+      "encounter_id": "road_rogue_construct",
+      "name": "Rogue Construct",
+      "category": "combat",
+      "weight": 9,
+      "modes": ["restricted_vault_transit", "escorted_caravan"],
+      "destinations": ["vaultreach", "emberfall"],
+      "enemy": "elite_vault_warden",
+      "intro": "A dormant construct on the roadside jerks awake as your convoy passes, its old directives suddenly finding a target again.",
+      "outcome": "The ward-bearers buy enough time to pull ahead, but the construct reaches the staging ground behind you."
+    },
+    {
+      "encounter_id": "road_traveling_merchant",
+      "name": "Traveling Merchant",
+      "category": "social",
+      "weight": 12,
+      "reputation_changes": {
+        "merchant_guild": 2
+      },
+      "reward_gold": 4,
+      "rumor": "A road merchant warns that Ironridge convoy work is tightening again whenever ore ledgers start going missing.",
+      "intro": "A merchant wagon falls in beside your coach for a stretch, its driver eager to trade road news for a steady ear.",
+      "outcome": "You part with fresher market rumor, a few honest coins, and a better name among guild teamsters."
+    },
+    {
+      "encounter_id": "road_wounded_hunter",
+      "name": "Wounded Hunter",
+      "category": "social",
+      "weight": 11,
+      "reward_items": ["bandage_kit"],
+      "reputation_changes": {
+        "hunters_guild": 2,
+        "forest_clans": 1
+      },
+      "rumor": "The hunter swears Ashwood packs are ranging closer to the road whenever the watch grows complacent.",
+      "intro": "The caravan slows for a hunter limping in from the verge with torn leathers and a blood-dark sleeve.",
+      "outcome": "The escort gets the hunter stable and sends you on with field supplies and a sharper warning about the nearby trails."
+    },
+    {
+      "encounter_id": "road_shrine_pilgrim",
+      "name": "Shrine Pilgrim",
+      "category": "social",
+      "weight": 10,
+      "modes": ["shrine_escort", "carriage"],
+      "reputation_changes": {
+        "shrine_keepers": 2
+      },
+      "rumor": "The pilgrim says Emberfall's ward lines are holding, but only because the keepers keep choosing duty over sleep.",
+      "intro": "A soot-marked pilgrim joins the convoy for a time, speaking softly about shrines that still keep their line by choice rather than ease.",
+      "outcome": "By the time the road parts, your name has been carried forward with a little more favor among shrine folk."
+    },
+    {
+      "encounter_id": "road_messenger_courier",
+      "name": "Messenger Courier",
+      "category": "social",
+      "weight": 9,
+      "reputation_changes": {
+        "kingdom_guard": 2
+      },
+      "reward_gold": 3,
+      "contract_hint": "c006_break_gorgos_toll",
+      "intro": "A hard-riding courier changes mounts beside the road and uses the pause to compare threat notices with your escort.",
+      "outcome": "The courier leaves you with official thanks, a small hazard stipend, and a sharper sense of which postings matter next."
+    },
+    {
+      "encounter_id": "road_abandoned_camp",
+      "name": "Abandoned Camp",
+      "category": "mystery",
+      "weight": 10,
+      "reward_items": ["torch_bundle", "bread_ration"],
+      "rumor": "The camp's scattered notes mention caravans avoiding the same road turn three nights running.",
+      "intro": "The road skirts an abandoned camp whose cookfire has gone cold too recently for comfort.",
+      "outcome": "The escort clears what can still be carried and leaves with useful supplies and a bad feeling about why the camp was left in such haste."
+    },
+    {
+      "encounter_id": "road_strange_relic",
+      "name": "Strange Relic",
+      "category": "mystery",
+      "weight": 8,
+      "destinations": ["emberfall", "vaultreach"],
+      "reward_items": ["relic_core_shard"],
+      "reputation_changes": {
+        "shrine_keepers": 1
+      },
+      "intro": "Something half-buried beside the road begins to hum as the convoy passes, old metal answering the ward-stones around it.",
+      "outcome": "The escort secures the fragment for proper handling and credits you for spotting that it was more dangerous than it first looked."
+    },
+    {
+      "encounter_id": "road_dead_caravan",
+      "name": "Dead Caravan",
+      "category": "mystery",
+      "weight": 8,
+      "reward_items": ["iron_scrap"],
+      "rumor": "Broken chests and axle marks suggest the raiders were after freight lists as much as coin.",
+      "intro": "A dead caravan lies off the roadside with its teams cut loose and its manifest chest broken open.",
+      "outcome": "The escort salvages what is still worth hauling and adds one more hard lesson to the route ledger."
+    },
+    {
+      "encounter_id": "road_eerie_shrine",
+      "name": "Eerie Shrine",
+      "category": "mystery",
+      "weight": 8,
+      "modes": ["shrine_escort", "carriage"],
+      "reputation_changes": {
+        "shrine_keepers": 1
+      },
+      "contract_hint": "c007_silence_the_weeping_shrine",
+      "intro": "The convoy pauses at a roadside shrine whose lamps are still lit, though no keeper seems willing to claim them.",
+      "outcome": "The shrine escort marks the place for follow-up, and the road feels a little more serious once the name of the problem is spoken aloud."
+    },
+    {
+      "encounter_id": "road_escort_caravan",
+      "name": "Escort Caravan",
+      "category": "opportunity",
+      "weight": 10,
+      "reputation_changes": {
+        "merchant_guild": 3
+      },
+      "reward_gold": 5,
+      "intro": "A slower freight caravan falls behind on the grade and the road officers ask your line to cover it for a stretch.",
+      "outcome": "The extra escort work costs little time and leaves the guild clerks noting your name a little more favorably."
+    },
+    {
+      "encounter_id": "road_help_guard_patrol",
+      "name": "Help Guard Patrol",
+      "category": "opportunity",
+      "weight": 9,
+      "reputation_changes": {
+        "kingdom_guard": 3
+      },
+      "reward_gold": 4,
+      "intro": "A road patrol flags the convoy down long enough to sort a blocked milestone and reset the warning beacons.",
+      "outcome": "The work is routine, which is exactly why the guard captain values the help."
+    },
+    {
+      "encounter_id": "road_beast_hunt_request",
+      "name": "Beast Hunt Request",
+      "category": "opportunity",
+      "weight": 9,
+      "contract_hint": "c008_alpha_on_ashwood_trail",
+      "rumor": "Scouts along the way insist one disciplined beast can thin a route faster than a gang of raiders.",
+      "intro": "A clan scout rides in from a side path just long enough to press fresh beast-sign reports into the convoy's hands.",
+      "outcome": "The warning is too specific to ignore, and by journey's end you know which hunt is likely to matter next."
+    },
+    {
+      "encounter_id": "road_message_delivery",
+      "name": "Message Delivery",
+      "category": "opportunity",
+      "weight": 8,
+      "reward_gold": 3,
+      "reputation_changes": {
+        "merchant_guild": 1,
+        "kingdom_guard": 1
+      },
+      "intro": "A clerk with too many sealed letters and not enough safe hands asks your line to carry one packet the rest of the way.",
+      "outcome": "The message reaches the next post intact, and the sort of people who notice that kind of thing quietly do."
+    }
+  ]
+}

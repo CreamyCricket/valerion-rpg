@@ -90,5 +90,52 @@
       "iron_scrap": 1
     },
     "gold": 10
+  },
+  "tracking_kit": {
+    "name": "Assemble Tracking Kit",
+    "output": "tracking_kit",
+    "output_count": 1,
+    "station": "field",
+    "materials": {
+      "beast_hide": 1,
+      "spider_silk": 1
+    },
+    "gold": 4
+  },
+  "ritual_salt_batch": {
+    "name": "Pack Ritual Salt",
+    "output": "ritual_salt",
+    "output_count": 1,
+    "station": "alchemy",
+    "learn_at": ["alchemy"],
+    "materials": {
+      "shrine_ash": 1,
+      "rare_herb": 1
+    },
+    "gold": 5
+  },
+  "forge_stone_set": {
+    "name": "Set Forge Stone",
+    "output": "forge_stone",
+    "output_count": 1,
+    "station": "forge",
+    "learn_at": ["forge"],
+    "materials": {
+      "iron_ore": 1,
+      "iron_scrap": 1
+    },
+    "gold": 6
+  },
+  "relic_core_mount": {
+    "name": "Stabilize Relic Core Shard",
+    "output": "relic_core_shard",
+    "output_count": 1,
+    "station": "alchemy",
+    "learn_at": ["alchemy"],
+    "materials": {
+      "ancient_alloy": 1,
+      "shrine_ash": 1
+    },
+    "gold": 9
   }
 }

@@ -1,0 +1,18 @@
+{
+  "classes": [
+    "mage",
+    "ranger",
+    "rogue",
+    "templar",
+    "warrior"
+  ],
+  "races": [
+    "ashenborn",
+    "dwarf",
+    "elf",
+    "human",
+    "marshfolk",
+    "stonekin",
+    "sunforged"
+  ]
+}

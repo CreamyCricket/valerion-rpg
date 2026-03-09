@@ -1,30 +1,30 @@
 {
   "kingdom_guard": {
     "name": "Kingdom Guard",
-    "description": "Soldiers, scouts, and officials trying to keep the roads and village holdings stable."
+    "description": "The surviving frontier order of Valerion, sworn to hold roads, gates, and watch-posts even after the old kingdom's wider strength has thinned."
   },
   "merchant_guild": {
     "name": "Merchant Guild",
-    "description": "Caravan masters, traders, ferrymen, and suppliers who care about safe routes and fair trade."
+    "description": "Caravan masters, ferrymen, and quarter-ledgers who keep the realm stitched together by moving food, tools, and people where the held line still reaches."
   },
   "hunters_guild": {
     "name": "Hunters Guild",
-    "description": "Trackers, trappers, and frontier contractors who turn road danger into clear work and cleaner ledgers."
+    "description": "Trackers and contractors who answer the frontier's beast-work with cold discipline, turning fear into posted duty and clean completion."
   },
   "thieves_circle": {
     "name": "Thieves Circle",
-    "description": "Smugglers, raiders, and quiet criminals who profit when the roads turn uncertain."
+    "description": "Smugglers, raiders, and quiet wreckers who profit whenever Valerion's wards slacken and the roads stop trusting themselves."
   },
   "shrine_keepers": {
     "name": "Shrine Keepers",
-    "description": "Caretakers, scholars, and ritual custodians trying to preserve sacred history and old wards."
+    "description": "Caretakers, scholars, and ward-servants preserving sacred duty, old records, and the ritual lines still protecting the realm from older dangers."
   },
   "forest_clans": {
     "name": "Forest Clans",
-    "description": "Hunters, elders, and wilderness folk who measure outsiders by how they treat the land and those on the road."
+    "description": "Clan elders, hunters, and wood-settlers who keep the green borders of Valerion passable without surrendering them to neglect, greed, or panic."
   },
   "cult_of_ash": {
     "name": "Cult of Ash",
-    "description": "A destructive sect drawn to corruption, ruined sanctuaries, and unstable old power."
+    "description": "A destructive sect drawn to broken wards, corrupted sanctums, and the belief that the old realm should burn instead of be held."
   }
 }

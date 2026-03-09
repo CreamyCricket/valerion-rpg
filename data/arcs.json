@@ -2,27 +2,27 @@
   "arc_1_village_roads": {
     "index": 1,
     "title": "Arc 1: Village Roads",
-    "note": "Secure the nearby roads and prove you can keep the frontier moving.",
+    "note": "Hold the nearest line of road and prove you can keep part of Valerion standing.",
     "tone": "grounded",
-    "scene_focus": "The dangers still feel local, practical, and close to home."
+    "scene_focus": "The realm still feels local, practical, and close enough to fail if nobody chooses to act."
   },
   "arc_2_watchtower_and_shrine": {
     "index": 2,
     "title": "Arc 2: Watchtower and Shrine",
-    "note": "Push toward the watchtower routes and old shrine lands where older threats begin to show themselves.",
+    "note": "Push into the older ward-lines where ruined duty and living duty begin to overlap.",
     "tone": "uneasy",
-    "scene_focus": "Ruins, shrine stones, and older dangers now carry more weight than simple road trouble.",
+    "scene_focus": "Ruined stones, shrine memory, and border watch now matter as much as simple road safety.",
     "requires_any": [
       {"type": "quest_completed", "quest_id": "q001_clear_forest_path"},
       {"type": "quest_completed", "quest_id": "q003_watchtower_threat"}
     ]
   },
-  "arc_3_greyhaven_tensions": {
+  "arc_3_stonewatch_burden": {
     "index": 3,
-    "title": "Arc 3: Greyhaven Tensions",
-    "note": "Merchant pressure, guard interests, and widening road politics begin to shape every decision.",
+    "title": "Arc 3: Stonewatch Burden",
+    "note": "Step into the frontier order proper, where trade, patrol duty, and public trust all become part of the same held line.",
     "tone": "strained",
-    "scene_focus": "The frontier no longer feels isolated; larger powers are leaning on every route and bargain.",
+    "scene_focus": "The village is no longer enough context; Stonewatch reveals how many systems must keep working for the realm to endure.",
     "requires_all": [
       {"type": "location_visited", "location_id": "town_gate"}
     ],
@@ -36,9 +36,9 @@
   "arc_4_cult_of_ash_rising": {
     "index": 4,
     "title": "Arc 4: Cult of Ash Rising",
-    "note": "Cult pressure moves from rumor to open threat as corrupted relics and ash-marked enemies gather force.",
+    "note": "Face the pressure of a faithless enemy trying to unmake what Valerion still preserves through ward and memory.",
     "tone": "ominous",
-    "scene_focus": "Even quiet places now feel shadowed by a larger cult threat pressing into the world.",
+    "scene_focus": "Even calm places feel shadowed by a larger threat pressing against every standing shrine and road.",
     "requires_all": [
       {"type": "location_visited", "location_id": "ruined_shrine"}
     ],
@@ -48,6 +48,31 @@
       {"type": "inventory_has_item", "item_id": "cultist_seal"},
       {"type": "reputation_at_least", "faction": "shrine_keepers", "value": 12},
       {"type": "quest_completed", "quest_id": "q014_ashes_for_stonewatch"}
+    ]
+  },
+  "arc_5_frontier_hubs": {
+    "index": 5,
+    "title": "Arc 5: The Frontier Hubs",
+    "note": "See how different peoples keep the realm intact in different ways, from coast to wood to hold to ashward cloister.",
+    "tone": "resolute",
+    "scene_focus": "Valerion feels larger now: distinct hubs, cultures, and duties all holding separate pieces of the same realm together.",
+    "requires_any": [
+      {"type": "location_visited", "location_id": "stormbreak"},
+      {"type": "location_visited", "location_id": "valewood"},
+      {"type": "location_visited", "location_id": "ironridge_square"},
+      {"type": "location_visited", "location_id": "emberfall"}
+    ]
+  },
+  "arc_6_vaultreach_watch": {
+    "index": 6,
+    "title": "Arc 6: Vaultreach Watch",
+    "note": "Carry the realm's burden into the ash roads themselves, where only a prepared line can keep old disaster from breaking loose again.",
+    "tone": "grave",
+    "scene_focus": "The frontier is no longer a border; it is a conscious watch over sealed danger, salvage, and sacred responsibility.",
+    "requires_any": [
+      {"type": "location_visited", "location_id": "vaultreach"},
+      {"type": "contract_completed", "contract_id": "c009_blackroot_ash_mark"},
+      {"type": "important_item_acquired", "item_id": "ash_mark_cinder"}
     ]
   }
 }

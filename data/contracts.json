@@ -12,18 +12,38 @@
     "cooldown": 1,
     "objective": {
       "type": "defeat_targets",
-      "enemy_ids": ["ashwood_wolf", "ashwood_stalker", "ashwood_packleader"],
-      "locations": ["forest_path", "deep_forest"],
+      "enemy_ids": [
+        "ashwood_wolf",
+        "ashwood_stalker",
+        "ashwood_packleader"
+      ],
+      "locations": [
+        "forest_path",
+        "deep_forest"
+      ],
       "count": 3,
       "summary": "Defeat 3 Ashwood Wolves",
       "spawn_enemies": [
-        {"enemy": "ashwood_wolf", "location": "forest_path"},
-        {"enemy": "ashwood_stalker", "location": "forest_path"},
-        {"enemy": "ashwood_packleader", "location": "deep_forest"}
+        {
+          "enemy": "ashwood_wolf",
+          "location": "forest_path"
+        },
+        {
+          "enemy": "ashwood_stalker",
+          "location": "forest_path"
+        },
+        {
+          "enemy": "ashwood_packleader",
+          "location": "deep_forest"
+        }
       ]
     },
     "reward": {
-      "gold": 40
+      "gold": 40,
+      "items": [
+        "beast_hide",
+        "rare_herb"
+      ]
     },
     "faction_rewards": {
       "hunters_guild": 5,
@@ -49,11 +69,17 @@
       "count": 1,
       "summary": "Defeat the Corrupted Shrine Wraith",
       "spawn_enemies": [
-        {"enemy": "corrupted_shrine_wraith", "location": "ruined_shrine"}
+        {
+          "enemy": "corrupted_shrine_wraith",
+          "location": "ruined_shrine"
+        }
       ]
     },
     "reward": {
-      "gold": 35
+      "gold": 35,
+      "items": [
+        "ritual_salt"
+      ]
     },
     "faction_rewards": {},
     "trust_rewards": {
@@ -81,8 +107,14 @@
           "count": 1,
           "summary": "Defeat the Bandit Tollmaster",
           "spawn_enemies": [
-            {"enemy": "bandit_tollmaster", "location": "ironridge_pass"},
-            {"enemy": "bandit_toll_guard", "location": "ironridge_pass"}
+            {
+              "enemy": "bandit_tollmaster",
+              "location": "ironridge_pass"
+            },
+            {
+              "enemy": "bandit_toll_guard",
+              "location": "ironridge_pass"
+            }
           ]
         }
       },
@@ -90,19 +122,32 @@
         "title": "Sweep the Guards",
         "objective": {
           "type": "defeat_targets",
-          "enemy_ids": ["bandit_toll_guard", "ridge_raider", "ore_thief"],
+          "enemy_ids": [
+            "bandit_toll_guard",
+            "ridge_raider",
+            "ore_thief"
+          ],
           "location": "ironridge_pass",
           "count": 2,
           "summary": "Defeat 2 Toll Guards",
           "spawn_enemies": [
-            {"enemy": "bandit_toll_guard", "location": "ironridge_pass"},
-            {"enemy": "ridge_raider", "location": "ironridge_pass"}
+            {
+              "enemy": "bandit_toll_guard",
+              "location": "ironridge_pass"
+            },
+            {
+              "enemy": "ridge_raider",
+              "location": "ironridge_pass"
+            }
           ]
         }
       }
     ],
     "reward": {
-      "gold": 70
+      "gold": 70,
+      "items": [
+        "iron_ore"
+      ]
     },
     "faction_rewards": {
       "kingdom_guard": 10
@@ -126,12 +171,17 @@
       "count": 1,
       "summary": "Recover the Iron Lockbox",
       "spawn_items": [
-        {"item": "iron_lockbox", "location": "bandit_camp"}
+        {
+          "item": "iron_lockbox",
+          "location": "bandit_camp"
+        }
       ]
     },
     "reward": {
       "gold": 65,
-      "items": ["iron_scrap"]
+      "items": [
+        "iron_scrap"
+      ]
     },
     "faction_rewards": {
       "merchant_guild": 5
@@ -152,7 +202,10 @@
     "repeatable": true,
     "cooldown": 2,
     "requires_reputation": [
-      {"faction": "hunters_guild", "min": 5}
+      {
+        "faction": "hunters_guild",
+        "min": 5
+      }
     ],
     "requires_contracts_completed": [
       "c001_wolfpack_culling",
@@ -170,7 +223,10 @@
           "count": 1,
           "summary": "Defeat the Grove Sentinel",
           "spawn_enemies": [
-            {"enemy": "grove_sentinel", "location": "old_ruins"}
+            {
+              "enemy": "grove_sentinel",
+              "location": "old_ruins"
+            }
           ]
         }
       },
@@ -178,21 +234,33 @@
         "title": "Endure the Ambush Waves",
         "objective": {
           "type": "defeat_targets",
-          "enemy_ids": ["blackroot_ambusher", "blackroot_stalker"],
+          "enemy_ids": [
+            "blackroot_ambusher",
+            "blackroot_stalker"
+          ],
           "location": "old_ruins",
           "count": 2,
           "summary": "Survive 2 ambush waves",
           "spawn_enemies": [
-            {"enemy": "blackroot_ambusher", "location": "old_ruins"},
-            {"enemy": "blackroot_stalker", "location": "old_ruins"}
+            {
+              "enemy": "blackroot_ambusher",
+              "location": "old_ruins"
+            },
+            {
+              "enemy": "blackroot_stalker",
+              "location": "old_ruins"
+            }
           ]
         }
       }
     ],
     "reward": {
-      "gold": 120,
+      "gold": 130,
       "bonus_items": [
-        {"item": "guardian_plate", "chance": 35}
+        {
+          "item": "guardian_plate",
+          "chance": 35
+        }
       ]
     },
     "faction_rewards": {
@@ -212,7 +280,10 @@
     "location_hint": "Ironridge Pass",
     "repeatable": false,
     "requires_reputation": [
-      {"faction": "kingdom_guard", "min": 8}
+      {
+        "faction": "kingdom_guard",
+        "min": 8
+      }
     ],
     "requires_contracts_completed": [
       "c003_bandit_road_tax"
@@ -227,7 +298,10 @@
           "count": 1,
           "summary": "Defeat the Ironpass Bulwark",
           "spawn_enemies": [
-            {"enemy": "elite_ironpass_bulwark", "location": "ironridge_pass"}
+            {
+              "enemy": "elite_ironpass_bulwark",
+              "location": "ironridge_pass"
+            }
           ]
         }
       },
@@ -240,14 +314,20 @@
           "count": 1,
           "summary": "Defeat Gorgos the Sundered",
           "spawn_enemies": [
-            {"enemy": "gorgos_the_sundered", "location": "ironridge_pass"}
+            {
+              "enemy": "gorgos_the_sundered",
+              "location": "ironridge_pass"
+            }
           ]
         }
       }
     ],
     "reward": {
       "gold": 110,
-      "items": ["raider_sabre"]
+      "items": [
+        "raider_sabre",
+        "forge_stone"
+      ]
     },
     "faction_rewards": {
       "kingdom_guard": 14,
@@ -270,7 +350,10 @@
     "location_hint": "Abandoned Shrine",
     "repeatable": false,
     "requires_reputation": [
-      {"faction": "shrine_keepers", "min": 8}
+      {
+        "faction": "shrine_keepers",
+        "min": 8
+      }
     ],
     "requires_contracts_completed": [
       "c002_shrine_ash_clearing",
@@ -286,7 +369,10 @@
           "count": 1,
           "summary": "Defeat the Huskbound Wraith",
           "spawn_enemies": [
-            {"enemy": "elite_huskbound_wraith", "location": "ruined_shrine"}
+            {
+              "enemy": "elite_huskbound_wraith",
+              "location": "ruined_shrine"
+            }
           ]
         }
       },
@@ -299,14 +385,20 @@
           "count": 1,
           "summary": "Defeat the Weeping Husk",
           "spawn_enemies": [
-            {"enemy": "weeping_husk", "location": "ruined_shrine"}
+            {
+              "enemy": "weeping_husk",
+              "location": "ruined_shrine"
+            }
           ]
         }
       }
     ],
     "reward": {
-      "gold": 145,
-      "items": ["ember_focus"]
+      "gold": 155,
+      "items": [
+        "ember_focus",
+        "ritual_salt"
+      ]
     },
     "faction_rewards": {
       "shrine_keepers": 16,
@@ -327,7 +419,10 @@
     "location_hint": "Deep Forest",
     "repeatable": false,
     "requires_reputation": [
-      {"faction": "hunters_guild", "min": 12}
+      {
+        "faction": "hunters_guild",
+        "min": 12
+      }
     ],
     "requires_contracts_completed": [
       "c001_wolfpack_culling",
@@ -343,7 +438,10 @@
           "count": 1,
           "summary": "Defeat the Ashwood Fanglord",
           "spawn_enemies": [
-            {"enemy": "elite_ashwood_fanglord", "location": "deep_forest"}
+            {
+              "enemy": "elite_ashwood_fanglord",
+              "location": "deep_forest"
+            }
           ]
         }
       },
@@ -356,14 +454,19 @@
           "count": 1,
           "summary": "Defeat Vorgar, Ironfang Alpha",
           "spawn_enemies": [
-            {"enemy": "vorgar_ironfang_alpha", "location": "deep_forest"}
+            {
+              "enemy": "vorgar_ironfang_alpha",
+              "location": "deep_forest"
+            }
           ]
         }
       }
     ],
     "reward": {
-      "gold": 150,
-      "items": ["wolfhide_vest"]
+      "gold": 165,
+      "items": [
+        "wolfhide_vest"
+      ]
     },
     "faction_rewards": {
       "hunters_guild": 18,
@@ -385,7 +488,10 @@
     "location_hint": "Old Ruins",
     "repeatable": false,
     "requires_reputation": [
-      {"faction": "hunters_guild", "min": 20}
+      {
+        "faction": "hunters_guild",
+        "min": 20
+      }
     ],
     "requires_contracts_completed": [
       "c007_silence_the_weeping_shrine",
@@ -401,7 +507,10 @@
           "count": 1,
           "summary": "Defeat the Grove Sentinel",
           "spawn_enemies": [
-            {"enemy": "grove_sentinel", "location": "old_ruins"}
+            {
+              "enemy": "grove_sentinel",
+              "location": "old_ruins"
+            }
           ]
         }
       },
@@ -414,14 +523,21 @@
           "count": 1,
           "summary": "Defeat the Ash Herald",
           "spawn_enemies": [
-            {"enemy": "ash_herald", "location": "old_ruins"}
+            {
+              "enemy": "ash_herald",
+              "location": "old_ruins"
+            }
           ]
         }
       }
     ],
     "reward": {
-      "gold": 195,
-      "items": ["focus_draught"]
+      "gold": 210,
+      "items": [
+        "focus_draught",
+        "relic_core_shard",
+        "ancient_alloy"
+      ]
     },
     "faction_rewards": {
       "hunters_guild": 20,
@@ -436,7 +552,7 @@
   "c010_vault_keeper_expedition": {
     "contract_id": "c010_vault_keeper_expedition",
     "title": "Vault Keeper Expedition",
-    "rank": "B",
+    "rank": "A",
     "category": "vault_expedition",
     "posted_by": "Vault Scholar",
     "board_location": "market_square",
@@ -444,7 +560,10 @@
     "location_hint": "Ashen Stair and Inner Vault",
     "repeatable": false,
     "requires_reputation": [
-      {"faction": "shrine_keepers", "min": 18}
+      {
+        "faction": "shrine_keepers",
+        "min": 18
+      }
     ],
     "requires_contracts_completed": [
       "c009_blackroot_ash_mark"
@@ -459,7 +578,10 @@
           "count": 1,
           "summary": "Defeat the Vault Warden",
           "spawn_enemies": [
-            {"enemy": "elite_vault_warden", "location": "ashen_stair"}
+            {
+              "enemy": "elite_vault_warden",
+              "location": "ashen_stair"
+            }
           ]
         }
       },
@@ -472,14 +594,21 @@
           "count": 1,
           "summary": "Defeat the Vault Keeper",
           "spawn_enemies": [
-            {"enemy": "vault_keeper", "location": "ashen_vault"}
+            {
+              "enemy": "vault_keeper",
+              "location": "ashen_vault"
+            }
           ]
         }
       }
     ],
     "reward": {
-      "gold": 220,
-      "items": ["guardian_plate", "greater_potion"]
+      "gold": 260,
+      "items": [
+        "guardian_plate",
+        "greater_potion",
+        "construct_salvage"
+      ]
     },
     "faction_rewards": {
       "shrine_keepers": 20,
@@ -488,6 +617,7 @@
     },
     "trust_rewards": {
       "vault_scholar": 10
-    }
+    },
+    "unlocks_rank": "A"
   }
 }

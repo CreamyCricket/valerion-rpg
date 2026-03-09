@@ -450,6 +450,78 @@
     "description": "Useful bits of scavenged iron good enough for patchwork smithing and rough fittings.",
     "price": 4
   },
+  "beast_hide": {
+    "name": "Beast Hide",
+    "type": "loot",
+    "rarity": "common",
+    "tier": 1,
+    "description": "A tough hide stripped from larger Ashwood predators and cured for field gear.",
+    "price": 5
+  },
+  "rare_herb": {
+    "name": "Rare Herb",
+    "type": "loot",
+    "rarity": "uncommon",
+    "tier": 2,
+    "description": "A bitter highland-and-forest herb used in stronger tinctures and ritual cleansers.",
+    "price": 8
+  },
+  "iron_ore": {
+    "name": "Iron Ore",
+    "type": "loot",
+    "rarity": "common",
+    "tier": 2,
+    "description": "Dense mountain ore chunks bought by smiths who still trust hammerwork over polish.",
+    "price": 7
+  },
+  "forge_stone": {
+    "name": "Forge Stone",
+    "type": "loot",
+    "rarity": "uncommon",
+    "tier": 2,
+    "description": "Heat-treated grinding stone favored in Ironridge for finishing heavy fittings.",
+    "price": 9
+  },
+  "ritual_salt": {
+    "name": "Ritual Salt",
+    "type": "loot",
+    "rarity": "uncommon",
+    "tier": 2,
+    "description": "Blessed ash-salt used by shrine workers to steady volatile wards before cleansing.",
+    "price": 8
+  },
+  "tracking_kit": {
+    "name": "Tracking Kit",
+    "type": "utility",
+    "rarity": "uncommon",
+    "tier": 2,
+    "description": "A waxed satchel of trail chalk, line, and scent tags used for disciplined hunt work.",
+    "price": 16
+  },
+  "relic_core_shard": {
+    "name": "Relic Core Shard",
+    "type": "loot",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "A fragment of broken vault machinery that still carries a controlled pulse.",
+    "price": 14
+  },
+  "ancient_alloy": {
+    "name": "Ancient Alloy",
+    "type": "loot",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "Recovered pre-collapse alloy plating prized for relic housings and ward braces.",
+    "price": 16
+  },
+  "construct_salvage": {
+    "name": "Construct Salvage",
+    "type": "loot",
+    "rarity": "rare",
+    "tier": 3,
+    "description": "Articulated gears and casing cuts stripped from shattered vault constructs.",
+    "price": 15
+  },
   "wolf_pelt": {
     "name": "Wolf Pelt",
     "type": "loot",

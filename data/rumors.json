@@ -1,0 +1,128 @@
+{
+  "stonewatch_board": [
+    {
+      "priority": 4,
+      "topics": ["rumors", "contracts", "wolves", "forest"],
+      "text": "Wolfpack Culling keeps returning to the board because the Ashwood packs still test the road whenever the watch blinks."
+    },
+    {
+      "priority": 3,
+      "topics": ["rumors", "contracts", "merchant", "recovery"],
+      "text": "Merchant Recovery matters more than its coin suggests. Lose enough lockboxes and the road starts teaching bad habits."
+    },
+    {
+      "priority": 2,
+      "topics": ["rumors", "stonewatch", "gear", "guard"],
+      "text": "Stonewatch's board quartermasters are prioritizing basic guard gear and ashwood hide lots this week."
+    }
+  ],
+  "merchant_guild_halls": [
+    {
+      "priority": 3,
+      "topics": ["rumors", "guild", "trade", "roads"],
+      "text": "The Merchant Guild likes heroes who keep the ledgers boring: safe roads, arriving cargo, and no funeral tariffs."
+    },
+    {
+      "priority": 2,
+      "topics": ["rumors", "faction", "guild", "stonewatch"],
+      "text": "Stonewatch's guild halls are already repeating which names get honest work and which names only get watched."
+    }
+  ],
+  "valewood_trails": [
+    {
+      "priority": 4,
+      "topics": ["rumors", "beasts", "alpha", "ashwood"],
+      "text": "Alpha on Ashwood Trail pays because one disciplined beast can thin a border road faster than a gang of panicked raiders."
+    },
+    {
+      "priority": 3,
+      "topics": ["rumors", "forest", "valewood", "clans"],
+      "text": "Valewood's scouts say the deep paths are listening harder than usual. The clans do not waste that warning."
+    },
+    {
+      "priority": 2,
+      "topics": ["rumors", "valewood", "tracking", "hunting"],
+      "text": "Valewood traders are short on tracking kits and paying extra for clean beast hides."
+    }
+  ],
+  "emberfall_wards": [
+    {
+      "priority": 4,
+      "topics": ["rumors", "shrine", "emberfall", "weeping"],
+      "text": "Silence the Weeping Shrine if you want shrine folk to believe you can keep ward-duty when the old stone pushes back."
+    },
+    {
+      "priority": 3,
+      "topics": ["rumors", "ash", "emberfall", "guardian"],
+      "text": "The ash roads only stay roads because Emberfall keeps paying people to hold a line most of the realm would rather forget."
+    },
+    {
+      "priority": 2,
+      "topics": ["rumors", "emberfall", "ritual", "supplies"],
+      "text": "Emberfall archivists are buying ritual salt and rare herbs faster than caravan ledgers can replace them."
+    }
+  ],
+  "ironridge_convoys": [
+    {
+      "priority": 4,
+      "topics": ["rumors", "gorgos", "ironridge", "pass"],
+      "text": "Nobody hauling ore through Ironridge forgets Gorgos for long. The pass remembers every cart he broke."
+    },
+    {
+      "priority": 3,
+      "topics": ["rumors", "contracts", "ironridge", "convoy"],
+      "text": "Ironridge convoy work is never glamorous. That is exactly why the hold judges people by whether they finish it."
+    },
+    {
+      "priority": 2,
+      "topics": ["rumors", "ironridge", "forge", "ore"],
+      "text": "Ironridge forges are posting premium rates for clean iron ore and true forge stone."
+    }
+  ],
+  "stormbreak_harbor": [
+    {
+      "priority": 4,
+      "topics": ["rumors", "stormbreak", "harbor", "coast"],
+      "text": "Stormbreak Harbor looks loud and ordinary until the weather shifts; then everyone learns who has kept the coast line honest."
+    },
+    {
+      "priority": 3,
+      "topics": ["rumors", "travel", "ferry", "stormbreak"],
+      "text": "A paid berth to Stormbreak buys order and escort, not mercy from the sea."
+    },
+    {
+      "priority": 2,
+      "topics": ["rumors", "stormbreak", "imports", "trade"],
+      "text": "Stormbreak factors just unloaded rare coastal imports, and inland guilds are already bidding."
+    }
+  ],
+  "vaultreach_relics": [
+    {
+      "priority": 4,
+      "topics": ["rumors", "vault", "relics", "blackroot"],
+      "text": "Blackroot Ash Mark is the sort of contract that tells Vaultreach whether you belong near relic ledgers or outside the gate."
+    },
+    {
+      "priority": 3,
+      "topics": ["rumors", "vault", "guardian", "keeper"],
+      "text": "People in Vaultreach speak quietly about the Vault Keeper, which is how you know they still expect someone to have to face it."
+    },
+    {
+      "priority": 2,
+      "topics": ["rumors", "vaultreach", "alloy", "salvage"],
+      "text": "Vaultreach salvage crews are bringing in ancient alloy and construct parts faster than scribes can catalog them."
+    }
+  ],
+  "bard_ballads": [
+    {
+      "priority": 2,
+      "topics": ["rumors", "songs", "bosses", "roads"],
+      "text": "The road songs change quickly in Valerion. One good kill or one held contract can put a name into a chorus by dusk."
+    },
+    {
+      "priority": 1,
+      "topics": ["rumors", "factions", "guild", "clans"],
+      "text": "Bards know what merchants and clan scouts know: reputation arrives in a town earlier than the hero who earned it."
+    }
+  ]
+}

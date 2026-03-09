@@ -1,0 +1,153 @@
+{
+  "stonewatch_to_ironridge": {
+    "origin": "market_square",
+    "destination": "ironridge_square",
+    "mode": "escorted_caravan",
+    "cost": 8,
+    "description": "A shielded wagon road climbs north under contract guard.",
+    "requirements": {}
+  },
+  "ironridge_to_stonewatch": {
+    "origin": "ironridge_square",
+    "destination": "market_square",
+    "mode": "escorted_caravan",
+    "cost": 8,
+    "description": "Freight wagons descend with ore, tools, and tired teamsters.",
+    "requirements": {}
+  },
+  "stonewatch_to_stormbreak": {
+    "origin": "market_square",
+    "destination": "stormbreak",
+    "mode": "ferry",
+    "cost": 10,
+    "description": "The route follows the river roads and coast ferries under posted harbor law.",
+    "requirements": {}
+  },
+  "stormbreak_to_stonewatch": {
+    "origin": "stormbreak",
+    "destination": "market_square",
+    "mode": "ferry",
+    "cost": 10,
+    "description": "Harbor clerks push travelers inland with the tide and the trade wagons.",
+    "requirements": {}
+  },
+  "stonewatch_to_valewood": {
+    "origin": "market_square",
+    "destination": "valewood",
+    "mode": "carriage",
+    "cost": 9,
+    "description": "A light wood-road carriage runs under clan markers and watch whistles.",
+    "requirements": {}
+  },
+  "valewood_to_stonewatch": {
+    "origin": "valewood",
+    "destination": "market_square",
+    "mode": "carriage",
+    "cost": 9,
+    "description": "Trail coaches roll outward when the ward-paths are judged clear enough.",
+    "requirements": {}
+  },
+  "stonewatch_to_emberfall": {
+    "origin": "market_square",
+    "destination": "emberfall",
+    "mode": "shrine_escort",
+    "cost": 12,
+    "description": "A warded escort line carries pilgrims, clerks, and trusted travelers toward the ash roads.",
+    "requirements": {
+      "requires_reputation": [
+        {
+          "faction": "shrine_keepers",
+          "min": 6
+        }
+      ]
+    },
+    "requirement_note": "Shrine escort is reserved for travelers trusted by the Shrine Keepers."
+  },
+  "emberfall_to_stonewatch": {
+    "origin": "emberfall",
+    "destination": "market_square",
+    "mode": "shrine_escort",
+    "cost": 12,
+    "description": "Ward-bearers send travelers back toward the safer central roads.",
+    "requirements": {}
+  },
+  "stormbreak_to_valewood": {
+    "origin": "stormbreak",
+    "destination": "valewood",
+    "mode": "escorted_caravan",
+    "cost": 13,
+    "description": "The line joins ferry landings to forest coaches through a long, practical trade circuit.",
+    "requirements": {
+      "requires_hunter_guild_rank": "Bronze",
+      "requires_reputation": [
+        {
+          "faction": "merchant_guild",
+          "min": 6
+        }
+      ]
+    },
+    "requirement_note": "Stormbreak's long circuit to Valewood opens only to Bronze-rank hunters or better whom the Merchant Guild will vouch for."
+  },
+  "valewood_to_stormbreak": {
+    "origin": "valewood",
+    "destination": "stormbreak",
+    "mode": "escorted_caravan",
+    "cost": 13,
+    "description": "Forest wardens pass travelers into caravan hands once the deep roads give way to salt air.",
+    "requirements": {
+      "requires_hunter_guild_rank": "Bronze",
+      "requires_reputation": [
+        {
+          "faction": "forest_clans",
+          "min": 6
+        }
+      ]
+    },
+    "requirement_note": "Valewood sends travelers coastward only after the Forest Clans trust your tread and the Hunter Guild rates you Bronze or better."
+  },
+  "ironridge_to_emberfall": {
+    "origin": "ironridge_square",
+    "destination": "emberfall",
+    "mode": "escorted_caravan",
+    "cost": 14,
+    "description": "A hard overland convoy joins hold steel to shrine fire under armed watch.",
+    "requirements": {
+      "requires_rank": "C"
+    },
+    "requirement_note": "Ironridge reserves the Emberfall convoy for adventurers already trusted with C-rank frontier work."
+  },
+  "emberfall_to_ironridge": {
+    "origin": "emberfall",
+    "destination": "ironridge_square",
+    "mode": "escorted_caravan",
+    "cost": 14,
+    "description": "Ward-clerks and caravan guards push north with sealed freight and fewer passengers than usual.",
+    "requirements": {
+      "requires_rank": "C"
+    },
+    "requirement_note": "The Emberfall convoy north opens only to adventurers already cleared for C-rank work."
+  },
+  "emberfall_to_vaultreach": {
+    "origin": "emberfall",
+    "destination": "vaultreach",
+    "mode": "restricted_vault_transit",
+    "cost": 16,
+    "description": "A sealed ward-convoy makes the last approach under shrine law and written authority.",
+    "show_when_locked": false,
+    "requirements": {
+      "requires_rank": "B",
+      "requires_contracts_completed": [
+        "c009_blackroot_ash_mark"
+      ]
+    },
+    "requirement_note": "Vaultreach transit is sealed until you have both B-rank standing and the Blackroot Ash Mark contract behind you."
+  },
+  "vaultreach_to_emberfall": {
+    "origin": "vaultreach",
+    "destination": "emberfall",
+    "mode": "restricted_vault_transit",
+    "cost": 12,
+    "description": "Return wagons leave under seal once the scribes have counted everyone back out.",
+    "requirements": {}
+  }
+}

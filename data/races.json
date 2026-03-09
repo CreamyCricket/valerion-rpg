@@ -1,0 +1,348 @@
+{
+  "schema_version": 2,
+  "races": {
+    "human": {
+      "name": "Human",
+      "homeland": "Stonewatch and the village roads of central Valerion",
+      "unlocked_by_default": true,
+      "lore": "Humans hold the middle roads of Valerion, the folk most often asked to keep a wall manned, a ledger balanced, and a promise alive for one more season.",
+      "stats": {
+        "strength": 1,
+        "charisma": 1
+      },
+      "skills": {
+        "persuasion": 1,
+        "barter": 1
+      },
+      "gold": 2,
+      "passive": {
+        "name": "Adaptable Spirit",
+        "description": "Humans are known for taking up whatever duty keeps the line from breaking, whether that duty is steel, trade, or quiet mediation."
+      },
+      "summary": "+1 Strength, +1 Charisma, +1 Persuasion, +1 Barter, +2 Gold"
+    },
+    "elf": {
+      "name": "Elf",
+      "homeland": "The older ward-paths along Valewood's outer reaches",
+      "unlocked_by_default": true,
+      "lore": "Elves keep long memory and careful watch, treating old ward-lines, treetop paths, and oath-marked clearings as duties inherited rather than scenery admired.",
+      "stats": {
+        "agility": 2,
+        "wisdom": 1
+      },
+      "skills": {
+        "archery": 1,
+        "stealth": 1,
+        "tracking": 1
+      },
+      "focus": 1,
+      "passive": {
+        "name": "Keen Senses",
+        "description": "Elves are famed for patient aim, quiet movement, and the discipline to read danger before it reaches the line."
+      },
+      "summary": "+2 Agility, +1 Wisdom, +1 Archery, +1 Stealth, +1 Tracking, +1 Focus"
+    },
+    "dwarf": {
+      "name": "Dwarf",
+      "homeland": "Ironridge Hold and the road-cut passes below it",
+      "unlocked_by_default": true,
+      "lore": "Dwarves speak of a wall, gate, or oath as something meant to outlive the people currently standing it, and that belief shapes everything from their roads to their grudges.",
+      "stats": {
+        "strength": 1,
+        "vitality": 1,
+        "endurance": 1
+      },
+      "max_hp": 2,
+      "skills": {
+        "defense": 1,
+        "crafting": 1
+      },
+      "passive": {
+        "name": "Stonecunning",
+        "description": "Dwarves read weak masonry, sound foundations, and practical workmanship almost on instinct."
+      },
+      "summary": "+1 Strength, +1 Vitality, +1 Endurance, +2 Max HP, +1 Defense, +1 Crafting"
+    },
+    "ashenborn": {
+      "name": "Ashenborn",
+      "homeland": "Shrine March and the scarred road east of the old wards",
+      "unlocked_by_default": true,
+      "lore": "Ashenborn descend from families that endured shrine-fall and ember weather without abandoning the realm, carrying uneasy familiarity with ruins others only fear.",
+      "stats": {
+        "mind": 1,
+        "wisdom": 1,
+        "luck": 1
+      },
+      "skills": {
+        "spellcasting": 1,
+        "stealth": 1,
+        "arcana": 1
+      },
+      "focus": 1,
+      "passive": {
+        "name": "Ember Intuition",
+        "description": "Ashenborn carry a restless sense for unstable wards, cinder-haunted ruins, and sacred places gone wrong."
+      },
+      "summary": "+1 Mind, +1 Wisdom, +1 Luck, +1 Spellcasting, +1 Stealth, +1 Arcana, +1 Focus"
+    },
+    "marshfolk": {
+      "name": "Marshfolk",
+      "homeland": "The reed roads and low ferries west of Stormbreak",
+      "unlocked_by_default": true,
+      "lore": "Marshfolk learn early that a realm stays passable only if someone knows which ground holds, which current lies, and which danger is patient enough to wait in fog.",
+      "stats": {
+        "agility": 1,
+        "endurance": 1,
+        "wisdom": 1,
+        "luck": 1
+      },
+      "skills": {
+        "survival": 2,
+        "stealth": 1,
+        "beast_handling": 1
+      },
+      "passive": {
+        "name": "Bogstride",
+        "description": "Marshfolk move confidently through wet ground and uncertain footing that slows less practiced travelers."
+      },
+      "summary": "+1 Agility, +1 Endurance, +1 Wisdom, +1 Luck, +2 Survival, +1 Stealth, +1 Beast Handling"
+    },
+    "stonekin": {
+      "name": "Stonekin",
+      "homeland": "The quarry vales sworn to Ironridge's outer works",
+      "unlocked_by_default": true,
+      "lore": "Stonekin trace their line to quarry camps and holdfast laborers who treated endurance as the first oath any road-builder owes the realm.",
+      "stats": {
+        "vitality": 2,
+        "endurance": 1,
+        "wisdom": 1
+      },
+      "skills": {
+        "defense": 1,
+        "lore": 1,
+        "crafting": 1
+      },
+      "max_hp": 2,
+      "passive": {
+        "name": "Granite Poise",
+        "description": "Stonekin are hard to panic and harder to move once they decide a line must be held."
+      },
+      "summary": "+2 Vitality, +1 Endurance, +1 Wisdom, +2 Max HP, +1 Defense, +1 Lore, +1 Crafting"
+    },
+    "sunforged": {
+      "name": "Sunforged",
+      "homeland": "The marcher temples and fire-camps of old Valerion",
+      "unlocked_by_default": true,
+      "lore": "Sunforged bloodlines preserve older martial vows, treating courage, command, and public duty as visible obligations rather than private virtues.",
+      "stats": {
+        "strength": 1,
+        "endurance": 1,
+        "charisma": 2
+      },
+      "skills": {
+        "swordsmanship": 1,
+        "persuasion": 1,
+        "intimidation": 1
+      },
+      "gold": 2,
+      "passive": {
+        "name": "Emberheart",
+        "description": "Sunforged cultures prize resolve under pressure and the kind of presence that keeps frightened people standing."
+      },
+      "summary": "+1 Strength, +1 Endurance, +2 Charisma, +1 Swordsmanship, +1 Persuasion, +1 Intimidation, +2 Gold"
+    },
+    "tideborn": {
+      "name": "Tideborn",
+      "homeland": "Stormbreak and the ferry-covenants of the western coast",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_events": [
+          {
+            "type": "location_visited",
+            "details": {
+              "location_id": "stormbreak"
+            }
+          }
+        ],
+        "requires_reputation": [
+          {
+            "faction": "merchant_guild",
+            "min": 8
+          }
+        ]
+      },
+      "lore": "Tideborn keep Valerion's coast by reading tide, wind, and oath-bound harbor law as parts of the same duty: if the shore fails, the realm loses one more line of return.",
+      "stats": {
+        "agility": 1,
+        "mind": 1,
+        "wisdom": 1,
+        "charisma": 1
+      },
+      "skills": {
+        "survival": 1,
+        "spellcasting": 1,
+        "barter": 1,
+        "beast_handling": 1
+      },
+      "focus": 1,
+      "passive": {
+        "name": "Tidememory",
+        "description": "Tideborn culture teaches weather sense, harbor discipline, and the calm needed to keep a route open when the sea turns hostile."
+      },
+      "summary": "+1 Agility, +1 Mind, +1 Wisdom, +1 Charisma, +1 Survival, +1 Spellcasting, +1 Barter, +1 Beast Handling, +1 Focus"
+    },
+    "hollowborn": {
+      "name": "Hollowborn",
+      "homeland": "Vaultreach and the grave vales kept under old shrine wards",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_quests": [
+          "q005_sigil_for_the_caretaker"
+        ],
+        "requires_reputation": [
+          {
+            "faction": "shrine_keepers",
+            "min": 8
+          }
+        ]
+      },
+      "lore": "Hollowborn families come from quiet valleys where memory, mourning, and ward-keeping are treated as sacred labor without which the realm's dead would never stay at peace.",
+      "stats": {
+        "mind": 1,
+        "wisdom": 2,
+        "luck": 1
+      },
+      "skills": {
+        "lore": 1,
+        "spellcasting": 1,
+        "warding": 1,
+        "relic_lore": 1
+      },
+      "focus": 1,
+      "passive": {
+        "name": "Grave-Sense",
+        "description": "Hollowborn notice wrongness in abandoned sanctums, burial wards, and places where memory has been profaned."
+      },
+      "summary": "+1 Mind, +2 Wisdom, +1 Luck, +1 Lore, +1 Spellcasting, +1 Warding, +1 Relic Lore, +1 Focus"
+    },
+    "emberkin": {
+      "name": "Emberkin",
+      "homeland": "Emberfall and the ashward cloisters beneath its watch-fires",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_events": [
+          {
+            "type": "enemy_defeated",
+            "details": {
+              "enemy_id": "cinder_guardian"
+            }
+          }
+        ],
+        "requires_reputation": [
+          {
+            "faction": "shrine_keepers",
+            "min": 12
+          }
+        ]
+      },
+      "lore": "Emberkin descend from ward-families who swore never to let the ash roads fall unwatched, shaping lives around sacred duty, carried flame, and the discipline to stand where other folk retreat.",
+      "stats": {
+        "strength": 1,
+        "mind": 1,
+        "wisdom": 1,
+        "endurance": 1
+      },
+      "skills": {
+        "arcana": 1,
+        "warding": 1,
+        "intimidation": 1,
+        "relic_lore": 1
+      },
+      "focus": 1,
+      "passive": {
+        "name": "Ashward Oath",
+        "description": "Emberkin endure heat, fear, and shrine pressure with a steadiness born from generations of sworn watch."
+      },
+      "summary": "+1 Strength, +1 Mind, +1 Wisdom, +1 Endurance, +1 Arcana, +1 Warding, +1 Intimidation, +1 Relic Lore, +1 Focus"
+    },
+    "valewalker": {
+      "name": "Valewalker",
+      "homeland": "Valewood and the hidden ward-roads under its canopy",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_events": [
+          {
+            "type": "location_visited",
+            "details": {
+              "location_id": "valewood"
+            }
+          }
+        ],
+        "requires_reputation": [
+          {
+            "faction": "forest_clans",
+            "min": 10
+          }
+        ]
+      },
+      "lore": "Valewalkers are born to the deep wood lines where ward-stones, game trails, and hidden hearth-oaths all serve the same purpose: keep Valerion's living wilds from slipping into ruin.",
+      "stats": {
+        "agility": 1,
+        "wisdom": 2,
+        "endurance": 1
+      },
+      "skills": {
+        "tracking": 1,
+        "survival": 1,
+        "stealth": 1,
+        "beast_handling": 1
+      },
+      "passive": {
+        "name": "Greenward Step",
+        "description": "Valewalkers move with practiced respect through living wards, game paths, and border-woods others would only blunder through."
+      },
+      "summary": "+1 Agility, +2 Wisdom, +1 Endurance, +1 Tracking, +1 Survival, +1 Stealth, +1 Beast Handling"
+    },
+    "auric": {
+      "name": "Auric",
+      "homeland": "The marcher keeps and oath-halls that once answered directly to old Valerion",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_events": [
+          {
+            "type": "miniboss_defeated",
+            "details": {
+              "enemy_id": "gorgos_the_sundered"
+            }
+          }
+        ],
+        "requires_reputation": [
+          {
+            "faction": "kingdom_guard",
+            "min": 8
+          }
+        ],
+        "requires_rank": "C"
+      },
+      "lore": "Auric lines trace back to marcher stewards who believed the realm survives only while someone still honors the gold-bound oath to hold the line for people they may never meet.",
+      "stats": {
+        "strength": 1,
+        "endurance": 1,
+        "charisma": 1,
+        "wisdom": 1
+      },
+      "skills": {
+        "swordsmanship": 1,
+        "warding": 1,
+        "intimidation": 1,
+        "barter": 1
+      },
+      "gold": 2,
+      "passive": {
+        "name": "Gilded Vow",
+        "description": "Auric tradition prizes oathkeeping, public command, and the resolve to make duty visible when fear starts to spread."
+      },
+      "summary": "+1 Strength, +1 Endurance, +1 Charisma, +1 Wisdom, +1 Swordsmanship, +1 Warding, +1 Intimidation, +1 Barter, +2 Gold"
+    }
+  }
+}

@@ -25,12 +25,16 @@ class ScriptedPlaythroughRegression(unittest.TestCase):
             location["world_events"] = []
             location["state_events"] = []
             location["encounters"] = []
+            if isinstance(location.get("dungeon"), dict):
+                location["dungeon"] = {}
         for state_location in game.world.state_locations.values():
             state_location["world_event_chance"] = 0
             state_location["state_event_chance"] = 0
             state_location["world_events"] = []
             state_location["state_events"] = []
             state_location["encounters"] = []
+            if isinstance(state_location.get("dungeon"), dict):
+                state_location["dungeon"] = {}
 
     def test_scripted_regression_playthrough(self) -> None:
         profile = {

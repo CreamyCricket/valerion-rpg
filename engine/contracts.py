@@ -6,7 +6,7 @@ class ContractEngine:
     """Tracks repeatable Stonewatch contracts without reshaping story quests."""
 
     DEFAULT_UNLOCKED_RANKS = {"E", "D"}
-    RANK_ORDER = {"E": 0, "D": 1, "C": 2, "B": 3, "A": 4}
+    RANK_ORDER = {"E": 0, "D": 1, "C": 2, "B": 3, "A": 4, "S": 5}
 
     def __init__(self, contracts_data: dict, items_data: dict):
         self.contracts = contracts_data if isinstance(contracts_data, dict) else {}
@@ -141,6 +141,18 @@ class ContractEngine:
         if unlock_rank and unlock_rank == rank:
             return True
         return False
+
+    def highest_unlocked_rank(self) -> str:
+        ranks = [rank for rank in self.unlocked_ranks if rank in self.RANK_ORDER]
+        if not ranks:
+            return "E"
+        return max(ranks, key=lambda rank: self.RANK_ORDER.get(rank, -1))
+
+    def next_locked_rank(self) -> str:
+        for rank, _ in sorted(self.RANK_ORDER.items(), key=lambda entry: entry[1]):
+            if rank not in self.unlocked_ranks:
+                return rank
+        return ""
 
     @staticmethod
     def _reputation_requirement_met(player: Character, requirement: dict) -> bool:
@@ -305,17 +317,19 @@ class ContractEngine:
             lines.append(f"- [{rank}-Rank] {title}")
         if not claim_any:
             lines.append("- none")
-        has_visible_c = any(str(contract.get("rank", "")).strip().upper() == "C" for _, contract in available)
-        if not has_visible_c:
-            for contract_id in self.accepted.union(self.claimable):
-                contract = self.contracts.get(contract_id, {})
-                if str(contract.get("board_location", "")).strip().lower() != str(board_location).strip().lower():
-                    continue
-                if str(contract.get("rank", "")).strip().upper() == "C":
-                    has_visible_c = True
-                    break
-        if "C" not in self.unlocked_ranks and not has_visible_c:
-            lines.append("C-rank postings remain locked. Complete the urgent Hunters Guild trial when it appears.")
+        next_locked = self.next_locked_rank()
+        if next_locked:
+            has_visible_locked = any(str(contract.get("rank", "")).strip().upper() == next_locked for _, contract in available)
+            if not has_visible_locked:
+                for contract_id in self.accepted.union(self.claimable):
+                    contract = self.contracts.get(contract_id, {})
+                    if str(contract.get("board_location", "")).strip().lower() != str(board_location).strip().lower():
+                        continue
+                    if str(contract.get("rank", "")).strip().upper() == next_locked:
+                        has_visible_locked = True
+                        break
+            if next_locked not in self.unlocked_ranks and not has_visible_locked:
+                lines.append(f"{next_locked}-rank postings remain locked. Complete tougher Hunters Guild work to gain access.")
         return lines
 
     def _match_contract(self, query: str, candidates: list[tuple[str, dict]]) -> tuple[str, dict] | None:

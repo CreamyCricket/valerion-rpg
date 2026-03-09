@@ -1,0 +1,70 @@
+{
+  "wolfbreaker": {
+    "name": "Wolfbreaker",
+    "description": "Slayer of the Ashwood alpha.",
+    "flavor_text": "The hunters pass your name along the road whenever alpha sign turns fresh again.",
+    "unlock_conditions": {
+      "requires_events": [
+        {
+          "type": "miniboss_defeated",
+          "details": {
+            "enemy_id": "vorgar_ironfang_alpha"
+          }
+        }
+      ]
+    }
+  },
+  "gorgos_slayer": {
+    "name": "Gorgos-Slayer",
+    "description": "You broke the toll-lord of Ironridge.",
+    "flavor_text": "Stonewatch and Ironridge both remember the day the held line stopped bending to Gorgos.",
+    "unlock_conditions": {
+      "requires_events": [
+        {
+          "type": "miniboss_defeated",
+          "details": {
+            "enemy_id": "gorgos_the_sundered"
+          }
+        }
+      ]
+    }
+  },
+  "ashwall": {
+    "name": "Ashwall",
+    "description": "You steadied Emberfall when the ward line threatened to break.",
+    "flavor_text": "Among shrine folk, your name carries the sound of a wall held when ash and duty met head-on.",
+    "unlock_conditions": {
+      "requires_events": [
+        {
+          "type": "regional_event_resolved",
+          "details": {
+            "event_id": "emberfall_guardian_breach"
+          }
+        }
+      ]
+    }
+  },
+  "iron_sentinel": {
+    "name": "Iron Sentinel",
+    "description": "The Hunter Guild marks you as Silver-rank field talent.",
+    "flavor_text": "Guild clerks and road captains alike speak of you as someone trusted to hold a dangerous line.",
+    "unlock_conditions": {
+      "requires_hunter_guild_rank": "Silver"
+    }
+  },
+  "vault_delver": {
+    "name": "Vault Delver",
+    "description": "You entered the Ashen Vault and came back with the tale intact.",
+    "flavor_text": "Vaultreach scholars use your name as proof that the old dark can still be entered without surrendering the road behind you.",
+    "unlock_conditions": {
+      "requires_events": [
+        {
+          "type": "miniboss_defeated",
+          "details": {
+            "enemy_id": "vault_keeper"
+          }
+        }
+      ]
+    }
+  }
+}

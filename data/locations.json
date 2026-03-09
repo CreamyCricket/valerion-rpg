@@ -12,7 +12,11 @@
     },
     "enemies": [],
     "items": [],
-    "npcs": ["elder", "merchant", "captain"],
+    "npcs": [
+      "elder",
+      "merchant",
+      "captain"
+    ],
     "encounters": [],
     "world_event_chance": 10,
     "world_events": [
@@ -38,9 +42,18 @@
     ],
     "state_event_chance": 18,
     "state_events": [
-      {"state_id": "bandit_raid", "weight": 40},
-      {"state_id": "merchant_caravan", "weight": 35},
-      {"state_id": "traveler_in_need", "weight": 25}
+      {
+        "state_id": "bandit_raid",
+        "weight": 40
+      },
+      {
+        "state_id": "merchant_caravan",
+        "weight": 35
+      },
+      {
+        "state_id": "traveler_in_need",
+        "weight": 25
+      }
     ]
   },
   "shop": {
@@ -52,8 +65,12 @@
       "square": "village_square"
     },
     "enemies": [],
-    "items": ["potion"],
-    "npcs": ["merchant"],
+    "items": [
+      "potion"
+    ],
+    "npcs": [
+      "merchant"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -71,15 +88,44 @@
       "tower": "old_watchtower",
       "river": "river_crossing"
     },
-    "enemies": ["slime"],
-    "items": ["herb", "herb_bundle"],
-    "npcs": [],
+    "enemies": [
+      "slime"
+    ],
+    "items": [
+      "herb",
+      "herb_bundle",
+      "beast_hide",
+      "rare_herb"
+    ],
+    "npcs": [
+      "old_crane"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "goblin", "weight": 30},
-      {"type": "enemy", "target": "wolf", "weight": 30},
-      {"type": "enemy", "target": "pack_wolf", "weight": 20},
-      {"type": "enemy", "target": "cutpurse", "weight": 10},
-      {"type": "npc", "target": "merchant", "weight": 10}
+      {
+        "type": "enemy",
+        "target": "goblin",
+        "weight": 30
+      },
+      {
+        "type": "enemy",
+        "target": "wolf",
+        "weight": 30
+      },
+      {
+        "type": "enemy",
+        "target": "pack_wolf",
+        "weight": 20
+      },
+      {
+        "type": "enemy",
+        "target": "cutpurse",
+        "weight": 10
+      },
+      {
+        "type": "npc",
+        "target": "merchant",
+        "weight": 10
+      }
     ],
     "world_event_chance": 25,
     "world_events": [
@@ -124,10 +170,33 @@
     ],
     "state_event_chance": 20,
     "state_events": [
-      {"state_id": "bandit_raid", "weight": 35},
-      {"state_id": "wolf_infestation", "weight": 45},
-      {"state_id": "traveler_in_need", "weight": 20}
-    ]
+      {
+        "state_id": "bandit_raid",
+        "weight": 35
+      },
+      {
+        "state_id": "wolf_infestation",
+        "weight": 45
+      },
+      {
+        "state_id": "traveler_in_need",
+        "weight": 20
+      }
+    ],
+    "dungeon": {
+      "tier": "E",
+      "enemy_pool": [
+        "slime",
+        "goblin",
+        "wolf",
+        "ashwood_wolf",
+        "ashwood_stalker"
+      ],
+      "elite_pool": [],
+      "boss_pool": [
+        "ashwood_packleader"
+      ]
+    }
   },
   "deep_forest": {
     "name": "Deep Forest",
@@ -138,18 +207,50 @@
       "path": "forest_path",
       "shrine": "ruined_shrine",
       "cave": "whispering_cave",
-      "camp": "bandit_camp"
+      "camp": "bandit_camp",
+      "vale": "valewood"
     },
-    "enemies": ["dire_wolf"],
-    "items": ["herb", "herb_bundle"],
-    "npcs": [],
+    "enemies": [
+      "dire_wolf"
+    ],
+    "items": [
+      "herb",
+      "herb_bundle"
+    ],
+    "npcs": [
+      "old_crane"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "dire_wolf", "weight": 35},
-      {"type": "enemy", "target": "pack_wolf", "weight": 25},
-      {"type": "enemy", "target": "briar_boar", "weight": 25},
-      {"type": "enemy", "target": "bandit", "weight": 15},
-      {"type": "enemy", "target": "elite_ashwood_fanglord", "weight": 8},
-      {"type": "enemy", "target": "elite_briar_dreadboar", "weight": 6}
+      {
+        "type": "enemy",
+        "target": "dire_wolf",
+        "weight": 35
+      },
+      {
+        "type": "enemy",
+        "target": "pack_wolf",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "briar_boar",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "bandit",
+        "weight": 15
+      },
+      {
+        "type": "enemy",
+        "target": "elite_ashwood_fanglord",
+        "weight": 8
+      },
+      {
+        "type": "enemy",
+        "target": "elite_briar_dreadboar",
+        "weight": 6
+      }
     ],
     "world_event_chance": 30,
     "world_events": [
@@ -185,9 +286,77 @@
     ],
     "state_event_chance": 18,
     "state_events": [
-      {"state_id": "wolf_infestation", "weight": 55},
-      {"state_id": "bandit_raid", "weight": 45}
-    ]
+      {
+        "state_id": "wolf_infestation",
+        "weight": 55
+      },
+      {
+        "state_id": "bandit_raid",
+        "weight": 45
+      }
+    ],
+    "dungeon": {
+      "tier": "C",
+      "level_range": [
+        3,
+        4
+      ],
+      "families": [
+        "wolves",
+        "forest_beasts",
+        "bandits"
+      ],
+      "enemy_pool": [
+        "dire_wolf",
+        "briar_boar",
+        "bandit_raider"
+      ],
+      "elite_pool": [
+        "elite_ashwood_fanglord",
+        "elite_briar_dreadboar"
+      ],
+      "boss_pool": [
+        "vorgar_ironfang_alpha"
+      ]
+    }
+  },
+  "valewood": {
+    "name": "Valewood",
+    "description": "Ward-marked trunks, hidden hearth lights, and careful footbridges reveal a living wood-settlement built to watch the deep paths without stripping them bare.",
+    "region": "Valewood",
+    "lore": "Valewood keeps a quieter line of Valerion, where clan memory, animal paths, and living wards are all treated as duties owed to the realm rather than secrets hoarded for pride.",
+    "services": [
+      "rest",
+      "hunting gear",
+      "tracking tools",
+      "guidance",
+      "waycarter network"
+    ],
+    "economy_note": "Trade here runs on herbs, furs, warded timber, and the kind of trust that takes longer to earn than coin.",
+    "major_hub": {
+      "name": "Valewood",
+      "progression_role": "Valewood roots the forest side of the campaign in a defended culture instead of a chain of hostile clearings.",
+      "faction_tie": "Forest Clans",
+      "race_tie": "Elves, Valewalkers",
+      "class_tie": "Ranger, Hunter, Beast Hunter",
+      "travel_identity": "Light forest coaches and oath-guided trail caravans keep the wood roads usable without breaking them.",
+      "campaign_role": "Valewood gives the player a true forest hub once road trouble gives way to deeper clan and ward concerns."
+    },
+    "connected_locations": {
+      "forest": "deep_forest"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": [
+      "hermit",
+      "veteran_hunter_sera",
+      "forest_scout_rowan"
+    ],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
   },
   "old_watchtower": {
     "name": "Old Watchtower",
@@ -196,22 +365,57 @@
     "lore": "The watchtower once gave the village warning over the road and treeline, so even half-ruined it still feels like part of the same border watch.",
     "dungeon": {
       "tier": "E",
-      "enemy_pool": ["slime", "goblin", "wolf"],
-      "boss_pool": ["pack_wolf"]
+      "enemy_pool": [
+        "slime",
+        "goblin",
+        "wolf"
+      ],
+      "elite_pool": [],
+      "boss_pool": [
+        "pack_wolf"
+      ]
     },
     "connected_locations": {
       "path": "forest_path",
       "ruins": "old_ruins"
     },
-    "enemies": ["slime"],
-    "items": ["bandage"],
-    "npcs": ["scout"],
+    "enemies": [
+      "slime"
+    ],
+    "items": [
+      "bandage",
+      "iron_ore",
+      "forge_stone"
+    ],
+    "npcs": [
+      "scout"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "goblin", "weight": 30},
-      {"type": "enemy", "target": "bandit", "weight": 25},
-      {"type": "enemy", "target": "cutpurse", "weight": 25},
-      {"type": "enemy", "target": "pack_wolf", "weight": 20},
-      {"type": "npc", "target": "merchant", "weight": 20}
+      {
+        "type": "enemy",
+        "target": "goblin",
+        "weight": 30
+      },
+      {
+        "type": "enemy",
+        "target": "bandit",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "cutpurse",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "pack_wolf",
+        "weight": 20
+      },
+      {
+        "type": "npc",
+        "target": "merchant",
+        "weight": 20
+      }
     ],
     "world_event_chance": 20,
     "world_events": [
@@ -238,8 +442,14 @@
     ],
     "state_event_chance": 12,
     "state_events": [
-      {"state_id": "bandit_raid", "weight": 45},
-      {"state_id": "wolf_infestation", "weight": 55}
+      {
+        "state_id": "bandit_raid",
+        "weight": 45
+      },
+      {
+        "state_id": "wolf_infestation",
+        "weight": 55
+      }
     ]
   },
   "ruined_shrine": {
@@ -249,22 +459,59 @@
     "lore": "The shrine belonged to an older order of keepers, and locals still speak as if the stones remember more than they should.",
     "dungeon": {
       "tier": "D",
-      "enemy_pool": ["cultist", "skeleton", "ash_wisp"],
-      "boss_pool": ["bone_warden"]
+      "enemy_pool": [
+        "cultist",
+        "skeleton",
+        "ash_wisp"
+      ],
+      "elite_pool": [
+        "elite_huskbound_wraith"
+      ],
+      "boss_pool": [
+        "bone_warden"
+      ]
     },
     "connected_locations": {
       "forest": "deep_forest",
       "cave": "whispering_cave"
     },
-    "enemies": ["shrine_guardian", "ash_wisp"],
-    "items": ["herb", "herb_bundle"],
-    "npcs": ["caretaker"],
+    "enemies": [
+      "shrine_guardian",
+      "ash_wisp"
+    ],
+    "items": [
+      "herb",
+      "herb_bundle"
+    ],
+    "npcs": [
+      "caretaker"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "cultist", "weight": 30},
-      {"type": "enemy", "target": "skeleton", "weight": 20},
-      {"type": "enemy", "target": "ash_wisp", "weight": 25},
-      {"type": "enemy", "target": "bone_warden", "weight": 25},
-      {"type": "enemy", "target": "elite_huskbound_wraith", "weight": 10}
+      {
+        "type": "enemy",
+        "target": "cultist",
+        "weight": 30
+      },
+      {
+        "type": "enemy",
+        "target": "skeleton",
+        "weight": 20
+      },
+      {
+        "type": "enemy",
+        "target": "ash_wisp",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "bone_warden",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "elite_huskbound_wraith",
+        "weight": 10
+      }
     ],
     "world_event_chance": 15,
     "world_events": [
@@ -281,8 +528,14 @@
     ],
     "state_event_chance": 22,
     "state_events": [
-      {"state_id": "shrine_corruption", "weight": 70},
-      {"state_id": "traveler_in_need", "weight": 30}
+      {
+        "state_id": "shrine_corruption",
+        "weight": 70
+      },
+      {
+        "state_id": "traveler_in_need",
+        "weight": 30
+      }
     ]
   },
   "river_crossing": {
@@ -298,14 +551,39 @@
       "coast": "stormbreak_cliffs"
     },
     "enemies": [],
-    "items": ["herb", "herb_bundle"],
-    "npcs": ["ferryman"],
+    "items": [
+      "herb",
+      "herb_bundle"
+    ],
+    "npcs": [
+      "ferryman"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "thief", "weight": 25},
-      {"type": "enemy", "target": "cutpurse", "weight": 25},
-      {"type": "enemy", "target": "bandit_raider", "weight": 20},
-      {"type": "enemy", "target": "wolf", "weight": 15},
-      {"type": "npc", "target": "merchant", "weight": 15}
+      {
+        "type": "enemy",
+        "target": "thief",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "cutpurse",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "bandit_raider",
+        "weight": 20
+      },
+      {
+        "type": "enemy",
+        "target": "wolf",
+        "weight": 15
+      },
+      {
+        "type": "npc",
+        "target": "merchant",
+        "weight": 15
+      }
     ],
     "world_event_chance": 25,
     "world_events": [
@@ -340,11 +618,38 @@
     ],
     "state_event_chance": 24,
     "state_events": [
-      {"state_id": "bandit_raid", "weight": 35},
-      {"state_id": "merchant_caravan", "weight": 35},
-      {"state_id": "traveler_in_need", "weight": 15},
-      {"state_id": "wolf_infestation", "weight": 15}
-    ]
+      {
+        "state_id": "bandit_raid",
+        "weight": 35
+      },
+      {
+        "state_id": "merchant_caravan",
+        "weight": 35
+      },
+      {
+        "state_id": "traveler_in_need",
+        "weight": 15
+      },
+      {
+        "state_id": "wolf_infestation",
+        "weight": 15
+      }
+    ],
+    "dungeon": {
+      "tier": "D",
+      "families": [
+        "bandits",
+        "wolves"
+      ],
+      "enemy_pool": [
+        "thief",
+        "cutpurse",
+        "bandit_raider",
+        "wolf"
+      ],
+      "elite_pool": [],
+      "boss_pool": []
+    }
   },
   "old_ruins": {
     "name": "Old Ruins",
@@ -353,23 +658,61 @@
     "lore": "These ruins predate the current roads, and scholars argue whether they once guarded the shrine or warned people away from it.",
     "dungeon": {
       "tier": "C",
-      "enemy_pool": ["ash_adept", "giant_spider", "bandit_raider"],
-      "boss_pool": ["bone_warden"]
+      "enemy_pool": [
+        "ash_adept",
+        "giant_spider",
+        "bandit_raider"
+      ],
+      "elite_pool": [
+        "elite_briar_dreadboar"
+      ],
+      "boss_pool": [
+        "bone_warden",
+        "grove_sentinel"
+      ]
     },
     "connected_locations": {
       "watchtower": "old_watchtower",
       "river": "river_crossing",
       "cave": "whispering_cave"
     },
-    "enemies": ["skeleton", "ash_wisp"],
-    "items": ["bandage"],
-    "npcs": ["scholar"],
+    "enemies": [
+      "skeleton",
+      "ash_wisp"
+    ],
+    "items": [
+      "bandage"
+    ],
+    "npcs": [
+      "scholar",
+      "sable"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "skeleton", "weight": 30},
-      {"type": "enemy", "target": "ash_wisp", "weight": 25},
-      {"type": "enemy", "target": "bone_warden", "weight": 25},
-      {"type": "enemy", "target": "cultist", "weight": 20},
-      {"type": "enemy", "target": "elite_briar_dreadboar", "weight": 8}
+      {
+        "type": "enemy",
+        "target": "skeleton",
+        "weight": 30
+      },
+      {
+        "type": "enemy",
+        "target": "ash_wisp",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "bone_warden",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "cultist",
+        "weight": 20
+      },
+      {
+        "type": "enemy",
+        "target": "elite_briar_dreadboar",
+        "weight": 8
+      }
     ],
     "world_event_chance": 25,
     "world_events": [
@@ -395,9 +738,18 @@
     ],
     "state_event_chance": 18,
     "state_events": [
-      {"state_id": "merchant_caravan", "weight": 40},
-      {"state_id": "bandit_raid", "weight": 20},
-      {"state_id": "shrine_corruption", "weight": 40}
+      {
+        "state_id": "merchant_caravan",
+        "weight": 40
+      },
+      {
+        "state_id": "bandit_raid",
+        "weight": 20
+      },
+      {
+        "state_id": "shrine_corruption",
+        "weight": 40
+      }
     ]
   },
   "bandit_camp": {
@@ -409,14 +761,35 @@
       "river": "river_crossing",
       "forest": "deep_forest"
     },
-    "enemies": ["thief", "bandit_raider"],
-    "items": ["potion"],
+    "enemies": [
+      "thief",
+      "bandit_raider"
+    ],
+    "items": [
+      "potion"
+    ],
     "npcs": [],
     "encounters": [
-      {"type": "enemy", "target": "thief", "weight": 30},
-      {"type": "enemy", "target": "cutpurse", "weight": 20},
-      {"type": "enemy", "target": "bandit", "weight": 20},
-      {"type": "enemy", "target": "bandit_raider", "weight": 30}
+      {
+        "type": "enemy",
+        "target": "thief",
+        "weight": 30
+      },
+      {
+        "type": "enemy",
+        "target": "cutpurse",
+        "weight": 20
+      },
+      {
+        "type": "enemy",
+        "target": "bandit",
+        "weight": 20
+      },
+      {
+        "type": "enemy",
+        "target": "bandit_raider",
+        "weight": 30
+      }
     ],
     "world_event_chance": 20,
     "world_events": [
@@ -442,9 +815,29 @@
     ],
     "state_event_chance": 14,
     "state_events": [
-      {"state_id": "bandit_raid", "weight": 70},
-      {"state_id": "wolf_infestation", "weight": 30}
-    ]
+      {
+        "state_id": "bandit_raid",
+        "weight": 70
+      },
+      {
+        "state_id": "wolf_infestation",
+        "weight": 30
+      }
+    ],
+    "dungeon": {
+      "tier": "D",
+      "families": [
+        "bandits"
+      ],
+      "enemy_pool": [
+        "thief",
+        "cutpurse",
+        "bandit",
+        "bandit_raider"
+      ],
+      "elite_pool": [],
+      "boss_pool": []
+    }
   },
   "whispering_cave": {
     "name": "Whispering Cave",
@@ -453,22 +846,51 @@
     "lore": "People say the cave carries voices farther than it should, which is enough reason for most locals to stay out.",
     "dungeon": {
       "tier": "C",
-      "enemy_pool": ["giant_spider", "bandit_raider", "ash_adept"],
-      "boss_pool": ["cave_troll"]
+      "enemy_pool": [
+        "giant_spider",
+        "bandit_raider",
+        "ash_adept"
+      ],
+      "elite_pool": [],
+      "boss_pool": [
+        "cave_troll"
+      ]
     },
     "connected_locations": {
       "ruins": "old_ruins",
       "forest": "deep_forest",
       "shrine": "ruined_shrine"
     },
-    "enemies": ["giant_spider"],
-    "items": ["herb"],
-    "npcs": ["hermit"],
+    "enemies": [
+      "giant_spider"
+    ],
+    "items": [
+      "herb"
+    ],
+    "npcs": [
+      "hermit"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "giant_spider", "weight": 35},
-      {"type": "enemy", "target": "briar_boar", "weight": 20},
-      {"type": "enemy", "target": "cave_troll", "weight": 25},
-      {"type": "enemy", "target": "ash_wisp", "weight": 20}
+      {
+        "type": "enemy",
+        "target": "giant_spider",
+        "weight": 35
+      },
+      {
+        "type": "enemy",
+        "target": "briar_boar",
+        "weight": 20
+      },
+      {
+        "type": "enemy",
+        "target": "cave_troll",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "ash_wisp",
+        "weight": 20
+      }
     ],
     "world_event_chance": 25,
     "world_events": [
@@ -494,9 +916,18 @@
     ],
     "state_event_chance": 18,
     "state_events": [
-      {"state_id": "shrine_corruption", "weight": 45},
-      {"state_id": "wolf_infestation", "weight": 25},
-      {"state_id": "traveler_in_need", "weight": 30}
+      {
+        "state_id": "shrine_corruption",
+        "weight": 45
+      },
+      {
+        "state_id": "wolf_infestation",
+        "weight": 25
+      },
+      {
+        "state_id": "traveler_in_need",
+        "weight": 30
+      }
     ]
   },
   "town_gate": {
@@ -504,7 +935,11 @@
     "description": "Stonewatch's gate rises in pale blockwork above the road, built to welcome trade while making trouble slow itself down.",
     "region": "Stonewatch",
     "lore": "Stonewatch holds because caravans, patrols, pilgrims, and hunters all need the same wall, the same market, and the same rules at the end of a long road.",
-    "services": ["travel control", "guard watch", "town entry"],
+    "services": [
+      "travel control",
+      "guard watch",
+      "town entry"
+    ],
     "economy_note": "Caravan tolls, gate checks, and road safety all start here.",
     "connected_locations": {
       "village": "village_square",
@@ -513,7 +948,10 @@
     },
     "enemies": [],
     "items": [],
-    "npcs": ["gatewarden"],
+    "npcs": [
+      "gatewarden",
+      "road_captain_ves"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -525,8 +963,26 @@
     "description": "Stonewatch's market square is tight with awnings, handcarts, and callers who know the road well enough to price it by the mile.",
     "region": "Stonewatch",
     "lore": "The square is where forest goods become town coin, where travelers overhear their next lead, and where Stonewatch proves it is more than a checkpoint with walls.",
-    "services": ["buy", "sell", "materials", "quest leads", "contract board"],
+    "services": [
+      "buy",
+      "sell",
+      "materials",
+      "quest leads",
+      "contract board",
+      "guard services",
+      "basic gear",
+      "waycarter network"
+    ],
     "economy_note": "The square sets the town's mood: food, salvage, and rumor all change hands here first.",
+    "major_hub": {
+      "name": "Stonewatch",
+      "progression_role": "Stonewatch is the frontier order made visible: a market-wall hub where contracts, supply, and civic duty keep the realm from coming apart.",
+      "faction_tie": "Kingdom Guard and Merchant Guild",
+      "race_tie": "Humans, Sunforged, Auric",
+      "class_tie": "Warrior, Templar, Warden",
+      "travel_identity": "Carriage ledgers, caravan guards, and posted route clerks move people along the safer held roads.",
+      "campaign_role": "Stonewatch anchors the early campaign and turns local survival into wider frontier service."
+    },
     "connected_locations": {
       "gate": "town_gate",
       "blacksmith": "blacksmith",
@@ -538,7 +994,15 @@
     },
     "enemies": [],
     "items": [],
-    "npcs": ["market_broker", "aldric"],
+    "npcs": [
+      "market_broker",
+      "guild_broker_maren",
+      "caravan_master_dain",
+      "aldric",
+      "dessa",
+      "merchant_factor_celene",
+      "traveling_bard_kellan"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -550,14 +1014,22 @@
     "description": "Heat, hammer-song, and iron filings fill the forge, where practical work is stacked in racks before it ever reaches a display wall.",
     "region": "Stonewatch",
     "lore": "Stonewatch's smiths live on road demand: nails for wagons, rivets for armor, and hard promises about which steel will still hold after a bad week.",
-    "services": ["buy", "sell", "upgrade", "forge crafting"],
+    "services": [
+      "buy",
+      "sell",
+      "upgrade",
+      "forge crafting"
+    ],
     "economy_note": "The forge turns salvaged iron and hard coin into gear people trust on the road.",
     "connected_locations": {
-      "square": "market_square"
+      "square": "market_square",
+      "emberfall": "emberfall"
     },
     "enemies": [],
     "items": [],
-    "npcs": ["blacksmith"],
+    "npcs": [
+      "blacksmith"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -569,14 +1041,21 @@
     "description": "Quiet shelves of glass, vellum, and warded tools keep the mage shop feeling more measured than grand, with every item set where careless hands cannot reach it first.",
     "region": "Stonewatch",
     "lore": "Stonewatch's arcane trade stays modest on purpose: enough to arm novices, mend field kits, and keep the shrine orders supplied without pretending the frontier is a college.",
-    "services": ["buy", "sell", "upgrade", "alchemy crafting"],
+    "services": [
+      "buy",
+      "sell",
+      "upgrade",
+      "alchemy crafting"
+    ],
     "economy_note": "Arcane work here is practical frontier trade, not ornament: tonics, foci, and careful reagents.",
     "connected_locations": {
       "square": "market_square"
     },
     "enemies": [],
     "items": [],
-    "npcs": ["arcanist"],
+    "npcs": [
+      "arcanist"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -588,14 +1067,20 @@
     "description": "Racks of bows, spears, and field blades line a narrow room built for hunters, scouts, and travelers who expect the road to argue back.",
     "region": "Stonewatch",
     "lore": "The weapon shop survives by outfitting people who need clean range, quick reach, or something cheap enough to risk on uncertain roads.",
-    "services": ["buy", "sell", "upgrade"],
+    "services": [
+      "buy",
+      "sell",
+      "upgrade"
+    ],
     "economy_note": "This shop trades in reach, timing, and gear light enough to carry through bad country.",
     "connected_locations": {
       "square": "market_square"
     },
     "enemies": [],
     "items": [],
-    "npcs": ["fletcher"],
+    "npcs": [
+      "fletcher"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -607,14 +1092,21 @@
     "description": "Warm light, stew steam, and tired voices make the inn feel like the first room in miles where nobody needs to keep moving.",
     "region": "Stonewatch",
     "lore": "Road towns are measured by their inns as much as their walls, and Stonewatch keeps one good enough that caravans plan around it.",
-    "services": ["rest", "buy", "sell"],
+    "services": [
+      "rest",
+      "buy",
+      "sell"
+    ],
     "economy_note": "Beds, hot meals, and safe nights keep caravans spending coin in town instead of pushing on hungry.",
     "connected_locations": {
       "square": "market_square"
     },
     "enemies": [],
     "items": [],
-    "npcs": ["innkeeper"],
+    "npcs": [
+      "innkeeper",
+      "traveling_bard_kellan"
+    ],
     "rest_cost": 2,
     "rest_faction": "merchant_guild",
     "rest_npc": "innkeeper",
@@ -629,14 +1121,64 @@
     "description": "A compact stone shrine stands off the market lane, quiet enough to gather breath without pretending the road beyond its walls has gone anywhere.",
     "region": "Stonewatch",
     "lore": "Stonewatch's shrine is less grand than old woodland sanctums, but it remains where guards, traders, and pilgrims all come to steady themselves before the next road.",
-    "services": ["alchemy crafting", "quest turn-ins", "guidance"],
+    "services": [
+      "alchemy crafting",
+      "quest turn-ins",
+      "guidance"
+    ],
     "economy_note": "Pilgrims and guards leave offerings here, and the shrine quietly feeds the town's arcane supply lines.",
     "connected_locations": {
       "square": "market_square"
     },
     "enemies": [],
     "items": [],
-    "npcs": ["shrine_caretaker"],
+    "npcs": [
+      "shrine_caretaker",
+      "shrine_archivist_elira",
+      "brother_aldun"
+    ],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "emberfall": {
+    "name": "Emberfall",
+    "description": "Ash-lanterns burn above stepped cloisters and guarded courtyards where shrine folk, watch escorts, and ashward carriers gather before taking the harder road onward.",
+    "region": "Emberfall",
+    "lore": "Emberfall survives as a sworn fire-break in the realm, a place where ward-keepers and road servants refuse to let the ash roads become a lawless wound in Valerion.",
+    "services": [
+      "rest",
+      "alchemy crafting",
+      "shrine cleansing",
+      "ritual supplies",
+      "ward guidance",
+      "waycarter network"
+    ],
+    "economy_note": "Offerings, sealed reagents, and escorted ash-road freight pass through Emberfall under strict records and stricter ritual care.",
+    "major_hub": {
+      "name": "Emberfall",
+      "progression_role": "Emberfall links shrine progression, ash-lore, and the vault approach into one ordered frontier hub.",
+      "faction_tie": "Shrine Keepers",
+      "race_tie": "Ashenborn, Emberkin, Hollowborn",
+      "class_tie": "Mystic, Spellblade, Hexcaller",
+      "travel_identity": "Shrine escorts and warded caravans move only under rite, ledger, and watchful escort.",
+      "campaign_role": "Emberfall gives the Cult of Ash storyline a defended counterpart before the late vault push."
+    },
+    "connected_locations": {
+      "shrine": "town_shrine",
+      "reach": "vaultreach"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": [
+      "shrine_caretaker",
+      "shrine_archivist_elira",
+      "brother_aldun",
+      "vault_scholar",
+      "relic_dealer_nessa"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -648,7 +1190,11 @@
     "description": "Open racks, chalk boards, and bundled kit line the barracks hall where Stonewatch turns road worry into patrols and supply counts.",
     "region": "Stonewatch",
     "lore": "The barracks keep Stonewatch honest: not a grand fortress, but a working watch-post where discipline means the roads still function tomorrow.",
-    "services": ["buy", "sell", "watch contracts"],
+    "services": [
+      "buy",
+      "sell",
+      "watch contracts"
+    ],
     "economy_note": "Patrol supplies, levy accounts, and frontier contracts pass through the barracks before they reach the roads.",
     "connected_locations": {
       "gate": "town_gate",
@@ -657,7 +1203,10 @@
     },
     "enemies": [],
     "items": [],
-    "npcs": ["quartermaster"],
+    "npcs": [
+      "quartermaster",
+      "havik_ironborn"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -673,38 +1222,132 @@
       "stonewatch": "watch_barracks",
       "hold": "ironridge_square"
     },
-    "enemies": ["ridge_raider"],
-    "items": ["bandage"],
-    "npcs": ["hold_warden"],
+    "enemies": [
+      "ridge_raider"
+    ],
+    "items": [
+      "bandage"
+    ],
+    "npcs": [
+      "hold_warden",
+      "road_captain_ves",
+      "old_crane"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "ridge_raider", "weight": 40},
-      {"type": "enemy", "target": "ore_thief", "weight": 35},
-      {"type": "enemy", "target": "stone_ram", "weight": 25},
-      {"type": "enemy", "target": "elite_ironpass_bulwark", "weight": 12}
+      {
+        "type": "enemy",
+        "target": "ridge_raider",
+        "weight": 40
+      },
+      {
+        "type": "enemy",
+        "target": "ore_thief",
+        "weight": 35
+      },
+      {
+        "type": "enemy",
+        "target": "stone_ram",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "elite_ironpass_bulwark",
+        "weight": 12
+      }
     ],
     "world_event_chance": 18,
     "world_events": [
-      {"event_id": "injured_traveler", "name": "Injured Traveler", "type": "traveler", "weight": 50, "skill": "survival", "dc": 13, "reward_item": "bandage", "reward_gold": 6},
-      {"event_id": "wandering_trader", "name": "Wandering Trader", "type": "trader", "weight": 50, "skill": "persuasion", "dc": 13, "reward_gold": 4}
+      {
+        "event_id": "injured_traveler",
+        "name": "Injured Traveler",
+        "type": "traveler",
+        "weight": 50,
+        "skill": "survival",
+        "dc": 13,
+        "reward_item": "bandage",
+        "reward_gold": 6
+      },
+      {
+        "event_id": "wandering_trader",
+        "name": "Wandering Trader",
+        "type": "trader",
+        "weight": 50,
+        "skill": "persuasion",
+        "dc": 13,
+        "reward_gold": 4
+      }
     ],
     "state_event_chance": 16,
     "state_events": [
-      {"state_id": "bandit_raid", "weight": 45},
-      {"state_id": "merchant_caravan", "weight": 55}
-    ]
+      {
+        "state_id": "bandit_raid",
+        "weight": 45
+      },
+      {
+        "state_id": "merchant_caravan",
+        "weight": 55
+      }
+    ],
+    "dungeon": {
+      "tier": "D",
+      "level_range": [
+        3,
+        4
+      ],
+      "families": [
+        "bandits",
+        "forest_beasts"
+      ],
+      "enemy_pool": [
+        "ridge_raider",
+        "ore_thief",
+        "stone_ram"
+      ],
+      "elite_pool": [
+        "elite_ironpass_bulwark"
+      ],
+      "boss_pool": [
+        "gorgos_the_sundered"
+      ]
+    }
   },
   "ironridge_square": {
     "name": "Ironridge Square",
     "description": "Heavy lintels, slate roofs, and carved clan marks give the hold's square a practical grandeur built to last centuries, not seasons.",
     "region": "Ironridge Hold",
     "lore": "Ironridge lives by ore, contract, and memory, measuring worth by what survives the road and what holds true after the hammer falls.",
+    "services": [
+      "buy",
+      "sell",
+      "forge upgrades",
+      "heavy armor",
+      "forge work",
+      "waycarter network"
+    ],
+    "economy_note": "Ore contracts, wagon repairs, and oath-bound freight keep the hold tied to every lower road that still matters.",
+    "major_hub": {
+      "name": "Ironridge Hold",
+      "progression_role": "Ironridge is the mountain stronghold where Valerion's line becomes stone, labor, and armed convoy discipline.",
+      "faction_tie": "Kingdom Guard and Merchant Guild",
+      "race_tie": "Dwarves, Stonekin, Auric",
+      "class_tie": "Warrior, Templar, Relic Knight",
+      "travel_identity": "Escorted caravans and ridge wagons run on contract law, not speed.",
+      "campaign_role": "The hold opens mid-game martial progression, contract pressure, and the Gorgos line."
+    },
     "connected_locations": {
       "pass": "ironridge_pass",
       "forge": "ironridge_forge"
     },
     "enemies": [],
     "items": [],
-    "npcs": ["thane_brom", "ledger_clerk"],
+    "npcs": [
+      "thane_brom",
+      "ledger_clerk",
+      "guild_broker_maren",
+      "havik_ironborn",
+      "caravan_master_dain",
+      "road_captain_ves"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -721,7 +1364,10 @@
     },
     "enemies": [],
     "items": [],
-    "npcs": ["forgemistress"],
+    "npcs": [
+      "forgemistress",
+      "traveling_bard_kellan"
+    ],
     "encounters": [],
     "world_event_chance": 0,
     "world_events": [],
@@ -735,26 +1381,133 @@
     "lore": "Stormbreak's coast is useful, dangerous, and never fully quiet, with smugglers, wreck-scavengers, and honest scouts all reading the same tide for different reasons.",
     "connected_locations": {
       "river": "river_crossing",
-      "cove": "stormbreak_cove"
+      "cove": "stormbreak_cove",
+      "harbor": "stormbreak"
     },
-    "enemies": ["wreck_diver"],
-    "items": ["herb"],
-    "npcs": ["coast_ranger"],
+    "enemies": [
+      "wreck_diver"
+    ],
+    "items": [
+      "herb"
+    ],
+    "npcs": [
+      "coast_ranger",
+      "veteran_hunter_sera",
+      "merchant_factor_celene",
+      "harbor_master_oren",
+      "traveling_bard_kellan"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "wreck_diver", "weight": 45},
-      {"type": "enemy", "target": "sea_raider", "weight": 35},
-      {"type": "enemy", "target": "goblin", "weight": 20}
+      {
+        "type": "enemy",
+        "target": "wreck_diver",
+        "weight": 45
+      },
+      {
+        "type": "enemy",
+        "target": "sea_raider",
+        "weight": 35
+      },
+      {
+        "type": "enemy",
+        "target": "goblin",
+        "weight": 20
+      }
     ],
     "world_event_chance": 22,
     "world_events": [
-      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 45, "skill": "lore", "dc": 13, "reward_gold": 10, "reward_item": "torch_bundle"},
-      {"event_id": "injured_traveler", "name": "Injured Traveler", "type": "traveler", "weight": 25, "skill": "survival", "dc": 13, "reward_item": "bandage", "reward_gold": 6},
-      {"event_id": "bandit_ambush", "name": "Sea Raider Ambush", "type": "ambush", "weight": 30, "enemy": "sea_raider", "skill": "stealth", "dc": 13}
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 45,
+        "skill": "lore",
+        "dc": 13,
+        "reward_gold": 10,
+        "reward_item": "torch_bundle"
+      },
+      {
+        "event_id": "injured_traveler",
+        "name": "Injured Traveler",
+        "type": "traveler",
+        "weight": 25,
+        "skill": "survival",
+        "dc": 13,
+        "reward_item": "bandage",
+        "reward_gold": 6
+      },
+      {
+        "event_id": "bandit_ambush",
+        "name": "Sea Raider Ambush",
+        "type": "ambush",
+        "weight": 30,
+        "enemy": "sea_raider",
+        "skill": "stealth",
+        "dc": 13
+      }
     ],
     "state_event_chance": 12,
     "state_events": [
-      {"state_id": "traveler_in_need", "weight": 100}
-    ]
+      {
+        "state_id": "traveler_in_need",
+        "weight": 100
+      }
+    ],
+    "dungeon": {
+      "tier": "C",
+      "families": [
+        "bandits"
+      ],
+      "enemy_pool": [
+        "wreck_diver",
+        "sea_raider",
+        "goblin"
+      ],
+      "elite_pool": [],
+      "boss_pool": []
+    }
+  },
+  "stormbreak": {
+    "name": "Stormbreak",
+    "description": "Harbor bells, ferry chains, and wind-cut awnings mark a coastal hold where every arrival is weighed against weather, law, and what the sea might still be hiding.",
+    "region": "Stormbreak Coast",
+    "lore": "Stormbreak stands because its harbor folk keep choosing to hold the western sea-road for Valerion, mending ferries, posting watchfires, and refusing to yield the last safe landing.",
+    "services": [
+      "buy",
+      "sell",
+      "rest",
+      "trade hub",
+      "rare imports",
+      "ferry routes",
+      "ferry office",
+      "waycarter network"
+    ],
+    "economy_note": "Salt freight, rescue fees, and tide-timed caravans keep Stormbreak alive as both shield and market.",
+    "major_hub": {
+      "name": "Stormbreak",
+      "progression_role": "Stormbreak opens the coastward line of the campaign and roots Tideborn identity in a living harbor culture.",
+      "faction_tie": "Merchant Guild and Kingdom Guard",
+      "race_tie": "Tideborn, Marshfolk",
+      "class_tie": "Ranger, Spellblade, Beast Hunter",
+      "travel_identity": "Ferries, seawall coaches, and tide-certified cargo caravans carry people when the coast allows it.",
+      "campaign_role": "Stormbreak ties the frontier inland roads to the sea and stages the approach toward the ash coast."
+    },
+    "connected_locations": {
+      "cliffs": "stormbreak_cliffs"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": [
+      "coast_ranger",
+      "veteran_hunter_sera",
+      "merchant_factor_celene",
+      "harbor_master_oren"
+    ],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
+    "state_event_chance": 0,
+    "state_events": []
   },
   "stormbreak_cove": {
     "name": "Stormbreak Cove",
@@ -765,21 +1518,70 @@
       "cliffs": "stormbreak_cliffs",
       "vault": "ashen_stair"
     },
-    "enemies": ["sea_raider"],
-    "items": ["bandage"],
+    "enemies": [
+      "sea_raider"
+    ],
+    "items": [
+      "bandage"
+    ],
     "npcs": [],
     "encounters": [
-      {"type": "enemy", "target": "sea_raider", "weight": 50},
-      {"type": "enemy", "target": "wreck_diver", "weight": 35},
-      {"type": "enemy", "target": "goblin", "weight": 15}
+      {
+        "type": "enemy",
+        "target": "sea_raider",
+        "weight": 50
+      },
+      {
+        "type": "enemy",
+        "target": "wreck_diver",
+        "weight": 35
+      },
+      {
+        "type": "enemy",
+        "target": "goblin",
+        "weight": 15
+      }
     ],
     "world_event_chance": 18,
     "world_events": [
-      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 60, "skill": "survival", "dc": 14, "reward_gold": 14, "reward_item": "bandage_kit"},
-      {"event_id": "bandit_ambush", "name": "Sea Raider Ambush", "type": "ambush", "weight": 40, "enemy": "sea_raider", "skill": "stealth", "dc": 14}
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 60,
+        "skill": "survival",
+        "dc": 14,
+        "reward_gold": 14,
+        "reward_item": "bandage_kit"
+      },
+      {
+        "event_id": "bandit_ambush",
+        "name": "Sea Raider Ambush",
+        "type": "ambush",
+        "weight": 40,
+        "enemy": "sea_raider",
+        "skill": "stealth",
+        "dc": 14
+      }
     ],
     "state_event_chance": 0,
-    "state_events": []
+    "state_events": [],
+    "dungeon": {
+      "tier": "B",
+      "level_range": [
+        4,
+        5
+      ],
+      "families": [
+        "bandits"
+      ],
+      "enemy_pool": [
+        "sea_raider",
+        "wreck_diver"
+      ],
+      "elite_pool": [],
+      "boss_pool": []
+    }
   },
   "ashen_stair": {
     "name": "Ashen Stair",
@@ -787,28 +1589,115 @@
     "region": "Ashen Vault",
     "lore": "The stair marks the edge of a buried sanctuary that burned once, was sealed, and has lately begun drawing cult marks and careful footsteps back to it.",
     "dungeon": {
-      "tier": "B",
-      "level_range": [3, 5],
-      "enemy_pool": ["ash_adept", "ash_wisp", "bone_warden"],
-      "boss_pool": ["cinder_guardian"]
+      "tier": "A",
+      "level_range": [
+        5,
+        6
+      ],
+      "enemy_pool": [
+        "ash_adept",
+        "ash_wisp",
+        "bone_warden"
+      ],
+      "elite_pool": [
+        "elite_vault_warden"
+      ],
+      "boss_pool": [
+        "cinder_guardian"
+      ]
     },
     "connected_locations": {
       "cove": "stormbreak_cove",
-      "vault": "ashen_vault"
+      "vault": "ashen_vault",
+      "reach": "vaultreach"
     },
-    "enemies": ["ash_adept"],
-    "items": ["mana_tonic"],
-    "npcs": ["vault_scholar"],
+    "enemies": [
+      "ash_adept"
+    ],
+    "items": [
+      "mana_tonic",
+      "relic_core_shard",
+      "ancient_alloy"
+    ],
+    "npcs": [
+      "sable",
+      "vault_scholar",
+      "relic_dealer_nessa"
+    ],
     "encounters": [
-      {"type": "enemy", "target": "ash_adept", "weight": 50},
-      {"type": "enemy", "target": "cinder_guardian", "weight": 25},
-      {"type": "enemy", "target": "ash_wisp", "weight": 25},
-      {"type": "enemy", "target": "elite_vault_warden", "weight": 10}
+      {
+        "type": "enemy",
+        "target": "ash_adept",
+        "weight": 50
+      },
+      {
+        "type": "enemy",
+        "target": "cinder_guardian",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "ash_wisp",
+        "weight": 25
+      },
+      {
+        "type": "enemy",
+        "target": "elite_vault_warden",
+        "weight": 10
+      }
     ],
     "world_event_chance": 15,
     "world_events": [
-      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 100, "skill": "arcana", "dc": 14, "reward_gold": 16, "reward_item": "focus_draught"}
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 100,
+        "skill": "arcana",
+        "dc": 14,
+        "reward_gold": 16,
+        "reward_item": "focus_draught"
+      }
     ],
+    "state_event_chance": 0,
+    "state_events": []
+  },
+  "vaultreach": {
+    "name": "Vaultreach",
+    "description": "Layered ward-stones, supply sheds, and quiet watchfires surround a guarded staging court built for people who mean to enter the ash roads and still come back with order intact.",
+    "region": "Ashen Vault",
+    "lore": "Vaultreach exists because Valerion's most dangerous places still need a line held before them, with scribes, wardens, and carriers standing the duty nobody mistakes for glory.",
+    "services": [
+      "rest",
+      "relic crafting",
+      "construct salvage",
+      "staging ground",
+      "ward support",
+      "waycarter network"
+    ],
+    "economy_note": "Everything here is practical: rations, seals, salvage ledgers, and whatever the vault has not yet taken back.",
+    "major_hub": {
+      "name": "Vaultreach",
+      "progression_role": "Vaultreach is the late-game mustering yard where shrine duty, relic recovery, and vault contracts finally meet.",
+      "faction_tie": "Shrine Keepers and Kingdom Guard",
+      "race_tie": "Hollowborn, Emberkin",
+      "class_tie": "Hexcaller, Relic Knight",
+      "travel_identity": "Restricted ward-convoy transit moves only under seal, escort, and written authority.",
+      "campaign_role": "Vaultreach gives the Ashen Vault a living frontier edge instead of a disconnected dungeon endpoint."
+    },
+    "connected_locations": {
+      "emberfall": "emberfall",
+      "stair": "ashen_stair"
+    },
+    "enemies": [],
+    "items": [],
+    "npcs": [
+      "vault_scholar",
+      "relic_dealer_nessa"
+    ],
+    "encounters": [],
+    "world_event_chance": 0,
+    "world_events": [],
     "state_event_chance": 0,
     "state_events": []
   },
@@ -818,25 +1707,67 @@
     "region": "Ashen Vault",
     "lore": "Whatever the vault guarded, the Cult of Ash now treats it as a reliquary and proving ground, leaving old stone guardians to share the dark with living zealots.",
     "dungeon": {
-      "tier": "A",
-      "enemy_pool": ["abyss_beast", "shrine_guardian"],
-      "boss_pool": []
+      "tier": "S",
+      "level_range": [
+        6,
+        8
+      ],
+      "enemy_pool": [
+        "abyss_beast",
+        "shrine_guardian"
+      ],
+      "elite_pool": [
+        "elite_vault_warden"
+      ],
+      "boss_pool": [
+        "vault_keeper"
+      ]
     },
     "connected_locations": {
       "stair": "ashen_stair"
     },
-    "enemies": ["cinder_guardian", "ash_adept"],
-    "items": ["potion"],
+    "enemies": [
+      "cinder_guardian",
+      "ash_adept"
+    ],
+    "items": [
+      "potion"
+    ],
     "npcs": [],
     "encounters": [
-      {"type": "enemy", "target": "cinder_guardian", "weight": 45},
-      {"type": "enemy", "target": "ash_adept", "weight": 35},
-      {"type": "enemy", "target": "ash_wisp", "weight": 20},
-      {"type": "enemy", "target": "elite_vault_warden", "weight": 12}
+      {
+        "type": "enemy",
+        "target": "cinder_guardian",
+        "weight": 45
+      },
+      {
+        "type": "enemy",
+        "target": "ash_adept",
+        "weight": 35
+      },
+      {
+        "type": "enemy",
+        "target": "ash_wisp",
+        "weight": 20
+      },
+      {
+        "type": "enemy",
+        "target": "elite_vault_warden",
+        "weight": 12
+      }
     ],
     "world_event_chance": 12,
     "world_events": [
-      {"event_id": "hidden_treasure", "name": "Hidden Treasure", "type": "treasure", "weight": 100, "skill": "lore", "dc": 15, "reward_gold": 20, "reward_item": "ember_focus"}
+      {
+        "event_id": "hidden_treasure",
+        "name": "Hidden Treasure",
+        "type": "treasure",
+        "weight": 100,
+        "skill": "lore",
+        "dc": 15,
+        "reward_gold": 20,
+        "reward_item": "ember_focus"
+      }
     ],
     "state_event_chance": 0,
     "state_events": []

@@ -1,4 +1,8 @@
 import json
+import re
+import re
+import time
+from datetime import datetime
 from pathlib import Path
 
 from ai.dm_context import DMContextBuilder
@@ -22,9 +26,12 @@ from player.character import Character
 
 class Game:
     """Engine-first RPG core: tracks locations, inventory, quests, events, and persistence."""
-    SAVE_FILE = "savegame.json"
+    LEGACY_SAVE_FILE = "savegame.json"
+    SAVE_DIR = "saves"
+    GLOBAL_UNLOCK_FILE = "account_unlocks.json"
+    DEFAULT_SLOT = "1"
     CONTRACT_BOARD_LOCATION = "market_square"
-    SAFE_REST_LOCATIONS = {"village_square", "shop", "inn"}
+    SAFE_REST_LOCATIONS = {"village_square", "shop", "inn", "stormbreak", "valewood", "emberfall", "vaultreach"}
     CRAFTING_STATIONS = {
         "shop": {"alchemy"},
         "blacksmith": {"forge"},
@@ -51,6 +58,48 @@ class Game:
         "ironfang_alpha_fang",
         "ash_mark_cinder",
         "vault_core",
+    }
+    HUNTER_GUILD_RANKS = [
+        ("Iron", 0),
+        ("Bronze", 20),
+        ("Silver", 45),
+        ("Gold", 75),
+        ("Platinum", 110),
+    ]
+    HUNTER_GUILD_CONTRACT_POINTS = {
+        "E": 6,
+        "D": 10,
+        "C": 14,
+        "B": 18,
+        "A": 24,
+        "S": 30,
+    }
+    HUNTER_GUILD_BOSS_POINTS = {
+        "gorgos_the_sundered": 10,
+        "vorgar_ironfang_alpha": 8,
+        "weeping_husk": 8,
+        "cinder_guardian": 9,
+        "ash_herald": 10,
+        "vault_keeper": 12,
+    }
+    HUNTER_GUILD_QUEST_POINTS = {
+        "q001_clear_forest_path": 4,
+        "q003_watchtower_threat": 4,
+        "q005_sigil_for_the_caretaker": 5,
+    }
+    RIVAL_HUNTER_IDS = {
+        "havik_ironborn",
+        "dessa",
+        "old_crane",
+        "sable",
+        "brother_aldun",
+    }
+    NPC_REACTION_CATEGORY_ORDER = {
+        "major_story_events": 1,
+        "boss_defeats": 2,
+        "faction_reputation": 3,
+        "rank_recognition": 4,
+        "generic": 5,
     }
     TALKABLE_NPCS = {
         "elder": "Elder",
@@ -96,6 +145,8 @@ class Game:
         "quest",
         "board",
         "contracts",
+        "routes",
+        "travel",
         "journal",
         "about",
         "talk",
@@ -110,15 +161,32 @@ class Game:
         "upgrade",
         "save",
         "load",
+        "slots",
+        "delete",
         "help",
         "quit",
     }
     NLP_COMMAND_TRIGGERS = {"ask", "fight", "inspect", "look", "move", "take", "talk", "use"}
     ACTION_COMMAND_TRIGGERS = {"fight", "move", "take", "use"}
 
-    def __init__(self, data_dir: str = "data", player_name: str = "Hero", character_profile: dict | None = None):
+    def __init__(
+        self,
+        data_dir: str = "data",
+        player_name: str = "Hero",
+        character_profile: dict | None = None,
+        save_root: str | Path = ".",
+    ):
         self.data_dir = data_dir
-        self.save_path = Path(self.SAVE_FILE)
+        self.save_root = Path(save_root)
+        self.save_dir = self.save_root / self.SAVE_DIR
+        self.legacy_save_path = self.save_root / self.LEGACY_SAVE_FILE
+        self.current_slot = self.DEFAULT_SLOT
+        self.save_path = self._slot_path(self.current_slot)
+        self.unlocks_path = self.save_dir / self.GLOBAL_UNLOCK_FILE
+        self.unlocked_classes = set()
+        self.unlocked_races = set()
+        self.playtime_seconds = 0
+        self.session_started_at = time.time()
         self.world = World(self.data_dir)
         if isinstance(character_profile, dict):
             self.player = Character.create_from_profile(
@@ -150,9 +218,777 @@ class Game:
         self.scene_composer = SceneComposer()
 
         self.running = True
+        self._ensure_save_storage()
+        self._load_global_unlocks()
         self._sync_social_state()
         self._record_location_visit(self.current_location)
         self.contracts.sync_active_targets(self.player, self.world)
+        self._refresh_hunter_guild_rank(source="campaign start")
+        self._refresh_titles(notify=False, source="campaign start")
+
+    @classmethod
+    def _normalize_slot_id(cls, slot_id: str) -> str:
+        raw = str(slot_id).strip().lower()
+        if not raw:
+            return cls.DEFAULT_SLOT
+        match = re.search(r"(\d+)", raw)
+        if not match:
+            return ""
+        normalized = str(int(match.group(1)))
+        return normalized if normalized else ""
+
+    def _slot_path(self, slot_id: str) -> Path:
+        normalized = self._normalize_slot_id(slot_id) or self.DEFAULT_SLOT
+        return self.save_dir / f"slot_{normalized}.json"
+
+    def _set_active_slot(self, slot_id: str) -> None:
+        normalized = self._normalize_slot_id(slot_id) or self.DEFAULT_SLOT
+        self.current_slot = normalized
+        self.save_path = self._slot_path(normalized)
+
+    def _slot_sort_key(self, path: Path) -> tuple[int, str]:
+        normalized = self._normalize_slot_id(path.stem)
+        if normalized:
+            return int(normalized), path.name
+        return 9999, path.name
+
+    def _slot_files(self) -> list[Path]:
+        if not self.save_dir.exists():
+            return []
+        return sorted(
+            [path for path in self.save_dir.glob("slot_*.json") if path.is_file()],
+            key=self._slot_sort_key,
+        )
+
+    def _default_slot_choice(self) -> str:
+        existing = {self._normalize_slot_id(path.stem) for path in self._slot_files()}
+        index = 1
+        while str(index) in existing:
+            index += 1
+        return str(index)
+
+    def default_slot_choice(self) -> str:
+        self._ensure_save_storage()
+        return self._default_slot_choice()
+
+    @staticmethod
+    def _format_playtime(playtime_seconds: int) -> str:
+        total = max(0, int(playtime_seconds))
+        hours, remainder = divmod(total, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+    def _current_playtime_seconds(self) -> int:
+        elapsed = max(0, int(time.time() - self.session_started_at))
+        return max(0, int(self.playtime_seconds) + elapsed)
+
+    def _slot_meta_from_data(self, data: dict, slot_id: str, path: Path) -> dict:
+        player_data = data.get("player", {}) if isinstance(data, dict) else {}
+        slot_meta = data.get("slot_meta", {}) if isinstance(data, dict) else {}
+        location_id = str(data.get("current_location", self.world.starting_location)) if isinstance(data, dict) else self.world.starting_location
+        location_name = self.world.locations.get(location_id, {}).get("name", location_id)
+        saved_at = str(slot_meta.get("saved_at", "")).strip()
+        if not saved_at:
+            try:
+                saved_at = datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="seconds")
+            except OSError:
+                saved_at = ""
+        return {
+            "slot_id": self._normalize_slot_id(slot_meta.get("slot_id", slot_id)) or self._normalize_slot_id(slot_id) or self.DEFAULT_SLOT,
+            "character_name": str(slot_meta.get("character_name", player_data.get("name", "Hero"))).strip() or "Hero",
+            "race": str(slot_meta.get("race", player_data.get("race", "Human"))).strip() or "Human",
+            "player_class": str(slot_meta.get("player_class", player_data.get("player_class", "Warrior"))).strip() or "Warrior",
+            "level": max(1, int(slot_meta.get("level", player_data.get("level", 1)) or 1)),
+            "current_location": location_id,
+            "current_location_name": str(slot_meta.get("current_location_name", location_name)).strip() or location_name,
+            "saved_at": saved_at,
+            "playtime_seconds": max(0, int(slot_meta.get("playtime_seconds", 0) or 0)),
+        }
+
+    def _read_save_file(self, path: Path) -> tuple[dict | None, str | None]:
+        if not path.exists():
+            return None, f"No save file found at {path}."
+        try:
+            raw = path.read_text(encoding="utf-8")
+            data = json.loads(raw)
+        except OSError as exc:
+            return None, f"Could not load game: {exc}"
+        except json.JSONDecodeError:
+            return None, f"Could not load game: {path} is not valid JSON."
+        if not isinstance(data, dict):
+            return None, "Could not load game: save data format is invalid."
+        return data, None
+
+    def _ensure_save_storage(self) -> None:
+        self.save_dir.mkdir(parents=True, exist_ok=True)
+        self._migrate_legacy_save()
+
+    def _load_global_unlocks(self) -> None:
+        self.unlocked_classes = set(Character.default_unlocked_class_ids())
+        self.unlocked_races = set(Character.default_unlocked_race_ids())
+        if self.unlocks_path.exists():
+            data, error = self._read_save_file(self.unlocks_path)
+            if not error and isinstance(data, dict):
+                for category, unlocked_ids in (
+                    ("class", data.get("classes", [])),
+                    ("race", data.get("races", [])),
+                ):
+                    if not isinstance(unlocked_ids, list):
+                        continue
+                    catalog = (
+                        Character.class_catalog()
+                        if category == "class"
+                        else Character.race_catalog()
+                    )
+                    for option_id in unlocked_ids:
+                        normalized = Character._normalize_key(str(option_id))
+                        if normalized not in catalog:
+                            continue
+                        if category == "class":
+                            self.unlocked_classes.add(normalized)
+                        else:
+                            self.unlocked_races.add(normalized)
+        self._persist_global_unlocks()
+
+    def _persist_global_unlocks(self) -> None:
+        payload = {
+            "classes": sorted(
+                class_id
+                for class_id in self.unlocked_classes
+                if class_id in Character.class_catalog()
+            ),
+            "races": sorted(
+                race_id
+                for race_id in self.unlocked_races
+                if race_id in Character.race_catalog()
+            ),
+        }
+        self.unlocks_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    def available_creation_options(self, category: str) -> list[dict]:
+        options = Character.creation_options(category)
+        normalized = str(category).strip().lower().replace("-", "_").replace(" ", "_")
+        if normalized == "race":
+            return [option for option in options if option.get("id", "") in self.unlocked_races]
+        if normalized in {"class", "player_class"}:
+            return [option for option in options if option.get("id", "") in self.unlocked_classes]
+        return options
+
+    def _unlock_hint_text(self, conditions: dict) -> str:
+        if not isinstance(conditions, dict) or not conditions:
+            return "Progress further through the campaign."
+
+        minimum_rank = str(conditions.get("requires_rank", "")).strip().upper()
+        if minimum_rank:
+            return f"Reach {minimum_rank}-rank contract standing."
+
+        quest_requirements = conditions.get("requires_quests", [])
+        if isinstance(quest_requirements, list) and quest_requirements:
+            quest_id = ""
+            first = quest_requirements[0]
+            if isinstance(first, str):
+                quest_id = str(first).strip().lower()
+            elif isinstance(first, dict):
+                quest_id = str(first.get("quest_id", "")).strip().lower()
+            if quest_id:
+                quest_title = str(self.quests.quests.get(quest_id, {}).get("title", quest_id.replace("_", " ").title())).strip()
+                return f"Complete quest: {quest_title}."
+
+        contract_requirements = conditions.get("requires_contracts_completed", [])
+        if isinstance(contract_requirements, list) and contract_requirements:
+            contract_id = ""
+            first = contract_requirements[0]
+            if isinstance(first, str):
+                contract_id = str(first).strip().lower()
+            elif isinstance(first, dict):
+                contract_id = str(first.get("contract_id", "")).strip().lower()
+            if contract_id:
+                contract_title = str(self.contracts.contracts.get(contract_id, {}).get("title", contract_id.replace("_", " ").title())).strip()
+                return f"Complete contract: {contract_title}."
+
+        reputation_requirements = conditions.get("requires_reputation", [])
+        if isinstance(reputation_requirements, list) and reputation_requirements:
+            first = reputation_requirements[0]
+            if isinstance(first, dict):
+                faction_id = str(first.get("faction", "")).strip().lower()
+                minimum = int(first.get("min", 0) or 0)
+                if faction_id:
+                    return f"Reach {minimum} reputation with {self.factions.faction_name(faction_id)}."
+
+        event_requirements = conditions.get("requires_events", [])
+        if isinstance(event_requirements, list) and event_requirements:
+            first = event_requirements[0]
+            if isinstance(first, dict):
+                event_type = str(first.get("type", "")).strip().lower()
+                details = first.get("details", {})
+                if isinstance(details, dict):
+                    enemy_id = str(details.get("enemy_id", "")).strip().lower()
+                    if enemy_id:
+                        return f"Defeat {self.world.enemy_name(enemy_id)}."
+                    location_id = str(details.get("location_id", "")).strip().lower()
+                    if location_id:
+                        location_name = self.world.get_location(location_id).get("name", location_id.replace("_", " ").title())
+                        return f"Reach {location_name}."
+                if event_type:
+                    return f"Achieve event milestone: {event_type.replace('_', ' ')}."
+
+        return "Progress further through the campaign."
+
+    @staticmethod
+    def _lore_hook(lore_text: str, max_length: int = 90) -> str:
+        text = " ".join(str(lore_text or "").strip().split())
+        if not text:
+            return ""
+        for delimiter in (". ", "; ", ": "):
+            if delimiter in text:
+                text = text.split(delimiter, 1)[0].strip()
+                break
+        if len(text) <= max_length:
+            return text
+        return text[: max_length - 3].rstrip() + "..."
+
+    def locked_creation_preview_options(self, category: str) -> list[dict]:
+        normalized = str(category).strip().lower().replace("-", "_").replace(" ", "_")
+        if normalized == "race":
+            visible_ids = set(self.unlocked_races)
+            catalog = Character.race_catalog()
+        elif normalized in {"class", "player_class"}:
+            visible_ids = set(self.unlocked_classes)
+            catalog = Character.class_catalog()
+        else:
+            return []
+
+        previews = []
+        for option_id, option in catalog.items():
+            if option_id in visible_ids:
+                continue
+            lore = str(option.get("lore", "")).strip()
+            previews.append(
+                {
+                    "id": option_id,
+                    "name": str(option.get("name", option_id.replace("_", " ").title())),
+                    "lore_hook": self._lore_hook(lore),
+                    "unlock_hint": self._unlock_hint_text(option.get("unlock_conditions", {})),
+                }
+            )
+        return previews
+
+    def _event_requirement_met(self, requirement: dict) -> bool:
+        if not isinstance(requirement, dict):
+            return True
+        event_type = str(requirement.get("type", "")).strip().lower()
+        details = requirement.get("details", {})
+        if not event_type:
+            return True
+        if not isinstance(details, dict) or not details:
+            return self.player.has_event(event_type)
+        for key, value in details.items():
+            if not self.player.has_event(event_type, str(key), value):
+                return False
+        return True
+
+    def _quest_requirement_met(self, requirement) -> bool:
+        if isinstance(requirement, str):
+            return str(requirement).strip().lower() in self.quests.completed
+        if not isinstance(requirement, dict):
+            return True
+        quest_id = str(requirement.get("quest_id", "")).strip().lower()
+        if not quest_id:
+            return True
+        if bool(requirement.get("completed", True)) and quest_id not in self.quests.completed:
+            return False
+        return True
+
+    def _contract_requirement_met(self, requirement) -> bool:
+        if isinstance(requirement, str):
+            contract_id = str(requirement).strip().lower()
+            return bool(contract_id) and int(self.contracts.completed_counts.get(contract_id, 0)) > 0
+        if not isinstance(requirement, dict):
+            return True
+        contract_id = str(requirement.get("contract_id", "")).strip().lower()
+        minimum = max(1, int(requirement.get("count", 1) or 1))
+        if not contract_id:
+            return False
+        return int(self.contracts.completed_counts.get(contract_id, 0)) >= minimum
+
+    def _npc_trust_requirement_met(self, requirement: dict) -> bool:
+        if not isinstance(requirement, dict):
+            return True
+        npc_id = str(requirement.get("npc", "")).strip().lower()
+        minimum = int(requirement.get("min", 0) or 0)
+        if not npc_id:
+            return True
+        return self.player.npc_trust(npc_id) >= minimum
+
+    def _unlock_conditions_met(self, conditions: dict, *, unlocked_by_default: bool = False) -> bool:
+        if unlocked_by_default:
+            return True
+        if not isinstance(conditions, dict) or not conditions:
+            return False
+
+        event_requirements = conditions.get("requires_events", [])
+        if isinstance(event_requirements, list) and event_requirements:
+            if not all(self._event_requirement_met(requirement) for requirement in event_requirements):
+                return False
+
+        reputation_requirements = conditions.get("requires_reputation", [])
+        if isinstance(reputation_requirements, list) and reputation_requirements:
+            for requirement in reputation_requirements:
+                if not isinstance(requirement, dict):
+                    continue
+                faction_id = str(requirement.get("faction", "")).strip().lower()
+                minimum = int(requirement.get("min", 0) or 0)
+                if faction_id and self.player.reputation_value(faction_id) < minimum:
+                    return False
+
+        quest_requirements = conditions.get("requires_quests", [])
+        if isinstance(quest_requirements, list) and quest_requirements:
+            if not all(self._quest_requirement_met(requirement) for requirement in quest_requirements):
+                return False
+
+        contract_requirements = conditions.get("requires_contracts_completed", [])
+        if isinstance(contract_requirements, list) and contract_requirements:
+            if not all(self._contract_requirement_met(requirement) for requirement in contract_requirements):
+                return False
+
+        trust_requirements = conditions.get("requires_npc_trust", [])
+        if isinstance(trust_requirements, list) and trust_requirements:
+            if not all(self._npc_trust_requirement_met(requirement) for requirement in trust_requirements):
+                return False
+
+        minimum_rank = str(conditions.get("requires_rank", "")).strip().upper()
+        if minimum_rank:
+            current_rank = self.contracts.highest_unlocked_rank()
+            if self.world.rank_value(current_rank) < self.world.rank_value(minimum_rank):
+                return False
+
+        minimum_hunter_rank = Character.normalize_hunter_guild_rank(conditions.get("requires_hunter_guild_rank", ""))
+        if minimum_hunter_rank and minimum_hunter_rank != "Iron":
+            if Character.hunter_guild_rank_value(self.player.hunter_guild_rank) < Character.hunter_guild_rank_value(minimum_hunter_rank):
+                return False
+
+        return True
+
+    def _hunter_guild_rank_from_points(self, points: int) -> tuple[str, int | None]:
+        normalized_points = max(0, int(points))
+        current_rank = self.HUNTER_GUILD_RANKS[0][0]
+        next_threshold = None
+        for rank_name, threshold in self.HUNTER_GUILD_RANKS:
+            if normalized_points >= threshold:
+                current_rank = rank_name
+                next_threshold = None
+                continue
+            next_threshold = threshold
+            break
+        return current_rank, next_threshold
+
+    def _hunter_guild_progress_summary(self) -> dict:
+        points = 0
+        for contract_id, count in self.contracts.completed_counts.items():
+            if int(count or 0) <= 0:
+                continue
+            contract = self.contracts.contracts.get(contract_id, {})
+            category = str(contract.get("category", "")).strip().lower()
+            faction_rewards = contract.get("faction_rewards", {})
+            supports_hunters_guild = (
+                isinstance(faction_rewards, dict) and int(faction_rewards.get("hunters_guild", 0) or 0) > 0
+            ) or category in {"hunter_extermination", "cult_hunt", "shrine_cleansing"}
+            if not supports_hunters_guild:
+                continue
+            contract_rank = str(contract.get("rank", "E")).strip().upper()
+            points += self.HUNTER_GUILD_CONTRACT_POINTS.get(contract_rank, 6) * int(count or 0)
+
+        for enemy_id, bonus in self.HUNTER_GUILD_BOSS_POINTS.items():
+            if self.player.has_event("miniboss_defeated", "enemy_id", enemy_id) or self.player.has_event("enemy_defeated", "enemy_id", enemy_id):
+                points += int(bonus)
+
+        for quest_id, bonus in self.HUNTER_GUILD_QUEST_POINTS.items():
+            if self.player.has_event("quest_completed", "quest_id", quest_id):
+                points += int(bonus)
+
+        rank_name, next_threshold = self._hunter_guild_rank_from_points(points)
+        current_threshold = 0
+        for candidate_rank, threshold in self.HUNTER_GUILD_RANKS:
+            if candidate_rank == rank_name:
+                current_threshold = threshold
+                break
+        progress_in_rank = max(0, points - current_threshold)
+        needed = max(0, next_threshold - points) if next_threshold is not None else 0
+        return {
+            "rank": rank_name,
+            "points": points,
+            "next_threshold": next_threshold,
+            "progress_in_rank": progress_in_rank,
+            "needed": needed,
+        }
+
+    def _refresh_hunter_guild_rank(self, source: str = "") -> list[str]:
+        summary = self._hunter_guild_progress_summary()
+        previous_rank = Character.normalize_hunter_guild_rank(self.player.hunter_guild_rank)
+        previous_points = max(0, int(self.player.hunter_guild_points or 0))
+        self.player.hunter_guild_rank = summary["rank"]
+        self.player.hunter_guild_points = int(summary["points"])
+
+        if previous_rank == summary["rank"] and previous_points == summary["points"]:
+            return []
+
+        lines = []
+        if Character.hunter_guild_rank_value(summary["rank"]) > Character.hunter_guild_rank_value(previous_rank):
+            next_threshold = summary.get("next_threshold")
+            progress_note = "You now stand among the guild's proven hunters."
+            if next_threshold is not None:
+                progress_note = f"{summary['needed']} points remain until {self._hunter_guild_rank_from_points(next_threshold)[0]}."
+            text = (
+                f"The Hunter Guild advances you to {summary['rank']} rank. "
+                f"Contracts, boss marks, and hard field work have begun to add up. {progress_note}"
+            )
+            self._log_event(
+                "hunter_guild_rank_up",
+                rank=summary["rank"],
+                points=int(summary["points"]),
+                source=source,
+                location_id=self.current_location,
+                location_name=self.current_location_name(),
+                text=text,
+            )
+            lines.append("Hunter Guild: " + text)
+        return lines
+
+    def _mark_rival_hunter_seen(self, npc_id: str) -> None:
+        normalized_npc = str(npc_id).strip().lower()
+        if normalized_npc not in self.RIVAL_HUNTER_IDS:
+            return
+        entry = dict(self.player.rival_hunter_flags.get(normalized_npc, {}))
+        entry["met"] = True
+        entry["spoken"] = max(0, int(entry.get("spoken", 0))) + 1
+        entry["last_location"] = self.current_location
+        self.player.rival_hunter_flags[normalized_npc] = entry
+
+    def _authored_content_conditions_met(self, entry: dict) -> bool:
+        if not isinstance(entry, dict):
+            return False
+        single_condition = entry.get("condition")
+        if isinstance(single_condition, str) and single_condition.strip():
+            return self._named_condition_met(single_condition)
+        if isinstance(single_condition, list) and single_condition:
+            return all(self._named_condition_met(condition) for condition in single_condition)
+        conditions = entry.get("conditions", {})
+        if not isinstance(conditions, dict) or not conditions:
+            return True
+        return self._unlock_conditions_met(conditions, unlocked_by_default=False)
+
+    def _named_condition_met(self, condition: str) -> bool:
+        normalized = str(condition or "").strip().lower()
+        if not normalized:
+            return True
+
+        if normalized == "boss_gorgos_defeated":
+            return self.player.has_event("miniboss_defeated", "enemy_id", "gorgos_the_sundered")
+        if normalized == "shrine_chain_completed":
+            return self.player.has_event("quest_completed", "quest_id", "q005_sigil_for_the_caretaker")
+
+        rank_at_least = re.fullmatch(r"player_rank_at_least_([a-z])", normalized)
+        if rank_at_least:
+            required_rank = rank_at_least.group(1).upper()
+            current_rank = self.contracts.highest_unlocked_rank()
+            return self.world.rank_value(current_rank) >= self.world.rank_value(required_rank)
+
+        rank_or_higher = re.fullmatch(r"player_rank_([a-z])_or_higher", normalized)
+        if rank_or_higher:
+            required_rank = rank_or_higher.group(1).upper()
+            current_rank = self.contracts.highest_unlocked_rank()
+            return self.world.rank_value(current_rank) >= self.world.rank_value(required_rank)
+
+        hunter_rank_at_least = re.fullmatch(r"hunter_guild_rank_at_least_([a-z]+)", normalized)
+        if hunter_rank_at_least:
+            required_rank = Character.normalize_hunter_guild_rank(hunter_rank_at_least.group(1))
+            return Character.hunter_guild_rank_value(self.player.hunter_guild_rank) >= Character.hunter_guild_rank_value(required_rank)
+
+        hunter_rank_above = re.fullmatch(r"hunter_guild_rank_above_([a-z]+)", normalized)
+        if hunter_rank_above:
+            required_rank = Character.normalize_hunter_guild_rank(hunter_rank_above.group(1))
+            return Character.hunter_guild_rank_value(self.player.hunter_guild_rank) > Character.hunter_guild_rank_value(required_rank)
+
+        faction_at_least = re.fullmatch(r"faction_([a-z0-9_]+)_at_least_(\d+)", normalized)
+        if faction_at_least:
+            faction_id = faction_at_least.group(1)
+            minimum = int(faction_at_least.group(2))
+            return self.player.reputation_value(faction_id) >= minimum
+
+        contract_completed = re.fullmatch(r"contract_([a-z0-9_]+)_completed", normalized)
+        if contract_completed:
+            contract_id = contract_completed.group(1)
+            return int(self.contracts.completed_counts.get(contract_id, 0)) > 0
+
+        quest_completed = re.fullmatch(r"quest_([a-z0-9_]+)_completed", normalized)
+        if quest_completed:
+            quest_id = quest_completed.group(1)
+            return self.player.has_event("quest_completed", "quest_id", quest_id)
+
+        discovered_region = re.fullmatch(r"discovered_([a-z0-9_]+)", normalized)
+        if discovered_region:
+            location_id = discovered_region.group(1)
+            return self.player.has_event("location_visited", "location_id", location_id)
+
+        unlocked_race = re.fullmatch(r"unlocked_race_([a-z0-9_]+)", normalized)
+        if unlocked_race:
+            return unlocked_race.group(1) in self.unlocked_races
+
+        unlocked_class = re.fullmatch(r"unlocked_class_([a-z0-9_]+)", normalized)
+        if unlocked_class:
+            return unlocked_class.group(1) in self.unlocked_classes
+
+        earned_title = re.fullmatch(r"(?:title|has_title)_([a-z0-9_]+)", normalized)
+        if earned_title:
+            return earned_title.group(1) in getattr(self.player, "unlocked_titles", [])
+
+        boss_defeated = re.fullmatch(r"boss_([a-z0-9_]+)_defeated", normalized)
+        if boss_defeated:
+            enemy_id = boss_defeated.group(1)
+            return self.player.has_event("miniboss_defeated", "enemy_id", enemy_id)
+
+        return False
+
+    @staticmethod
+    def _topic_matches_entry(topic: str, entry: dict) -> bool:
+        normalized_topic = " ".join(str(topic or "").strip().lower().split())
+        if not normalized_topic:
+            return True
+
+        broad_topics = {"rumor", "rumors", "news", "road", "roads", "travel", "route", "routes", "work", "contracts", "contract"}
+        if normalized_topic in broad_topics:
+            return True
+
+        topics = entry.get("topics", [])
+        if not isinstance(topics, list) or not topics:
+            return False
+
+        for candidate in topics:
+            normalized_candidate = " ".join(str(candidate or "").strip().lower().split())
+            if not normalized_candidate:
+                continue
+            if normalized_topic == normalized_candidate:
+                return True
+            if normalized_topic in normalized_candidate or normalized_candidate in normalized_topic:
+                return True
+        return False
+
+    def _npc_authored_lines(self, npc_id: str, field: str, *, topic: str = "", limit: int = 2) -> list[str]:
+        return [entry["text"] for entry in self._npc_authored_entries(npc_id, field, topic=topic, limit=limit)]
+
+    def _npc_authored_entries(self, npc_id: str, field: str, *, topic: str = "", limit: int = 2) -> list[dict]:
+        npc_data = self.world.get_npc(npc_id)
+        entries = []
+        inline_entries = npc_data.get(field, [])
+        if isinstance(inline_entries, list):
+            entries.extend(inline_entries)
+        if str(field).strip().lower() == "rumors":
+            rumor_pools = npc_data.get("rumor_pools", [])
+            if isinstance(rumor_pools, list):
+                for pool_id in rumor_pools:
+                    pool_entries = getattr(self.world, "rumors", {}).get(str(pool_id).strip().lower(), [])
+                    if isinstance(pool_entries, list):
+                        entries.extend(pool_entries)
+        if not entries:
+            return []
+
+        matched = []
+        for index, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                continue
+            text = str(entry.get("text", "")).strip()
+            if not text or not self._authored_content_conditions_met(entry):
+                continue
+            entry_topics = entry.get("topics", [])
+            if topic and isinstance(entry_topics, list) and entry_topics and not self._topic_matches_entry(topic, entry):
+                continue
+            category = str(entry.get("category", "generic")).strip().lower() or "generic"
+            priority = int(entry.get("priority", 0) or 0)
+            category_order = self.NPC_REACTION_CATEGORY_ORDER.get(category, self.NPC_REACTION_CATEGORY_ORDER["generic"])
+            if str(field).strip().lower() == "reactions":
+                sort_key = (category_order, -priority, index)
+            else:
+                sort_key = (0, -priority, index)
+            matched.append(
+                (
+                    sort_key,
+                    {
+                        "text": text,
+                        "category": category,
+                        "priority": priority,
+                    },
+                )
+            )
+
+        matched.sort(key=lambda item: item[0])
+        return [entry for _, entry in matched[:max(0, limit)]]
+
+    def _class_unlock_conditions_met(self, class_data: dict) -> bool:
+        return self._unlock_conditions_met(
+            class_data.get("unlock_conditions", {}),
+            unlocked_by_default=bool(class_data.get("unlocked_by_default", True)),
+        )
+
+    def _race_unlock_conditions_met(self, race_data: dict) -> bool:
+        return self._unlock_conditions_met(
+            race_data.get("unlock_conditions", {}),
+            unlocked_by_default=bool(race_data.get("unlocked_by_default", True)),
+        )
+
+    def _refresh_class_unlocks(self, notify: bool = True, source: str = "") -> list[str]:
+        lines = []
+        changed = False
+        for class_id, class_data in Character.class_catalog().items():
+            if class_id in self.unlocked_classes:
+                continue
+            if not self._class_unlock_conditions_met(class_data):
+                continue
+            self.unlocked_classes.add(class_id)
+            changed = True
+            if notify:
+                class_name = str(class_data.get("name", class_id.replace("_", " ").title()))
+                lines.append(Narrator.class_unlock_text(class_name, source))
+        if changed:
+            self._persist_global_unlocks()
+        return lines
+
+    def _refresh_race_unlocks(self, notify: bool = True, source: str = "") -> list[str]:
+        lines = []
+        changed = False
+        for race_id, race_data in Character.race_catalog().items():
+            if race_id in self.unlocked_races:
+                continue
+            if not self._race_unlock_conditions_met(race_data):
+                continue
+            self.unlocked_races.add(race_id)
+            changed = True
+            if notify:
+                race_name = str(race_data.get("name", race_id.replace("_", " ").title()))
+                homeland = str(race_data.get("homeland", "")).strip()
+                lines.append(Narrator.race_unlock_text(race_name, source=source, homeland=homeland))
+        if changed:
+            self._persist_global_unlocks()
+        return lines
+
+    def _refresh_identity_unlocks(self, notify: bool = True, source: str = "") -> list[str]:
+        lines = []
+        lines.extend(self._refresh_race_unlocks(notify=notify, source=source))
+        lines.extend(self._refresh_class_unlocks(notify=notify, source=source))
+        return lines
+
+    def _player_title_entries(self) -> list[dict]:
+        entries = []
+        for title_id in getattr(self.player, "unlocked_titles", []):
+            title_data = self.world.titles.get(title_id, {})
+            if not isinstance(title_data, dict):
+                title_data = {}
+            entries.append(
+                {
+                    "id": title_id,
+                    "name": str(title_data.get("name", title_id.replace("_", " ").title())).strip() or title_id.replace("_", " ").title(),
+                    "description": str(title_data.get("description", "")).strip(),
+                    "flavor_text": str(title_data.get("flavor_text", "")).strip(),
+                }
+            )
+        return entries
+
+    def _title_summary(self) -> dict:
+        entries = self._player_title_entries()
+        latest = entries[-1] if entries else {}
+        return {
+            "count": len(entries),
+            "names": [entry["name"] for entry in entries],
+            "latest_name": str(latest.get("name", "")).strip(),
+            "latest_flavor": str(latest.get("flavor_text", "")).strip(),
+        }
+
+    def _refresh_titles(self, notify: bool = True, source: str = "") -> list[str]:
+        lines = []
+        unlocked_titles = getattr(self.player, "unlocked_titles", [])
+        if not isinstance(unlocked_titles, list):
+            unlocked_titles = []
+            self.player.unlocked_titles = unlocked_titles
+
+        for title_id, title_data in self.world.titles.items():
+            normalized_title_id = str(title_id).strip().lower()
+            if not normalized_title_id or normalized_title_id in unlocked_titles:
+                continue
+            if not self._unlock_conditions_met(title_data.get("unlock_conditions", {})):
+                continue
+            unlocked_titles.append(normalized_title_id)
+            title_name = str(title_data.get("name", normalized_title_id.replace("_", " ").title())).strip()
+            self._log_event(
+                "title_unlocked",
+                title_id=normalized_title_id,
+                title_name=title_name,
+                source=source,
+            )
+            if notify:
+                lines.append(Narrator.title_unlock_text(title_name, str(title_data.get("description", "")).strip()))
+
+        return lines
+
+    def _migrate_legacy_save(self) -> None:
+        if not self.legacy_save_path.exists():
+            return
+        target = self._slot_path(self.DEFAULT_SLOT)
+        if target.exists():
+            return
+        data, error = self._read_save_file(self.legacy_save_path)
+        if error or data is None:
+            return
+        data["slot_meta"] = self._slot_meta_from_data(data, self.DEFAULT_SLOT, self.legacy_save_path)
+        target.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        try:
+            self.legacy_save_path.unlink()
+        except OSError:
+            pass
+
+    def slot_summaries(self) -> list[dict]:
+        self._ensure_save_storage()
+        summaries = []
+        for path in self._slot_files():
+            data, error = self._read_save_file(path)
+            if error or data is None:
+                continue
+            summaries.append(self._slot_meta_from_data(data, path.stem, path))
+        return summaries
+
+    def _cmd_slots(self) -> str:
+        summaries = self.slot_summaries()
+        lines = ["Save Slots"]
+        if not summaries:
+            lines.append("- none")
+            return "\n".join(lines)
+        active_path = self.save_path.resolve()
+        for summary in summaries:
+            slot_id = summary["slot_id"]
+            slot_path = self._slot_path(slot_id).resolve()
+            marker = " [CURRENT]" if slot_path == active_path else ""
+            saved_at = summary["saved_at"] or "unknown time"
+            playtime = self._format_playtime(int(summary.get("playtime_seconds", 0)))
+            lines.append(
+                f"- Slot {slot_id}{marker}: {summary['character_name']} | "
+                f"{summary['race']} {summary['player_class']} | "
+                f"Level {summary['level']} | "
+                f"{summary['current_location_name']} | "
+                f"Saved {saved_at} | "
+                f"Playtime {playtime}"
+            )
+        return "\n".join(lines)
+
+    def _cmd_delete(self, arg: str) -> str:
+        slot_id = self._normalize_slot_id(arg)
+        if not slot_id:
+            return "Delete which slot? Use 'delete <slot>'."
+        target = self._slot_path(slot_id)
+        if not target.exists():
+            return f"Slot {slot_id} does not exist."
+        try:
+            target.unlink()
+        except OSError as exc:
+            return f"Could not delete slot {slot_id}: {exc}"
+        return f"Deleted save slot {slot_id}."
 
     def _load_npc_registry(self) -> None:
         self.TALKABLE_NPCS = {
@@ -188,7 +1024,7 @@ class Game:
             score=change["after"],
             source=source,
         )
-        return [
+        lines = [
             Narrator.reputation_change_text(
                 change["name"],
                 change["change"],
@@ -196,6 +1032,8 @@ class Game:
                 change["tier"],
             )
         ]
+        lines.extend(self._refresh_identity_unlocks(source=f"standing with {change['name']}"))
+        return lines
 
     def _change_npc_trust(self, npc_id: str, amount: int, source: str) -> list[str]:
         npc_data = self.world.get_npc(npc_id)
@@ -444,7 +1282,7 @@ class Game:
 
     def _skill_display_data(self) -> dict[str, dict[str, int | str]]:
         display = {}
-        for skill_name in ("swordsmanship", "archery", "defense", "spellcasting", "stealth", "survival", "lore", "persuasion"):
+        for skill_name in self.player.skill_order():
             stat_name = self.player.SKILL_STAT_MAP.get(skill_name, "mind")
             display[skill_name] = {
                 "proficiency": self.player.skill_proficiency(skill_name, self.world.items),
@@ -483,7 +1321,11 @@ class Game:
 
     def _enemy_combat_summary(self, enemy_id: str) -> str:
         enemy_data = self.world.enemies.get(enemy_id, {})
-        profile = self.combat.preview_enemy(enemy_id, enemy_data)
+        profile = self.combat.preview_enemy(
+            enemy_id,
+            enemy_data,
+            combat_modifiers=self.world.combat_rank_modifiers(self.current_location, enemy_id),
+        )
         tags = []
         if self._enemy_is_boss(enemy_id, enemy_data, self.current_location):
             tags.append("boss")
@@ -524,6 +1366,16 @@ class Game:
                 return f"{self.player.combat_boost_name}: {self.player.combat_boost_summary}"
             return self.player.combat_boost_summary
         return self.player.combat_boost_name
+
+    def _typical_rank(self) -> str:
+        contract_rank = self.contracts.highest_unlocked_rank()
+        level_rank = self.world.rank_for_level(self.player.level)
+        if self.world.rank_value(contract_rank) >= self.world.rank_value(level_rank):
+            return contract_rank
+        return level_rank
+
+    def _location_rank_warning(self, location_id: str) -> str:
+        return self.world.rank_warning_text(location_id, self._typical_rank())
 
     def _apply_ability_buff(self, ability: dict, buff: dict) -> str:
         if not isinstance(buff, dict) or not buff:
@@ -701,6 +1553,141 @@ class Game:
         )
         return [Narrator.world_event_text(state_name, location_name, summary)]
 
+    def _trigger_regional_event(self, location_id: str, trigger: str, source: str) -> list[str]:
+        chance = self.world.regional_activation_chance(location_id)
+        if chance <= 0:
+            return []
+        if self.dice.roll_percent() > chance:
+            return []
+
+        candidates = self.world.regional_event_candidates(location_id)
+        if not candidates:
+            return []
+        event = self.encounters.roll_from_table(candidates)
+        if not event:
+            return []
+
+        event_id = str(event.get("event_id", "")).strip().lower()
+        activated = self.world.activate_regional_event(event_id, location_id)
+        if not activated:
+            return []
+
+        location_name = activated.get("location_name", self.world.get_location(location_id).get("name", location_id))
+        event_name = str(activated.get("name", event_id)).strip() or event_id
+        summary = str(activated.get("summary", "Regional pressure rises.")).strip()
+        self._log_event(
+            "regional_event_started",
+            event_id=event_id,
+            event_name=event_name,
+            region_id=str(activated.get("region_id", "")).strip().lower(),
+            region_name=str(activated.get("region_name", "")).strip(),
+            stage=int(activated.get("stage", 1) or 1),
+            location_id=str(activated.get("location_id", location_id)).strip().lower(),
+            location_name=location_name,
+            trigger=trigger,
+            source=source,
+            outcome=summary,
+        )
+        return [Narrator.world_event_text(event_name, location_name, summary)]
+
+    def _regional_resolution_social_effects(self, resolved_event: dict, source: str) -> list[str]:
+        if not isinstance(resolved_event, dict):
+            return []
+        faction_effects = resolved_event.get("faction_effects", {})
+        if not isinstance(faction_effects, dict) or not faction_effects:
+            return []
+        normalized_effects = {}
+        for faction_id, delta in faction_effects.items():
+            normalized_id = str(faction_id).strip().lower()
+            if not normalized_id:
+                continue
+            normalized_effects[normalized_id] = int(delta)
+        if not normalized_effects:
+            return []
+        return self._apply_social_rewards(reputation_changes=normalized_effects, source=source)
+
+    def _advance_regional_events(self, source: str) -> list[str]:
+        transitions = self.world.advance_regional_events(turns=1)
+        lines = []
+        for transition in transitions:
+            if not isinstance(transition, dict):
+                continue
+            transition_type = str(transition.get("transition", "")).strip().lower()
+            event_id = str(transition.get("event_id", "")).strip().lower()
+            event_name = str(transition.get("name", event_id)).strip() or event_id
+            location_id = str(transition.get("location_id", self.current_location)).strip().lower()
+            location_name = str(transition.get("location_name", self.world.get_location(location_id).get("name", location_id))).strip()
+            region_id = str(transition.get("region_id", "")).strip().lower()
+            region_name = str(transition.get("region_name", "")).strip()
+            stage = int(transition.get("stage", 1) or 1)
+
+            if transition_type == "escalated":
+                outcome = str(transition.get("summary", "Regional pressure intensifies.")).strip()
+                self._log_event(
+                    "regional_event_escalated",
+                    event_id=event_id,
+                    event_name=event_name,
+                    previous_event_id=str(transition.get("previous_event_id", "")).strip().lower(),
+                    region_id=region_id,
+                    region_name=region_name,
+                    stage=stage,
+                    source=source,
+                    location_id=location_id,
+                    location_name=location_name,
+                    outcome=outcome,
+                )
+                lines.append(Narrator.world_event_text(event_name, location_name, outcome))
+                continue
+
+            if transition_type == "resolved":
+                reason = str(transition.get("resolution_reason", "")).strip()
+                outcome = str(transition.get("resolved_summary", "Regional pressure settles.")).strip()
+                self._log_event(
+                    "regional_event_resolved",
+                    event_id=event_id,
+                    event_name=event_name,
+                    region_id=region_id,
+                    region_name=region_name,
+                    stage=stage,
+                    source=source,
+                    location_id=location_id,
+                    location_name=location_name,
+                    resolution_reason=reason,
+                    outcome=outcome,
+                )
+                lines.append(Narrator.world_event_text(event_name, location_name, outcome))
+                lines.extend(self._regional_resolution_social_effects(transition, source=reason or source))
+        return lines
+
+    def _resolve_regional_events_after_combat(self, location_id: str, enemy_id: str) -> list[str]:
+        resolved = self.world.resolve_regional_event_by_enemy(enemy_id, location_id=location_id)
+        lines = []
+        for entry in resolved:
+            if not isinstance(entry, dict):
+                continue
+            event_id = str(entry.get("event_id", "")).strip().lower()
+            event_name = str(entry.get("name", event_id)).strip() or event_id
+            event_location_id = str(entry.get("location_id", location_id)).strip().lower()
+            event_location_name = str(entry.get("location_name", self.world.get_location(event_location_id).get("name", event_location_id))).strip()
+            reason = str(entry.get("resolution_reason", f"defeated_{enemy_id}")).strip()
+            outcome = str(entry.get("resolved_summary", "Regional pressure settles after the victory.")).strip()
+            self._log_event(
+                "regional_event_resolved",
+                event_id=event_id,
+                event_name=event_name,
+                region_id=str(entry.get("region_id", "")).strip().lower(),
+                region_name=str(entry.get("region_name", "")).strip(),
+                stage=int(entry.get("stage", 1) or 1),
+                source="combat",
+                location_id=event_location_id,
+                location_name=event_location_name,
+                resolution_reason=reason,
+                outcome=outcome,
+            )
+            lines.append(Narrator.world_event_text(event_name, event_location_name, outcome))
+            lines.extend(self._regional_resolution_social_effects(entry, source=reason))
+        return lines
+
     def _clear_location_state(self, location_id: str, state_id: str, reason: str) -> list[str]:
         cleared = self.world.clear_location_state(location_id, state_id)
         if not cleared:
@@ -787,10 +1774,21 @@ class Game:
         return lines
 
     def _post_action_world_tick(self, source: str) -> list[str]:
-        return self._trigger_dynamic_world_state(self.current_location, trigger="action", source=source)
+        lines = []
+        lines.extend(self._trigger_regional_event(self.current_location, trigger="action", source=source))
+        lines.extend(self._trigger_dynamic_world_state(self.current_location, trigger="action", source=source))
+        lines.extend(self._advance_regional_events(source=f"action:{source}"))
+        return lines
 
     def _recent_world_events(self) -> list[dict]:
-        world_event_types = {"world_state_started", "world_state_cleared", "world_event_resolved"}
+        world_event_types = {
+            "world_state_started",
+            "world_state_cleared",
+            "world_event_resolved",
+            "regional_event_started",
+            "regional_event_escalated",
+            "regional_event_resolved",
+        }
         return [event for event in self.player.event_log if event.get("type") in world_event_types][-8:]
 
     def _apply_quest_social_effects(self, quest_id: str) -> list[str]:
@@ -839,6 +1837,9 @@ class Game:
                 for reward_item_id in reward_items:
                     self._record_important_item_acquired(str(reward_item_id), source="quest_reward")
         self.quests.recently_completed_quests = []
+        lines.extend(self._refresh_hunter_guild_rank(source="quest progress"))
+        lines.extend(self._refresh_identity_unlocks(source="quest progress"))
+        lines.extend(self._refresh_titles(source="quest progress"))
         return lines
 
     def _apply_recent_contract_completions(self, location_id: str, location_name: str) -> list[str]:
@@ -854,6 +1855,9 @@ class Game:
                 location_name=location_name,
             )
         self.contracts.recently_completed_contracts = []
+        lines.extend(self._refresh_hunter_guild_rank(source="contract progress"))
+        lines.extend(self._refresh_identity_unlocks(source="contract progress"))
+        lines.extend(self._refresh_titles(source="contract progress"))
         return lines
 
     def _contract_board_here(self) -> bool:
@@ -1199,6 +2203,10 @@ class Game:
             return self._cmd_board()
         if command == "contracts":
             return self._cmd_contracts()
+        if command == "routes":
+            return self._cmd_routes()
+        if command == "travel":
+            return self._cmd_travel(arg)
         if command == "journal":
             return self._cmd_journal()
         if command == "about":
@@ -1224,9 +2232,13 @@ class Game:
         if command == "upgrade":
             return self._cmd_upgrade(arg)
         if command == "save":
-            return self._cmd_save()
+            return self._cmd_save(arg)
         if command == "load":
-            return self._cmd_load()
+            return self._cmd_load(arg)
+        if command == "slots":
+            return self._cmd_slots()
+        if command == "delete":
+            return self._cmd_delete(arg)
         if command == "help":
             return self._cmd_help()
         if command == "quit":
@@ -1274,6 +2286,8 @@ class Game:
         )
         if self._contract_board_here():
             text += "\nA contract board stands beside the market lane. Use 'board' to read the current postings."
+        if self._travel_service_here():
+            text += "\nA Waycarter post keeps route ledgers here. Use 'routes' to review major-hub passage."
         return text
 
     def _inspect_with_quest_updates(self, base_text: str, target_id: str, target_type: str) -> str:
@@ -1422,33 +2436,243 @@ class Game:
             enemy_names=enemy_names,
             npc_names=npc_names,
             exits=exits,
+            location_context=self._location_lore_context(),
         )
 
-    def _cmd_move(self, arg: str) -> str:
-        if not arg:
-            exits = self.world.get_location(self.current_location).get("connected_locations", {})
-            if not exits:
-                return "No exits from here."
-            return "Move where? Available exits: " + ", ".join(exits.keys())
+    def _travel_service_here(self) -> bool:
+        return bool(self._travel_routes_here())
 
+    def _travel_routes_here(self) -> list[dict]:
+        routes = []
+        for route_id, route in getattr(self.world, "travel_routes", {}).items():
+            if not isinstance(route, dict):
+                continue
+            if str(route.get("origin", "")).strip().lower() != self.current_location:
+                continue
+            destination = str(route.get("destination", "")).strip().lower()
+            if destination not in self.world.locations:
+                continue
+            route_entry = dict(route)
+            route_entry["route_id"] = str(route_id).strip().lower()
+            route_entry["origin"] = self.current_location
+            route_entry["destination"] = destination
+            routes.append(route_entry)
+        routes.sort(key=lambda route: self._travel_destination_name(route))
+        return routes
+
+    def _travel_destination_name(self, route: dict) -> str:
+        destination = str(route.get("destination", "")).strip().lower()
+        location = self.world.locations.get(destination, {})
+        hub_data = location.get("major_hub", {})
+        if isinstance(hub_data, dict):
+            hub_name = str(hub_data.get("name", "")).strip()
+            if hub_name:
+                return hub_name
+        return str(location.get("name", destination)).strip() or destination.replace("_", " ").title()
+
+    def _travel_mode_name(self, route: dict) -> str:
+        mode = str(route.get("mode", "carriage")).strip().replace("_", " ")
+        return mode.title() or "Carriage"
+
+    def _travel_route_available(self, route: dict) -> bool:
+        requirements = route.get("requirements", {})
+        if not isinstance(requirements, dict) or not requirements:
+            return True
+        return self._unlock_conditions_met(requirements, unlocked_by_default=False)
+
+    @staticmethod
+    def _travel_route_visible(route: dict, available: bool) -> bool:
+        if available:
+            return True
+        return bool(route.get("show_when_locked", True))
+
+    def _travel_requirement_text(self, route: dict) -> str:
+        note = str(route.get("requirement_note", "")).strip()
+        return note or "Progress further through the realm before this route opens."
+
+    def _resolve_travel_route(self, query: str) -> tuple[dict | None, str]:
+        normalized_query = " ".join(str(query or "").strip().lower().split())
+        if normalized_query.startswith("to "):
+            normalized_query = normalized_query[3:].strip()
+        if not normalized_query:
+            return None, ""
+
+        routes = [
+            route
+            for route in self._travel_routes_here()
+            if self._travel_route_visible(route, self._travel_route_available(route))
+        ]
+        exact_match = None
+        partial_matches = []
+        for route in routes:
+            destination = str(route.get("destination", "")).strip().lower()
+            destination_name = self._travel_destination_name(route).lower()
+            aliases = {
+                destination,
+                destination_name,
+                destination_name.replace("-", " "),
+            }
+            if normalized_query in aliases:
+                exact_match = route
+                break
+            if normalized_query and any(normalized_query in alias or alias in normalized_query for alias in aliases):
+                partial_matches.append(route)
+
+        if exact_match:
+            return exact_match, ""
+        if len(partial_matches) == 1:
+            return partial_matches[0], ""
+        if len(partial_matches) > 1:
+            return None, "ambiguous"
+        return None, "missing"
+
+    def _travel_overencumbered(self) -> bool:
+        carry_load = self.inventory.carry_load(self.player, self.world.items)
+        return carry_load > self.player.carry_capacity()
+
+    def _visible_travel_routes(self) -> list[dict]:
+        visible = []
+        for route in self._travel_routes_here():
+            available = self._travel_route_available(route)
+            if not self._travel_route_visible(route, available):
+                continue
+            route_entry = dict(route)
+            route_entry["_available"] = available
+            visible.append(route_entry)
+        return visible
+
+    def _resolve_road_encounter(self, route: dict) -> list[str]:
+        chance = self.world.road_encounter_chance()
+        if chance <= 0 or self.dice.roll_percent() > chance:
+            return []
+
+        encounter = self.encounters.roll_from_table(self.world.road_encounter_candidates(route))
+        if not encounter:
+            return []
+
+        encounter_name = str(encounter.get("name", encounter.get("encounter_id", "Road Encounter"))).strip() or "Road Encounter"
+        intro = str(encounter.get("intro", "")).strip()
+        outcome = str(encounter.get("outcome", "")).strip()
+        encounter_id = str(encounter.get("encounter_id", "")).strip().lower()
+        category = str(encounter.get("category", "")).strip().lower()
+        destination_id = str(route.get("destination", self.current_location)).strip().lower()
+        destination_name = self.world.get_location(destination_id).get("name", destination_id)
+        lines = []
+        if intro:
+            lines.append(intro)
+
+        if category == "combat":
+            enemy_id = str(encounter.get("enemy", "")).strip().lower()
+            if not self.world.has_enemy(enemy_id):
+                return []
+            self.world.add_enemy(destination_id, enemy_id)
+            self.world.set_active_road_encounter(
+                encounter_id=encounter_id,
+                name=encounter_name,
+                route_id=str(route.get("route_id", "")).strip().lower(),
+                location_id=destination_id,
+                enemy_id=enemy_id,
+            )
+            enemy_name = self.world.enemy_name(enemy_id)
+            if not outcome:
+                outcome = f"The line reaches {destination_name}, but {enemy_name} is still in pursuit."
+        else:
+            reward_gold = max(0, int(encounter.get("reward_gold", 0) or 0))
+            if reward_gold:
+                self.player.gold += reward_gold
+
+            reward_names = []
+            reward_items = encounter.get("reward_items", [])
+            if isinstance(reward_items, list):
+                for item_id in reward_items:
+                    normalized_item = str(item_id).strip().lower()
+                    if not self.world.has_item(normalized_item):
+                        continue
+                    self.inventory.add_item(self.player, normalized_item)
+                    reward_names.append(self.world.item_name(normalized_item))
+
+            lines.extend(
+                self._apply_social_rewards(
+                    reputation_changes=encounter.get("reputation_changes", {}),
+                    trust_changes=encounter.get("trust_changes", {}),
+                    source=encounter_id or "road_encounter",
+                )
+            )
+
+            rumor = str(encounter.get("rumor", "")).strip()
+            if rumor:
+                lines.append("Rumor learned: " + rumor)
+
+            contract_hint_id = str(encounter.get("contract_hint", "")).strip().lower()
+            if contract_hint_id:
+                contract_title = str(
+                    self.contracts.contracts.get(contract_hint_id, {}).get(
+                        "title",
+                        contract_hint_id.replace("_", " ").title(),
+                    )
+                ).strip()
+                lines.append(f"Road lead: {contract_title} may be worth checking once you reach a board.")
+
+            quest_hook = str(encounter.get("quest_hook", "")).strip()
+            if quest_hook:
+                lines.append("Quest hook: " + quest_hook)
+
+            if not outcome:
+                rewards = []
+                if reward_gold:
+                    rewards.append(f"{reward_gold} gold")
+                if reward_names:
+                    rewards.append(", ".join(reward_names))
+                outcome = "You turn the encounter to your advantage."
+                if rewards:
+                    outcome += " Reward: " + "; ".join(rewards) + "."
+
+        self._log_event(
+            "road_encounter",
+            encounter_id=encounter_id,
+            encounter_name=encounter_name,
+            category=category,
+            route_id=str(route.get("route_id", "")).strip().lower(),
+            origin_id=str(route.get("origin", self.current_location)).strip().lower(),
+            origin_name=self.world.get_location(str(route.get("origin", self.current_location)).strip().lower()).get(
+                "name",
+                str(route.get("origin", self.current_location)).strip().lower(),
+            ),
+            location_id=destination_id,
+            location_name=destination_name,
+            outcome=outcome,
+        )
+        lines.append(Narrator.road_encounter_text(encounter_name, outcome))
+        return lines
+
+    def _transition_to_location(
+        self,
+        new_location: str,
+        entry_lines: list[str],
+        *,
+        source: str,
+        allow_random_events: bool,
+    ) -> str:
         previous_location = self.current_location
-        new_location = self.world.find_connected_location(self.current_location, arg)
-        if not new_location:
-            exits = self.world.get_location(self.current_location).get("connected_locations", {})
-            if exits:
-                return "You cannot go there from here. Available exits: " + ", ".join(exits.keys())
-            return "You cannot go there from here."
-
         event_count_before = len(self.player.event_log)
         self.world.clear_transient_npcs(previous_location)
         self.current_location = new_location
         self._record_location_visit(self.current_location)
         location = self.world.get_location(self.current_location)
         location_name = location.get("name", self.current_location)
-        lines = [Narrator.movement_text(location_name, self.world.get_enemies_at(self.current_location), self.world.get_items_at(self.current_location))]
-        lines.extend(self._resolve_random_encounter(self.current_location))
-        lines.extend(self._resolve_random_world_event(self.current_location))
-        lines.extend(self._trigger_dynamic_world_state(self.current_location, trigger="travel", source="move"))
+        lines = list(entry_lines)
+        lines.extend(self._refresh_identity_unlocks(source=location_name))
+        lines.extend(self._hub_arrival_lines(self.current_location))
+        lines.extend(self._refresh_world_recognition(source=location_name))
+        rank_warning = self._location_rank_warning(self.current_location)
+        if rank_warning:
+            lines.append(rank_warning)
+        if allow_random_events:
+            lines.extend(self._resolve_random_encounter(self.current_location))
+            lines.extend(self._resolve_random_world_event(self.current_location))
+        lines.extend(self._trigger_regional_event(self.current_location, trigger="travel", source=source))
+        lines.extend(self._trigger_dynamic_world_state(self.current_location, trigger="travel", source=source))
+        lines.extend(self._advance_regional_events(source=f"travel:{source}"))
         lines.extend(self._resolve_location_events(self.current_location))
         if not self.player.is_alive():
             lines.append("Game over.")
@@ -1471,6 +2695,128 @@ class Game:
             lines.append(transition_text)
         return "\n".join(lines)
 
+    def _cmd_routes(self) -> str:
+        routes = self._visible_travel_routes()
+        if not routes:
+            return (
+                "No Waycarter service is operating here. "
+                "Try a major hub such as Market Square, Stormbreak, Valewood, Emberfall, Ironridge Square, or Vaultreach."
+            )
+
+        hub_name = self._travel_destination_name({"destination": self.current_location})
+        lines = ["Waycarter Network", f"Origin: {hub_name}"]
+        shown = 0
+        for index, route in enumerate(routes, start=1):
+            available = bool(route.get("_available", False))
+            destination_name = self._travel_destination_name(route)
+            mode_name = self._travel_mode_name(route)
+            cost = max(0, int(route.get("cost", 0) or 0))
+            line = f"{index}. {destination_name}: {mode_name}, {cost} gold"
+            description = str(route.get("description", "")).strip()
+            if description:
+                line += f" | {description}"
+            if not available:
+                line += f" | Locked: {self._travel_requirement_text(route)}"
+            lines.append(line)
+            shown += 1
+        if shown == 0:
+            return (
+                "No Waycarter service is operating here. "
+                "Travel between major hubs is booked only through routes currently opened to you."
+            )
+        if self._travel_overencumbered():
+            lines.append("You are carrying too much to book passage right now.")
+        travel_warnings = self.world.regional_travel_warnings(self.current_location)
+        for warning in travel_warnings:
+            lines.append("Travel warning: " + warning)
+        lines.append("Use 'travel <number>' or 'travel <hub>' to book a route.")
+        return "\n".join(lines)
+
+    def _cmd_travel(self, arg: str) -> str:
+        if not arg.strip():
+            return self._cmd_routes()
+
+        routes = self._visible_travel_routes()
+        if not routes:
+            return (
+                "No Waycarter service is operating here. "
+                "Travel between major hubs is booked from active network posts."
+            )
+        if self._travel_overencumbered():
+            carry_load = self.inventory.carry_load(self.player, self.world.items)
+            return (
+                f"You are carrying too much for paid passage ({carry_load}/{self.player.carry_capacity()}). "
+                "Stow, sell, or use gear before trying to travel."
+            )
+
+        menu_index = self._menu_choice_index(arg, len(routes))
+        if menu_index is not None:
+            route = routes[menu_index]
+            error = ""
+        else:
+            route, error = self._resolve_travel_route(arg)
+        if error == "ambiguous":
+            return "That destination matches more than one route. Use 'routes' to review the current ledger."
+        if not route:
+            return "No Waycarter route matches that destination from here. Use 'routes' to review available hubs."
+        if not bool(route.get("_available", self._travel_route_available(route))):
+            return self._travel_requirement_text(route)
+
+        destination_name = self._travel_destination_name(route)
+        cost = max(0, int(route.get("cost", 0) or 0))
+        if self.player.gold < cost:
+            return f"You need {cost} gold for passage to {destination_name}."
+
+        self.player.gold -= cost
+        destination = str(route.get("destination", "")).strip().lower()
+        mode_name = self._travel_mode_name(route)
+        description = str(route.get("description", "")).strip()
+        self._log_event(
+            "hub_travel",
+            origin_id=self.current_location,
+            origin_name=self.world.get_location(self.current_location).get("name", self.current_location),
+            destination_id=destination,
+            destination_name=destination_name,
+            mode=mode_name,
+            cost=cost,
+        )
+        intro_line = f"You book {mode_name.lower()} passage to {destination_name} for {cost} gold."
+        if description:
+            intro_line += " " + description
+        road_lines = self._resolve_road_encounter(route)
+        return self._transition_to_location(
+            destination,
+            [intro_line, *road_lines],
+            source="travel_network",
+            allow_random_events=False,
+        )
+
+    def _cmd_move(self, arg: str) -> str:
+        if not arg:
+            exits = self.world.get_location(self.current_location).get("connected_locations", {})
+            if not exits:
+                return "No exits from here."
+            return "Move where? Available exits: " + ", ".join(exits.keys())
+
+        new_location = self.world.find_connected_location(self.current_location, arg)
+        if not new_location:
+            exits = self.world.get_location(self.current_location).get("connected_locations", {})
+            if exits:
+                return "You cannot go there from here. Available exits: " + ", ".join(exits.keys())
+            return "You cannot go there from here."
+        return self._transition_to_location(
+            new_location,
+            [
+                Narrator.movement_text(
+                    self.world.get_location(new_location).get("name", new_location),
+                    self.world.get_enemies_at(new_location),
+                    self.world.get_items_at(new_location),
+                )
+            ],
+            source="move",
+            allow_random_events=True,
+        )
+
     def _cmd_fight(self, arg: str) -> str:
         enemy_id, error = self._find_enemy_here(arg)
         if error:
@@ -1479,9 +2825,16 @@ class Game:
         enemy_data = self.world.enemies.get(enemy_id, {})
         enemy_name = self.world.enemy_name(enemy_id)
         player_hp_before = self.player.hp
-        enemy_hp_before = int(enemy_data.get("hp", 1))
+        combat_modifiers = self.world.combat_rank_modifiers(self.current_location, enemy_id)
+        enemy_hp_before = max(1, int(enemy_data.get("hp", 1)) + int(combat_modifiers.get("hp_bonus", 0)))
         event_count_before = len(self.player.event_log)
-        result = self.combat.fight(self.player, enemy_id, self.world.enemies, self.world.items)
+        result = self.combat.fight(
+            self.player,
+            enemy_id,
+            self.world.enemies,
+            self.world.items,
+            combat_modifiers=combat_modifiers,
+        )
 
         lines = [Narrator.combat_intro(enemy_name)]
         prepared_effect = self._prepared_effect_line()
@@ -1657,6 +3010,8 @@ class Game:
         carry_load = self.inventory.carry_load(self.player, self.world.items)
         carry_status = self.inventory.carry_status_line(self.player, self.world.items)
         prepared_effect = self._prepared_effect_line()
+        title_summary = self._title_summary()
+        title_line = ", ".join(title_summary["names"]) if title_summary["names"] else "none"
 
         return (
             "Player Stats\n"
@@ -1666,6 +3021,8 @@ class Game:
             f"Class: {self.player.player_class}\n"
             f"Background: {self.player.background}\n"
             f"Level: {self.player.level}\n"
+            f"Hunter Guild: {self.player.hunter_guild_rank} ({self.player.hunter_guild_points} marks)\n"
+            f"Titles: {title_line}\n"
             f"XP: {self.player.xp}/{self.player.xp_needed_for_next_level()}\n"
             f"Resources: HP {self.player.hp}/{self.player.max_hp} | Focus {self.player.focus}/{self.player.max_focus} | Gold {self.player.gold}\n"
             "Physical stats: "
@@ -1734,6 +3091,8 @@ class Game:
         campaign_context = self.arc_context()
         quest_summary = self.quests.recap_summary(self.player, campaign_context=campaign_context)
         event_counts = self._event_counts()
+        guild_summary = self._hunter_guild_progress_summary()
+        title_summary = self._title_summary()
         recap_text = Narrator.recap_text(
             player_name=self.player.name,
             location_name=location_name,
@@ -1751,6 +3110,9 @@ class Game:
             character_context=self._character_lore_context(),
             location_context=self._location_lore_context(),
             history_flags=self._history_flags(),
+            world_reaction_lines=self._world_recognition_lines(),
+            hunter_guild_summary=guild_summary,
+            title_summary=title_summary,
         )
         contract_lines = self.contracts.active_contract_lines()[1:]
         if self.contracts.accepted or self.contracts.claimable:
@@ -1762,6 +3124,8 @@ class Game:
         campaign_context = self.arc_context()
         quest_summary = self.quests.story_summary(self.player, campaign_context=campaign_context)
         event_counts = self._event_counts()
+        guild_summary = self._hunter_guild_progress_summary()
+        title_summary = self._title_summary()
 
         shrine_guardian_status = None
         ruined_shrine = self.world.locations.get("ruined_shrine")
@@ -1787,6 +3151,9 @@ class Game:
             character_context=self._character_lore_context(),
             location_context=self._location_lore_context(),
             history_flags=self._history_flags(),
+            world_reaction_lines=self._world_recognition_lines(),
+            hunter_guild_summary=guild_summary,
+            title_summary=title_summary,
         )
 
     def _event_counts(self) -> dict:
@@ -1813,6 +3180,9 @@ class Game:
         return self.world.get_location(self.current_location).get("name", self.current_location)
 
     def _character_lore_context(self) -> dict:
+        race_details = Character.creation_option_details("race", self.player.race)
+        class_details = Character.creation_option_details("class", self.player.player_class)
+        background_details = Character.creation_option_details("background", self.player.background)
         return {
             "name": self.player.name,
             "race": self.player.race,
@@ -1821,6 +3191,9 @@ class Game:
             "race_lore": Character.creation_lore("race", self.player.race),
             "class_lore": Character.creation_lore("class", self.player.player_class),
             "background_lore": Character.creation_lore("background", self.player.background),
+            "race_homeland": race_details.get("homeland", ""),
+            "class_summary": class_details.get("summary", ""),
+            "background_summary": background_details.get("summary", ""),
         }
 
     def _location_lore_context(self) -> dict:
@@ -1828,6 +3201,7 @@ class Game:
         states = self.world.get_location_states(self.current_location)
         location_memory = self.player.location_event_memory(self.current_location)
         dungeon = self.world.dungeon_profile(self.current_location) or {}
+        hub_data = location.get("major_hub", {}) if isinstance(location.get("major_hub", {}), dict) else {}
         return {
             "location_name": location.get("name", self.current_location),
             "region": location.get("region", ""),
@@ -1835,6 +3209,7 @@ class Game:
             "state_names": [state.get("name", state.get("state_id", "State")) for state in states],
             "dungeon_tier": dungeon.get("tier", ""),
             "dungeon_label": dungeon.get("label", ""),
+            "dungeon_danger": dungeon.get("danger", ""),
             "dungeon_level_range": dungeon.get("level_range", []),
             "dungeon_families": dungeon.get("family_names", []),
             "dungeon_loot_band": dungeon.get("loot_band", ""),
@@ -1842,6 +3217,13 @@ class Game:
             "npcs": self._visible_npc_names_at_location(self.current_location),
             "services": [str(service) for service in location.get("services", []) if str(service).strip()],
             "economy_note": str(location.get("economy_note", "")).strip(),
+            "hub_name": str(hub_data.get("name", "")).strip(),
+            "hub_progression_role": str(hub_data.get("progression_role", "")).strip(),
+            "hub_faction_tie": str(hub_data.get("faction_tie", "")).strip(),
+            "hub_race_tie": str(hub_data.get("race_tie", "")).strip(),
+            "hub_class_tie": str(hub_data.get("class_tie", "")).strip(),
+            "hub_travel_identity": str(hub_data.get("travel_identity", "")).strip(),
+            "hub_campaign_role": str(hub_data.get("campaign_role", "")).strip(),
             "visit_count": location_memory.get("visit_count", 0),
             "defeated_enemies_here": [entry.get("name", "") for entry in location_memory.get("defeated_enemies", [])],
             "minibosses_here": [entry.get("name", "") for entry in location_memory.get("minibosses_defeated", [])],
@@ -1889,6 +3271,106 @@ class Game:
             "helped": int(memory.get("helped", 0)),
             "harmed": int(memory.get("harmed", 0)),
         }
+
+    def _hub_arrival_lines(self, location_id: str) -> list[str]:
+        location = self.world.get_location(location_id)
+        hub_data = location.get("major_hub", {})
+        if not isinstance(hub_data, dict) or not hub_data:
+            return []
+
+        location_memory = self.player.location_event_memory(location_id)
+        if int(location_memory.get("visit_count", 0)) != 1:
+            return []
+
+        hub_name = str(hub_data.get("name", location.get("name", location_id))).strip() or location.get("name", location_id)
+        lines = [f"Arrival: {hub_name} keeps its held line through ward, ledger, and people who still mean to preserve the realm."]
+
+        region = str(location.get("region", "")).strip().lower()
+        race_details = Character.creation_option_details("race", self.player.race)
+        homeland = str(race_details.get("homeland", "")).strip().lower()
+        if homeland and (region in homeland or hub_name.lower() in homeland):
+            lines.append(f"Identity note: your {self.player.race.lower()} homeland ties make this place feel less like a rumor and more like a remembered ward-line.")
+
+        class_name = str(self.player.player_class).strip()
+        class_tie = str(hub_data.get("class_tie", "")).strip().lower()
+        if class_name and class_name.lower() in class_tie:
+            lines.append(f"Class note: {hub_name} reads your {class_name.lower()} training as work meant for this part of Valerion's line.")
+
+        background = str(self.player.background).strip().lower()
+        faction_tie = str(hub_data.get("faction_tie", "")).strip().lower()
+        if "shrine" in background and "shrine" in faction_tie:
+            lines.append("Background note: shrine voices here measure you by steadiness before they measure you by power.")
+        elif "hunter" in background and any(word in region for word in ["forest", "coast", "vale"]):
+            lines.append("Background note: the local roadcraft feels familiar, the kind of frontier work learned by watching what survives.")
+
+        return lines
+
+    def _world_recognition_lines(self, limit: int = 4) -> list[str]:
+        lines = []
+        rank = self.contracts.highest_unlocked_rank()
+        if self.world.rank_value(rank) >= self.world.rank_value("D"):
+            lines.append(f"Stonewatch's ledgers now mark you as {rank}-rank, and frontier service answers your name differently.")
+        if Character.hunter_guild_rank_value(self.player.hunter_guild_rank) >= Character.hunter_guild_rank_value("Bronze"):
+            lines.append(f"The Hunter Guild now posts you as {self.player.hunter_guild_rank}-rank field talent, and other hunters have started paying attention.")
+        if self.player.has_event("miniboss_defeated", "enemy_id", "gorgos_the_sundered"):
+            lines.append("Ironridge knows you as the one who slew Gorgos the Sundered and kept the pass from breaking.")
+        if self.player.has_event("enemy_defeated", "enemy_id", "cinder_guardian"):
+            lines.append("Emberfall's ward-keepers speak of the Cinder Guardian's fall as proof the ash line can still be held.")
+        if self.player.has_event("quest_completed", "quest_id", "q005_sigil_for_the_caretaker"):
+            lines.append("Shrine Keepers treat you as someone trusted to return old ward-duty instead of plundering it.")
+        if self.player.reputation_value("merchant_guild") >= 20:
+            lines.append("Merchant clerks along the held roads know your name well enough to offer straighter terms and quicker rumor.")
+        if self.player.reputation_value("shrine_keepers") >= 20:
+            lines.append("Shrine Keepers speak to you like someone who has chosen to keep faith with Valerion's warded duty.")
+        return lines[:max(0, limit)]
+
+    def _refresh_world_recognition(self, source: str) -> list[str]:
+        recognitions = [
+            {
+                "key": "rank_d_known",
+                "text": "Stonewatch's board clerks now know your rank and post your name among proven frontier hands.",
+                "conditions": {"requires_rank": "D"},
+            },
+            {
+                "key": "hunter_bronze_known",
+                "text": "Hunter Guild clerks now mark you as Bronze standing, and rival hunters have started measuring themselves against your work.",
+                "conditions": {"requires_hunter_guild_rank": "Bronze"},
+            },
+            {
+                "key": "stormbreak_known",
+                "text": "Stormbreak's harbor talk now counts you among the people who have stood on the coastward line of Valerion.",
+                "conditions": {"requires_events": [{"type": "location_visited", "details": {"location_id": "stormbreak"}}]},
+            },
+            {
+                "key": "gorgos_known",
+                "text": "Word carries through Ironridge that you slew Gorgos the Sundered and held the mountain road intact.",
+                "conditions": {"requires_events": [{"type": "miniboss_defeated", "details": {"enemy_id": "gorgos_the_sundered"}}]},
+            },
+            {
+                "key": "caretaker_known",
+                "text": "Shrine folk now speak of you as one trusted to carry an old sigil back into rightful keeping.",
+                "conditions": {"requires_quests": ["q005_sigil_for_the_caretaker"]},
+            },
+        ]
+
+        lines = []
+        for recognition in recognitions:
+            key = str(recognition.get("key", "")).strip().lower()
+            if not key or self.player.has_event("world_recognition", "key", key):
+                continue
+            if not self._unlock_conditions_met(recognition.get("conditions", {}), unlocked_by_default=False):
+                continue
+            text = str(recognition.get("text", "")).strip()
+            self._log_event(
+                "world_recognition",
+                key=key,
+                text=text,
+                source=source,
+                location_id=self.current_location,
+                location_name=self.current_location_name(),
+            )
+            lines.append("World note: " + text)
+        return lines
 
     def character_context(self) -> dict:
         summary = self.player.character_summary()
@@ -1957,6 +3439,7 @@ class Game:
     def _resolve_enemy_victory(self, enemy_id: str, enemy_name: str, result: dict, enemy_data: dict) -> list[str]:
         lines = [Narrator.combat_result(True, enemy_name)]
         self.world.remove_enemy(self.current_location, enemy_id)
+        cleared_road_encounter = self.world.clear_active_road_encounter(self.current_location, enemy_id)
         self._log_event(
             "enemy_defeated",
             enemy_id=enemy_id,
@@ -1972,6 +3455,10 @@ class Game:
                 location_id=self.current_location,
                 location_name=self.world.get_location(self.current_location).get("name", self.current_location),
             )
+        lines.extend(self._refresh_hunter_guild_rank(source=enemy_name))
+        if cleared_road_encounter:
+            encounter_name = str(cleared_road_encounter.get("name", "Road encounter")).strip()
+            lines.append(f"Road cleared: {encounter_name} no longer threatens the route into {self.current_location_name()}.")
 
         for item_id in result["loot"]:
             self.inventory.add_item(self.player, item_id)
@@ -1986,6 +3473,12 @@ class Game:
         reward_text = enemy_data.get("reward_text")
         if reward_text:
             lines.append(str(reward_text))
+
+        reward_bonus = self.world.rank_reward_bonus(self.current_location, enemy_id)
+        reward_gold = int(reward_bonus.get("gold", 0))
+        if reward_gold > 0:
+            self.player.gold += reward_gold
+            lines.append(f"Rank payout: {reward_gold} gold.")
 
         for item_id in result["loot"]:
             lines.extend(
@@ -2025,6 +3518,7 @@ class Game:
             )
 
         lines.extend(self._resolve_world_states_after_combat(self.current_location, enemy_id))
+        lines.extend(self._resolve_regional_events_after_combat(self.current_location, enemy_id))
         lines.extend(
             self.quests.on_enemy_defeated(
                 self.player,
@@ -2048,10 +3542,19 @@ class Game:
                 self.world.get_location(self.current_location).get("name", self.current_location),
             )
         )
+        lines.extend(self._refresh_identity_unlocks(source=enemy_name))
+        lines.extend(self._refresh_titles(source=enemy_name))
+        lines.extend(self._refresh_world_recognition(source=enemy_name))
         return lines
 
     def _cmd_history(self) -> str:
-        return Narrator.history_text(self.player.event_log, event_memory=self._event_memory())
+        return Narrator.history_text(
+            self.player.event_log,
+            event_memory=self._event_memory(),
+            world_reaction_lines=self._world_recognition_lines(),
+            hunter_guild_summary=self._hunter_guild_progress_summary(),
+            title_summary=self._title_summary(),
+        )
 
     def _cmd_world(self) -> str:
         return Narrator.world_text(self.world.world_state_lines(self.current_location))
@@ -2488,13 +3991,60 @@ class Game:
             )
         )
 
+    def _board_available_contracts(self) -> list[tuple[str, dict]]:
+        return self.contracts.available_contracts(self.player, self.CONTRACT_BOARD_LOCATION)
+
+    def _board_claimable_contracts(self) -> list[tuple[str, dict]]:
+        claimable = []
+        for contract_id in sorted(self.contracts.claimable):
+            contract = self.contracts.contracts.get(contract_id, {})
+            if str(contract.get("board_location", "")).strip().lower() != self.CONTRACT_BOARD_LOCATION:
+                continue
+            claimable.append((contract_id, contract))
+        return claimable
+
     def _cmd_board(self) -> str:
         if not self._contract_board_here():
             return "Stonewatch's contract board is posted in Market Square."
         self.contracts.sync_active_targets(self.player, self.world)
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
         lines = self._apply_recent_contract_completions(self.current_location, location_name)
+        guild_summary = self._hunter_guild_progress_summary()
+        lines.append(
+            f"Hunter Guild standing: {guild_summary['rank']} ({guild_summary['points']} marks)"
+            + (
+                f" | {guild_summary['needed']} marks to {self._hunter_guild_rank_from_points(guild_summary['next_threshold'])[0]}"
+                if guild_summary.get("next_threshold") is not None
+                else " | Top field standing reached"
+            )
+        )
         lines.extend(self.contracts.board_lines(self.player, self.CONTRACT_BOARD_LOCATION))
+        available = self._board_available_contracts()
+        focused_contract_ids = self.world.regional_contract_focus(self.CONTRACT_BOARD_LOCATION)
+        if focused_contract_ids:
+            focus_titles = []
+            for contract_id in focused_contract_ids:
+                contract_data = self.contracts.contracts.get(contract_id, {})
+                title = str(contract_data.get("title", contract_id)).strip()
+                if title and title not in focus_titles:
+                    focus_titles.append(title)
+            if focus_titles:
+                lines.append("Crisis Priority: " + ", ".join(focus_titles))
+        if available:
+            lines.append("Accept Menu")
+            for index, (contract_id, contract) in enumerate(available, start=1):
+                title = str(contract.get("title", contract_id)).strip()
+                rank = str(contract.get("rank", "?")).strip().upper()
+                lines.append(f"{index}. [{rank}-Rank] {title}")
+        claimable = self._board_claimable_contracts()
+        if claimable:
+            lines.append("Claim Menu")
+            for index, (contract_id, contract) in enumerate(claimable, start=1):
+                title = str(contract.get("title", contract_id)).strip()
+                rank = str(contract.get("rank", "?")).strip().upper()
+                lines.append(f"{index}. [{rank}-Rank] {title}")
+        if available or claimable:
+            lines.append("Use 'accept <number|name>' or 'claim <number|name>'.")
         return "\n".join(lines)
 
     def _cmd_contracts(self) -> str:
@@ -2518,7 +4068,20 @@ class Game:
     def _cmd_claim(self, arg: str) -> str:
         if not self._contract_board_here():
             return "You need to be at the Stonewatch contract board in Market Square to claim payment."
-        claimed, lines, contract_id, reward_items = self.contracts.claim_contract(self.player, arg, self.inventory)
+        query = arg.strip()
+        claimable_contracts = self._board_claimable_contracts()
+        if not query and claimable_contracts:
+            lines = ["Claim Menu"]
+            for index, (contract_id, contract) in enumerate(claimable_contracts, start=1):
+                title = str(contract.get("title", contract_id)).strip()
+                rank = str(contract.get("rank", "?")).strip().upper()
+                lines.append(f"{index}. [{rank}-Rank] {title}")
+            lines.append("Use 'claim <number|name>'.")
+            return "\n".join(lines)
+        menu_index = self._menu_choice_index(query, len(claimable_contracts))
+        if menu_index is not None:
+            query = str(claimable_contracts[menu_index][0])
+        claimed, lines, contract_id, reward_items = self.contracts.claim_contract(self.player, query, self.inventory)
         if not claimed or not contract_id:
             return "\n".join(lines)
         contract_data = self.contracts.contracts.get(contract_id, {})
@@ -2532,6 +4095,35 @@ class Game:
         lines.extend(self._apply_contract_social_effects(contract_id))
         for reward_item_id in reward_items:
             self._record_important_item_acquired(str(reward_item_id), source="contract_reward")
+        resolved_regional = self.world.resolve_regional_event_by_contract(contract_id)
+        for resolved in resolved_regional:
+            if not isinstance(resolved, dict):
+                continue
+            event_id = str(resolved.get("event_id", "")).strip().lower()
+            event_name = str(resolved.get("name", event_id)).strip() or event_id
+            event_location_id = str(resolved.get("location_id", self.current_location)).strip().lower()
+            event_location_name = str(resolved.get("location_name", self.world.get_location(event_location_id).get("name", event_location_id))).strip()
+            resolution_reason = str(resolved.get("resolution_reason", f"claimed_{contract_id}")).strip()
+            outcome = str(resolved.get("resolved_summary", "Regional pressure settles after contract success.")).strip()
+            self._log_event(
+                "regional_event_resolved",
+                event_id=event_id,
+                event_name=event_name,
+                region_id=str(resolved.get("region_id", "")).strip().lower(),
+                region_name=str(resolved.get("region_name", "")).strip(),
+                stage=int(resolved.get("stage", 1) or 1),
+                source="contract_claim",
+                location_id=event_location_id,
+                location_name=event_location_name,
+                resolution_reason=resolution_reason,
+                outcome=outcome,
+            )
+            lines.append(Narrator.world_event_text(event_name, event_location_name, outcome))
+            lines.extend(self._regional_resolution_social_effects(resolved, source=resolution_reason))
+        lines.extend(self._refresh_hunter_guild_rank(source="contract claim"))
+        lines.extend(self._refresh_identity_unlocks(source="Hunters Guild progression"))
+        lines.extend(self._refresh_titles(source="Hunters Guild progression"))
+        lines.extend(self._refresh_world_recognition(source="Hunters Guild progression"))
         return "\n".join(lines)
 
     def _npc_service_lines(self, npc_id: str, npc_data: dict) -> list[str]:
@@ -2601,7 +4193,11 @@ class Game:
         npc_data = self.world.get_npc(npc_query)
         npc_name = self.world.npc_name(npc_query)
         role = npc_data.get("role", "Wanderer")
-        dialogue = npc_data.get("dialogue", f"{npc_name} has little to say right now.")
+        dialogue_set = npc_data.get("dialogue_set", {})
+        if isinstance(dialogue_set, dict) and str(dialogue_set.get("default", "")).strip():
+            dialogue = str(dialogue_set.get("default", "")).strip()
+        else:
+            dialogue = npc_data.get("dialogue", f"{npc_name} has little to say right now.")
         dialogue_note = self.world.npc_dialogue_note(self.current_location, npc_query)
         if dialogue_note:
             dialogue = f"{dialogue} {dialogue_note}"
@@ -2617,6 +4213,19 @@ class Game:
         )
         service_lines = self._npc_service_lines(npc_query, npc_data)
         memory_lines = self._npc_memory_lines(npc_query)
+        reaction_entries = self._npc_authored_entries(npc_query, "reactions", limit=2)
+        reaction_lines = [entry["text"] for entry in reaction_entries]
+        if reaction_entries:
+            dialogue = reaction_entries[0]["text"]
+            location = self.world.get_location(self.current_location)
+            reaction_spread = Narrator.npc_reaction_spread_text(
+                location.get("name", self.current_location),
+                str(location.get("region", "")).strip(),
+            )
+            if reaction_spread:
+                memory_lines = [reaction_spread] + memory_lines
+        rumor_lines = self._npc_authored_lines(npc_query, "rumors", limit=1)
+        self._mark_rival_hunter_seen(npc_query)
         dialogue_text = Narrator.npc_dialogue_text(
             npc_name,
             role,
@@ -2624,6 +4233,8 @@ class Game:
             offers,
             service_lines=service_lines,
             memory_lines=memory_lines,
+            reaction_lines=reaction_lines,
+            rumor_lines=rumor_lines,
         )
         quest_lines = self.quests.on_npc_talk(
             self.player,
@@ -2672,18 +4283,52 @@ class Game:
                 )
             return f"{self.TALKABLE_NPCS[npc_query]} is not here, and there is no one to ask."
 
-        return Narrator.ask_text(
+        reply_text = Narrator.ask_text(
             npc_query,
             topic,
             self._history_flags(),
             npc_memory=self._npc_memory_context(npc_query),
         )
+        npc_data = self.world.get_npc(npc_query)
+        npc_name = self.world.npc_name(npc_query)
+        role = str(npc_data.get("role", "Wanderer")).strip() or "Wanderer"
+        reaction_entries = self._npc_authored_entries(npc_query, "reactions", topic=topic, limit=2)
+        reaction_lines = [entry["text"] for entry in reaction_entries]
+        rumor_lines = self._npc_authored_lines(npc_query, "rumors", topic=topic, limit=2)
+        self._mark_rival_hunter_seen(npc_query)
+        if reaction_lines or rumor_lines:
+            generic_reply = reply_text.endswith("has nothing to say about that right now.")
+            base_reply = "" if generic_reply else reply_text
+            if reaction_entries:
+                base_reply = reaction_entries[0]["text"]
+            return Narrator.npc_topic_text(
+                npc_name,
+                role,
+                topic,
+                base_reply,
+                reaction_lines=reaction_lines,
+                rumor_lines=rumor_lines,
+            )
+        return reply_text
 
     def _cmd_accept(self, arg: str) -> str:
+        query = arg.strip()
         if self._contract_board_here():
+            board_available = self._board_available_contracts()
+            if not query and board_available:
+                lines = ["Accept Menu"]
+                for index, (contract_id, contract) in enumerate(board_available, start=1):
+                    title = str(contract.get("title", contract_id)).strip()
+                    rank = str(contract.get("rank", "?")).strip().upper()
+                    lines.append(f"{index}. [{rank}-Rank] {title}")
+                lines.append("Use 'accept <number|name>'.")
+                return "\n".join(lines)
+            menu_index = self._menu_choice_index(query, len(board_available))
+            if menu_index is not None:
+                query = str(board_available[menu_index][0])
             contract_accepted, contract_lines, contract_id = self.contracts.accept_contract(
                 self.player,
-                arg,
+                query,
                 self.CONTRACT_BOARD_LOCATION,
                 self.world,
             )
@@ -2699,9 +4344,26 @@ class Game:
                 return "\n".join(contract_lines)
 
         npcs_here = self._visible_npcs_at_location(self.current_location)
+        quest_options = self.quests.available_quests(
+            self.player,
+            npcs_here,
+            world=self.world,
+            current_location=self.current_location,
+            campaign_context=self.arc_context(),
+        )
+        if not query and quest_options:
+            lines = ["Accept Menu"]
+            for index, (quest_id, quest) in enumerate(quest_options, start=1):
+                title = str(quest.get("title", quest_id)).strip()
+                lines.append(f"{index}. {title}")
+            lines.append("Use 'accept <number|name>'.")
+            return "\n".join(lines)
+        menu_index = self._menu_choice_index(query, len(quest_options))
+        if menu_index is not None:
+            query = str(quest_options[menu_index][0])
         accepted, lines, quest_id = self.quests.accept_quest(
             self.player,
-            arg,
+            query,
             npcs_here,
             self.inventory,
             world=self.world,
@@ -2730,6 +4392,16 @@ class Game:
             if normalized.lower().startswith(prefix):
                 return normalized[len(prefix):].strip()
         return normalized
+
+    @staticmethod
+    def _menu_choice_index(arg: str, count: int) -> int | None:
+        raw = str(arg or "").strip()
+        if not raw.isdigit():
+            return None
+        index = int(raw) - 1
+        if 0 <= index < count:
+            return index
+        return None
 
     @staticmethod
     def _normalize_free_text(text: str) -> str:
@@ -2909,6 +4581,31 @@ class Game:
             lines.append(self.inventory.item_shop_line(item_id, self.world.items, price))
         return lines
 
+    def _buy_menu_options(self, shops: list[dict]) -> list[dict]:
+        options = []
+        for shop in shops:
+            if not shop.get("stock"):
+                continue
+            allowed, denial = self.factions.service_access(self.player, shop["faction"], shop["npc_id"])
+            if not allowed:
+                continue
+            for item_id in shop["stock"]:
+                base_cost = self.inventory.item_price(item_id, self.world.items)
+                price = self.factions.price_for_service(
+                    self.player,
+                    shop["faction"],
+                    shop["npc_id"],
+                    base_cost,
+                )
+                options.append(
+                    {
+                        "shop": shop,
+                        "item_id": item_id,
+                        "price": price,
+                    }
+                )
+        return options
+
     def _shop_buys_item(self, shop: dict, item_id: str) -> bool:
         if item_id in shop.get("stock", []):
             return True
@@ -2926,6 +4623,20 @@ class Game:
                 break
         return lines
 
+    def _sell_menu_options(self, shops: list[dict]) -> list[dict]:
+        options = []
+        seen = set()
+        for item_id in self.player.inventory:
+            if item_id in seen:
+                continue
+            for shop in shops:
+                if not self._shop_buys_item(shop, item_id):
+                    continue
+                options.append({"item_id": item_id, "shop": shop})
+                seen.add(item_id)
+                break
+        return options
+
     def _upgradable_inventory_lines(self) -> list[str]:
         lines = []
         seen = set()
@@ -2940,6 +4651,19 @@ class Game:
             label = self.inventory.item_label(item_id, self.world.items, self.player.item_upgrade_level(item_id, self.world.items))
             lines.append(f"- {label}: {self.inventory.upgrade_cost_text(self.player, item_id, self.world.items)}")
         return lines
+
+    def _upgrade_menu_options(self) -> list[str]:
+        options = []
+        seen = set()
+        for item_id in self.player.inventory:
+            if item_id in seen:
+                continue
+            seen.add(item_id)
+            item = self.world.items.get(item_id, {})
+            if self.player.max_item_upgrade_level(item) <= 0:
+                continue
+            options.append(item_id)
+        return options
 
     def _current_crafting_stations(self) -> set[str]:
         stations = {"field"}
@@ -2957,30 +4681,37 @@ class Game:
         learned_names = [self.crafting.recipe_name(recipe_id, self.world.recipes, self.world.items) for recipe_id in learned]
         return ["You pick up a few workable recipes here: " + ", ".join(learned_names) + "."]
 
+    def _craft_menu_options(self) -> list[str]:
+        return self.crafting.known_recipe_ids(self.player, self.world.recipes)
+
     def _cmd_buy(self, arg: str) -> str:
         shops = self._local_shop_npcs()
         if not shops:
             return "You cannot buy here: no vendor is offering goods in this location."
 
-        if not arg:
-            lines = []
-            for shop in shops:
-                if not shop["stock"]:
-                    continue
-                allowed, denial = self.factions.service_access(self.player, shop["faction"], shop["npc_id"])
-                lines.append(f"{shop['name']} offers:")
-                if not allowed:
-                    lines.append(f"- {denial}")
-                    continue
-                lines.extend(self._shop_stock_lines(shop))
-            if not lines:
+        query = arg.strip()
+        menu_options = self._buy_menu_options(shops)
+        if not query:
+            if not menu_options:
                 return "You cannot buy here: local vendors are not offering goods right now."
-            lines.append("Use 'buy <item>' to purchase something from a local vendor.")
+            lines = ["Buy Menu"]
+            for index, option in enumerate(menu_options, start=1):
+                item_id = option["item_id"]
+                label = self.inventory.item_label(item_id, self.world.items)
+                lines.append(f"{index}. {label} from {option['shop']['name']} ({option['price']} gold)")
+            lines.append("Use 'buy <number|item>'.")
             return "\n".join(lines)
 
         selected_shop = None
         item_id = None
+        menu_index = self._menu_choice_index(query, len(menu_options))
+        if menu_index is not None:
+            option = menu_options[menu_index]
+            selected_shop = option["shop"]
+            item_id = option["item_id"]
         for shop in shops:
+            if selected_shop and item_id:
+                break
             resolved = self.inventory.resolve_shop_item(self.world.items, arg, stock=shop["stock"])
             if not resolved:
                 continue
@@ -2989,10 +4720,7 @@ class Game:
             break
 
         if not selected_shop or not item_id:
-            lines = ["Nothing here matches that purchase request. Local stock:"]
-            for shop in shops:
-                lines.append(f"{shop['name']}:")
-                lines.extend(self._shop_stock_lines(shop))
+            lines = ["Nothing here matches that purchase request.", self._cmd_buy("")]
             return "\n".join(lines)
 
         allowed, denial = self.factions.service_access(
@@ -3046,14 +4774,29 @@ class Game:
         if not self.player.inventory:
             return "You have nothing to sell."
 
-        if not arg:
-            lines = self._sellable_inventory_lines(shops)
-            if not lines:
+        query = arg.strip()
+        menu_options = self._sell_menu_options(shops)
+        if not query:
+            if not menu_options:
                 return "No local vendor wants anything from your backpack right now."
-            lines.append("Use 'sell <item>' to trade something away.")
-            return "Sellable items\n" + "\n".join(lines)
+            lines = ["Sell Menu"]
+            for index, option in enumerate(menu_options, start=1):
+                item_id = option["item_id"]
+                value = self.inventory.sell_price(item_id, self.world.items)
+                label = self.inventory.item_label(
+                    item_id,
+                    self.world.items,
+                    self.player.item_upgrade_level(item_id, self.world.items),
+                )
+                lines.append(f"{index}. {label} to {option['shop']['name']} ({value} gold)")
+            lines.append("Use 'sell <number|item>'.")
+            return "\n".join(lines)
 
-        item_id = self.inventory.find_item_in_inventory(self.player, self.world.items, arg)
+        menu_index = self._menu_choice_index(query, len(menu_options))
+        if menu_index is not None:
+            item_id = str(menu_options[menu_index]["item_id"])
+        else:
+            item_id = self.inventory.find_item_in_inventory(self.player, self.world.items, arg)
         if not item_id:
             lines = self.inventory.inventory_lines(self.player, self.world.items)
             return f"You do not have '{arg}'.\n" + "\n".join(lines)
@@ -3112,16 +4855,44 @@ class Game:
 
     def _cmd_craft(self, arg: str) -> str:
         learned_lines = self._learn_available_recipes()
+        query = arg.strip()
+        menu_options = self._craft_menu_options()
         if not arg:
-            recipe_lines = self.crafting.recipes_lines(
-                self.player,
-                self.world.recipes,
-                self.world.items,
-                self._current_crafting_stations(),
-            )
-            return "\n".join(learned_lines + recipe_lines)
+            if not menu_options:
+                recipe_lines = self.crafting.recipes_lines(
+                    self.player,
+                    self.world.recipes,
+                    self.world.items,
+                    self._current_crafting_stations(),
+                )
+                return "\n".join(learned_lines + recipe_lines)
+            lines = ["Craft Menu"]
+            for index, recipe_id in enumerate(menu_options, start=1):
+                recipe = self.world.recipes.get(recipe_id, {})
+                recipe_name = self.crafting.recipe_name(recipe_id, self.world.recipes, self.world.items)
+                costs = ", ".join(self.crafting.recipe_cost_parts(recipe, self.world.items)) or "no cost"
+                status = self.crafting.recipe_status(
+                    self.player,
+                    recipe_id,
+                    self.world.recipes,
+                    self.world.items,
+                    self._current_crafting_stations(),
+                )
+                if status["craftable"]:
+                    status_text = "ready"
+                elif not status["in_station"]:
+                    status_text = f"needs {self.crafting.station_name(status['station'])}"
+                else:
+                    status_text = "missing " + ", ".join(status["missing"])
+                lines.append(f"{index}. {recipe_name}: {costs} | {status_text}")
+            lines.append("Use 'craft <number|item>'.")
+            return "\n".join(learned_lines + lines)
 
-        recipe_id = self.crafting.resolve_recipe(self.player, arg, self.world.recipes, self.world.items)
+        menu_index = self._menu_choice_index(query, len(menu_options))
+        if menu_index is not None:
+            recipe_id = menu_options[menu_index]
+        else:
+            recipe_id = self.crafting.resolve_recipe(self.player, arg, self.world.recipes, self.world.items)
         if not recipe_id:
             recipe_lines = self.crafting.recipes_lines(
                 self.player,
@@ -3160,14 +4931,27 @@ class Game:
         return "\n".join(lines)
 
     def _cmd_upgrade(self, arg: str) -> str:
-        if not arg:
-            lines = self._upgradable_inventory_lines()
-            if not lines:
+        query = arg.strip()
+        menu_options = self._upgrade_menu_options()
+        if not query:
+            if not menu_options:
                 return "You are not carrying any gear that can be upgraded right now."
-            lines.append("Use 'upgrade <item>' to improve a weapon, armor piece, or supported accessory.")
-            return "Upgrade Options\n" + "\n".join(lines)
+            lines = ["Upgrade Menu"]
+            for index, item_id in enumerate(menu_options, start=1):
+                label = self.inventory.item_label(
+                    item_id,
+                    self.world.items,
+                    self.player.item_upgrade_level(item_id, self.world.items),
+                )
+                lines.append(f"{index}. {label}: {self.inventory.upgrade_cost_text(self.player, item_id, self.world.items)}")
+            lines.append("Use 'upgrade <number|item>'.")
+            return "\n".join(lines)
 
-        item_id = self.inventory.find_item_in_inventory(self.player, self.world.items, arg)
+        menu_index = self._menu_choice_index(query, len(menu_options))
+        if menu_index is not None:
+            item_id = menu_options[menu_index]
+        else:
+            item_id = self.inventory.find_item_in_inventory(self.player, self.world.items, arg)
         if not item_id:
             return f"You do not have '{arg}'."
 
@@ -3189,7 +4973,19 @@ class Game:
         return "\n".join(lines)
 
     def _save_data(self) -> dict:
+        location_name = self.world.get_location(self.current_location).get("name", self.current_location)
         return {
+            "slot_meta": {
+                "slot_id": self.current_slot,
+                "character_name": self.player.name,
+                "race": self.player.race,
+                "player_class": self.player.player_class,
+                "level": self.player.level,
+                "current_location": self.current_location,
+                "current_location_name": location_name,
+                "saved_at": datetime.now().isoformat(timespec="seconds"),
+                "playtime_seconds": self._current_playtime_seconds(),
+            },
             "player": self.player.to_dict(),
             "current_location": self.current_location,
             "quests": self.quests.to_dict(),
@@ -3197,28 +4993,33 @@ class Game:
             "world_state": self.world.state_to_dict(),
         }
 
-    def _cmd_save(self) -> str:
+    def _cmd_save(self, arg: str = "") -> str:
+        slot_id = self._normalize_slot_id(arg)
+        if arg.strip():
+            if not slot_id:
+                return "Save where? Use 'save <slot>'."
+            self._set_active_slot(slot_id)
+        self._ensure_save_storage()
         data = self._save_data()
         try:
             self.save_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
         except OSError as exc:
             return f"Could not save game: {exc}"
+        self.playtime_seconds = int(data.get("slot_meta", {}).get("playtime_seconds", self.playtime_seconds))
+        self.session_started_at = time.time()
         return f"Game saved to {self.save_path}."
 
-    def _cmd_load(self) -> str:
-        if not self.save_path.exists():
-            return f"No save file found at {self.save_path}."
-
-        try:
-            raw = self.save_path.read_text(encoding="utf-8")
-            data = json.loads(raw)
-        except OSError as exc:
-            return f"Could not load game: {exc}"
-        except json.JSONDecodeError:
-            return f"Could not load game: {self.save_path} is not valid JSON."
-
-        if not isinstance(data, dict):
-            return "Could not load game: save data format is invalid."
+    def _cmd_load(self, arg: str = "") -> str:
+        slot_id = self._normalize_slot_id(arg)
+        if arg.strip():
+            if not slot_id:
+                return "Load which slot? Use 'load <slot>'."
+            self._set_active_slot(slot_id)
+        self._ensure_save_storage()
+        data, error = self._read_save_file(self.save_path)
+        if error:
+            return error
+        assert data is not None
 
         # Reset world and engines to avoid carrying over runtime changes.
         self.world = World(self.data_dir)
@@ -3236,6 +5037,14 @@ class Game:
 
         self.player = Character.from_dict(data.get("player", {}))
         self._sync_social_state()
+        slot_meta = data.get("slot_meta", {})
+        if isinstance(slot_meta, dict):
+            normalized_slot = self._normalize_slot_id(slot_meta.get("slot_id", self.current_slot))
+            if normalized_slot:
+                self.current_slot = normalized_slot
+        self.save_path = self._slot_path(self.current_slot) if self.save_path.parent == self.save_dir else self.save_path
+        self.playtime_seconds = max(0, int(slot_meta.get("playtime_seconds", 0) or 0)) if isinstance(slot_meta, dict) else 0
+        self.session_started_at = time.time()
 
         saved_location = str(data.get("current_location", self.world.starting_location))
         if saved_location not in self.world.locations:
@@ -3261,6 +5070,9 @@ class Game:
         self._backfill_world_progress_events()
         self._record_location_visit(self.current_location)
         self.contracts.sync_active_targets(self.player, self.world)
+        self._refresh_hunter_guild_rank(source="load")
+        self._refresh_titles(notify=False, source="load")
+        self._refresh_identity_unlocks(notify=False)
 
         location_name = self.world.get_location(self.current_location).get("name", self.current_location)
         self._apply_recent_contract_completions(self.current_location, location_name)
@@ -3284,17 +5096,19 @@ class Game:
             "take [item]        - Pick up a nearby item.\n"
             "talk <npc>         - Converse with an NPC who is present.\n"
             "ask <npc> about <topic> - Ask a present NPC about a topic.\n"
-            "accept <name>      - Accept a quest offer or a posted board contract in your current location.\n"
+            "accept <name>      - Accept a quest offer or board contract (number or name) in your current location.\n"
             "board              - Read the Stonewatch contract board in Market Square.\n"
             "contracts          - Review active and claimable board contracts.\n"
-            "claim <contract>   - Claim payment for a finished board contract at Market Square.\n"
+            "claim <contract>   - Claim payment for a finished board contract at Market Square (number or name).\n"
+            "routes             - Review Waycarter Network routes from the current major hub.\n"
+            "travel <hub>       - Pay for guarded passage between major hubs (number or hub name).\n"
             "do <free text>     - Optional wrapper for safe narrative input like observe, ask, or listen.\n"
             "free text          - You can also type lines like 'look around', 'go to the forest', or 'attack the slime'.\n"
-            "buy <item>         - Purchase from a local vendor in your current location.\n"
-            "sell <item>        - Sell a carried item to a willing local vendor.\n"
+            "buy <item>         - Purchase from a local vendor (number or item name).\n"
+            "sell <item>        - Sell a carried item to a willing local vendor (number or item name).\n"
             "recipes            - Review known crafting recipes and their costs.\n"
-            "craft <item>       - Craft a known recipe if you have materials and the right workspace.\n"
-            "upgrade <item>     - Improve a carried weapon, armor piece, or supported accessory.\n"
+            "craft <item>       - Craft a known recipe (number or item name) with required materials/station.\n"
+            "upgrade <item>     - Improve a carried weapon/armor/accessory (number or item name).\n"
             "\n"
             "inventory          - See HP, focus, carry load, carried items, and gear.\n"
             "gear               - Show equipped items, upgrade levels, and build impact.\n"
@@ -3319,8 +5133,10 @@ class Game:
             "journal            - Read completed quest records only.\n"
             "about              - Explain engine rules vs AI narration.\n"
             "\n"
-            "save               - Persist your run to `savegame.json`.\n"
-            "load               - Resume from a previous save.\n"
+            "save [slot]        - Persist your run to the current or named save slot.\n"
+            "load [slot]        - Resume from the current or named save slot.\n"
+            "slots              - List save slots and their character summaries.\n"
+            "delete <slot>      - Delete a save slot file.\n"
             "help               - Show this command list again.\n"
             "quit               - Exit Valerion."
         )

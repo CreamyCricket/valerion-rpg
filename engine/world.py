@@ -5,12 +5,23 @@ from pathlib import Path
 
 class World:
     """Static data loader and persisting location/enemy/item runtime state."""
+    RANK_ORDER = {"E": 0, "D": 1, "C": 2, "B": 3, "A": 4, "S": 5}
     DUNGEON_TIERS = {
         "E": {
-            "label": "Rank E",
+            "label": "E-Rank",
+            "danger": "beginner danger",
             "level_range": [1, 2],
             "families": ["slimes", "wolves", "bandits"],
+            "enemy_weight": 16,
+            "elite_weight": 0,
             "boss_weight": 4,
+            "attack_bonus": 0,
+            "defense_bonus": 0,
+            "hp_bonus": 0,
+            "xp_bonus": 0,
+            "gold_bonus": 1,
+            "elite_gold_bonus": 1,
+            "boss_gold_bonus": 2,
             "loot_band": "Common to Uncommon",
             "event_risk": "Low",
             "world_event_bonus": 0,
@@ -18,10 +29,20 @@ class World:
             "state_event_bonus": 2,
         },
         "D": {
-            "label": "Rank D",
+            "label": "D-Rank",
+            "danger": "trained adventurer",
             "level_range": [2, 3],
             "families": ["wolves", "bandits", "shrine_creatures", "cultists"],
+            "enemy_weight": 18,
+            "elite_weight": 3,
             "boss_weight": 6,
+            "attack_bonus": 0,
+            "defense_bonus": 0,
+            "hp_bonus": 2,
+            "xp_bonus": 4,
+            "gold_bonus": 2,
+            "elite_gold_bonus": 2,
+            "boss_gold_bonus": 4,
             "loot_band": "Common to Uncommon",
             "event_risk": "Guarded",
             "world_event_bonus": 2,
@@ -29,10 +50,20 @@ class World:
             "state_event_bonus": 3,
         },
         "C": {
-            "label": "Rank C",
+            "label": "C-Rank",
+            "danger": "veteran threats",
             "level_range": [3, 4],
             "families": ["bandits", "cultists", "spiders"],
+            "enemy_weight": 20,
+            "elite_weight": 6,
             "boss_weight": 10,
+            "attack_bonus": 1,
+            "defense_bonus": 1,
+            "hp_bonus": 4,
+            "xp_bonus": 8,
+            "gold_bonus": 3,
+            "elite_gold_bonus": 4,
+            "boss_gold_bonus": 7,
             "loot_band": "Uncommon to Rare",
             "event_risk": "Elevated",
             "world_event_bonus": 4,
@@ -40,10 +71,20 @@ class World:
             "state_event_bonus": 5,
         },
         "B": {
-            "label": "Rank B",
+            "label": "B-Rank",
+            "danger": "serious danger",
             "level_range": [4, 5],
             "families": ["cultists", "shrine_creatures", "ruin_guardians"],
+            "enemy_weight": 22,
+            "elite_weight": 9,
             "boss_weight": 14,
+            "attack_bonus": 1,
+            "defense_bonus": 1,
+            "hp_bonus": 6,
+            "xp_bonus": 12,
+            "gold_bonus": 5,
+            "elite_gold_bonus": 6,
+            "boss_gold_bonus": 10,
             "loot_band": "Rare",
             "event_risk": "High",
             "world_event_bonus": 6,
@@ -51,15 +92,46 @@ class World:
             "state_event_bonus": 6,
         },
         "A": {
-            "label": "Rank A",
+            "label": "A-Rank",
+            "danger": "extreme threats",
             "level_range": [5, 6],
             "families": ["ruin_guardians", "abyss_beasts", "ash_heralds"],
+            "enemy_weight": 24,
+            "elite_weight": 12,
             "boss_weight": 18,
+            "attack_bonus": 2,
+            "defense_bonus": 2,
+            "hp_bonus": 8,
+            "xp_bonus": 18,
+            "gold_bonus": 8,
+            "elite_gold_bonus": 8,
+            "boss_gold_bonus": 14,
             "loot_band": "Rare to Epic",
             "event_risk": "Severe",
             "world_event_bonus": 8,
             "world_event_dc_bonus": 2,
             "state_event_bonus": 8,
+        },
+        "S": {
+            "label": "S-Rank",
+            "danger": "legendary danger",
+            "level_range": [6, 8],
+            "families": ["ruin_guardians", "abyss_beasts", "ash_heralds"],
+            "enemy_weight": 26,
+            "elite_weight": 15,
+            "boss_weight": 22,
+            "attack_bonus": 3,
+            "defense_bonus": 2,
+            "hp_bonus": 12,
+            "xp_bonus": 25,
+            "gold_bonus": 12,
+            "elite_gold_bonus": 12,
+            "boss_gold_bonus": 20,
+            "loot_band": "Epic",
+            "event_risk": "Catastrophic",
+            "world_event_bonus": 10,
+            "world_event_dc_bonus": 3,
+            "state_event_bonus": 10,
         },
     }
 
@@ -71,14 +143,21 @@ class World:
         self.contracts = self._load_json(base / "contracts.json")
         self.recipes = self._load_json(base / "recipes.json")
         self.npcs = self._load_json(base / "npcs.json")
+        self.rumors = self._load_json(base / "rumors.json")
         self.quests = self._load_json(base / "quests.json")
         self.factions = self._load_json(base / "factions.json")
         self.arcs = self._load_json(base / "arcs.json")
+        self.travel_routes = self._load_json(base / "travel_routes.json")
+        self.road_encounters = self._load_json(base / "road_encounters.json")
+        self.regional_event_zones = self._load_json(base / "regional_events.json")
+        self.titles = self._load_json(base / "titles.json")
 
         # Runtime world state. Locations change when items are taken or enemies are defeated.
         self.state_locations = copy.deepcopy(self.locations)
         self.state_events = self._default_events()
         self.location_states = {location_id: [] for location_id in self.locations}
+        self.active_regional_events_by_region = {}
+        self.active_road_encounter = {}
         self.starting_location = "village_square"
 
     @staticmethod
@@ -106,6 +185,25 @@ class World:
     @staticmethod
     def _normalize_entity_id(entity_id: str) -> str:
         return str(entity_id).strip().lower()
+
+    @classmethod
+    def normalize_rank(cls, rank: str) -> str:
+        normalized = str(rank).strip().upper()
+        return normalized if normalized in cls.RANK_ORDER else ""
+
+    @classmethod
+    def rank_value(cls, rank: str) -> int:
+        normalized = cls.normalize_rank(rank)
+        return cls.RANK_ORDER.get(normalized, -1)
+
+    @classmethod
+    def rank_for_level(cls, level: int) -> str:
+        normalized_level = max(1, int(level))
+        for rank, profile in cls.DUNGEON_TIERS.items():
+            level_range = profile.get("level_range", [1, 1])
+            if isinstance(level_range, list) and len(level_range) == 2 and normalized_level <= int(level_range[1]):
+                return rank
+        return "S"
 
     def has_enemy(self, enemy_id: str) -> bool:
         return self._normalize_entity_id(enemy_id) in self.enemies
@@ -171,6 +269,15 @@ class World:
             maximum_level,
             normalized_families,
             allow_boss=False,
+            allow_elite=False,
+        )
+        profile["elite_pool"] = self._validated_dungeon_enemy_pool(
+            raw_profile.get("elite_pool", []),
+            minimum_level,
+            maximum_level + 1,
+            normalized_families,
+            allow_boss=False,
+            allow_elite=True,
         )
         profile["boss_pool"] = self._validated_dungeon_enemy_pool(
             raw_profile.get("boss_pool", []),
@@ -178,10 +285,23 @@ class World:
             maximum_level + 1,
             normalized_families,
             allow_boss=True,
+            allow_elite=True,
         )
 
         if not profile["enemy_pool"] and normalized_families:
-            profile["enemy_pool"] = self._derived_dungeon_enemy_pool(minimum_level, maximum_level, normalized_families)
+            profile["enemy_pool"] = self._derived_dungeon_enemy_pool(
+                minimum_level,
+                maximum_level,
+                normalized_families,
+                allow_elite=False,
+            )
+        if not profile["elite_pool"] and normalized_families:
+            profile["elite_pool"] = self._derived_dungeon_enemy_pool(
+                minimum_level,
+                maximum_level + 1,
+                normalized_families,
+                allow_elite=True,
+            )
 
         return profile
 
@@ -193,6 +313,7 @@ class World:
         allowed_families: list[str],
         *,
         allow_boss: bool,
+        allow_elite: bool,
     ) -> list[str]:
         pool = []
         if not isinstance(enemy_ids, list):
@@ -206,17 +327,29 @@ class World:
             family = self._normalize_entity_id(enemy.get("family", ""))
             level = max(1, int(enemy.get("level", 1)))
             is_boss = bool(enemy.get("boss", False))
+            is_elite = bool(enemy.get("elite", False))
             if allowed_families and family not in allowed_families and not allow_boss:
                 continue
             if level < minimum_level or level > maximum_level:
                 continue
             if is_boss and not allow_boss:
                 continue
+            if is_elite and not allow_elite:
+                continue
+            if not is_elite and allow_elite and not allow_boss:
+                continue
             if normalized_enemy not in pool:
                 pool.append(normalized_enemy)
         return pool
 
-    def _derived_dungeon_enemy_pool(self, minimum_level: int, maximum_level: int, allowed_families: list[str]) -> list[str]:
+    def _derived_dungeon_enemy_pool(
+        self,
+        minimum_level: int,
+        maximum_level: int,
+        allowed_families: list[str],
+        *,
+        allow_elite: bool,
+    ) -> list[str]:
         pool = []
         for enemy_id, enemy in self.enemies.items():
             family = self._normalize_entity_id(enemy.get("family", ""))
@@ -227,8 +360,89 @@ class World:
                 continue
             if enemy.get("boss", False):
                 continue
+            if bool(enemy.get("elite", False)) != bool(allow_elite):
+                continue
             pool.append(enemy_id)
         return pool
+
+    def location_rank(self, location_id: str) -> str:
+        dungeon = self.dungeon_profile(location_id)
+        return self.normalize_rank(dungeon.get("tier", "")) if dungeon else ""
+
+    def location_rank_profile(self, location_id: str) -> dict:
+        dungeon = self.dungeon_profile(location_id)
+        return dungeon if dungeon else {}
+
+    def location_rank_text(self, location_id: str) -> str:
+        profile = self.location_rank_profile(location_id)
+        if not profile:
+            return ""
+        label = str(profile.get("label", "")).strip()
+        danger = str(profile.get("danger", "")).strip()
+        if label and danger:
+            return f"{label} - {danger}"
+        return label or danger
+
+    def rank_warning_text(self, location_id: str, player_rank: str) -> str:
+        location_rank = self.location_rank(location_id)
+        if not location_rank:
+            return ""
+        if self.rank_value(location_rank) <= self.rank_value(player_rank):
+            return ""
+        label = self.location_rank_profile(location_id).get("label", f"{location_rank}-Rank")
+        severity = self.rank_value(location_rank) - self.rank_value(player_rank)
+        if severity >= 2:
+            return f"Danger Warning: This region is rated {label}. Unprepared adventurers rarely return."
+        return f"Danger Warning: This region is rated {label}. Proceed with caution."
+
+    def combat_rank_modifiers(self, location_id: str, enemy_id: str) -> dict:
+        dungeon = self.dungeon_profile(location_id)
+        enemy = self.enemies.get(self._normalize_entity_id(enemy_id), {})
+        if not dungeon or not enemy:
+            return {"hp_bonus": 0, "attack_bonus": 0, "defense_bonus": 0, "xp_bonus": 0}
+
+        modifiers = {
+            "hp_bonus": int(dungeon.get("hp_bonus", 0)),
+            "attack_bonus": int(dungeon.get("attack_bonus", 0)),
+            "defense_bonus": int(dungeon.get("defense_bonus", 0)),
+            "xp_bonus": int(dungeon.get("xp_bonus", 0)),
+        }
+        if bool(enemy.get("elite", False)):
+            modifiers["hp_bonus"] += 2
+            modifiers["attack_bonus"] += 1
+            modifiers["xp_bonus"] += 6
+        if bool(enemy.get("boss", False)) or self._normalize_entity_id(enemy_id) in dungeon.get("boss_pool", []):
+            modifiers["hp_bonus"] += 4
+            modifiers["defense_bonus"] += 1
+            modifiers["xp_bonus"] += 10
+        return modifiers
+
+    def rank_reward_bonus(self, location_id: str, enemy_id: str) -> dict:
+        dungeon = self.dungeon_profile(location_id)
+        enemy = self.enemies.get(self._normalize_entity_id(enemy_id), {})
+        if not dungeon or not enemy:
+            return {"gold": 0}
+
+        gold = int(dungeon.get("gold_bonus", 0))
+        if bool(enemy.get("elite", False)):
+            gold += int(dungeon.get("elite_gold_bonus", 0))
+        if bool(enemy.get("boss", False)) or self._normalize_entity_id(enemy_id) in dungeon.get("boss_pool", []):
+            gold += int(dungeon.get("boss_gold_bonus", 0))
+        return {"gold": gold}
+
+    def _ranked_entry_weight(self, dungeon: dict, entry: dict) -> int:
+        weight = max(0, int(entry.get("weight", 0)))
+        if not dungeon or str(entry.get("type", "")).strip().lower() != "enemy":
+            return weight
+        target = self._normalize_entity_id(entry.get("target", ""))
+        enemy = self.enemies.get(target, {})
+        if not enemy:
+            return weight
+        if bool(enemy.get("boss", False)):
+            return max(weight, int(dungeon.get("boss_weight", 0)))
+        if bool(enemy.get("elite", False)):
+            return max(weight, int(dungeon.get("elite_weight", 0)))
+        return weight
 
     def world_event_chance(self, location_id: str) -> int:
         base = int(self.get_location(location_id).get("world_event_chance", 0))
@@ -426,6 +640,406 @@ class World:
             template["location_id"] = location_id
         return template
 
+    def _regional_region(self, region_id: str) -> dict:
+        return self.regional_event_zones.get(str(region_id).strip().lower(), {})
+
+    def _regional_event_entry(self, event_id: str) -> dict:
+        normalized_event = str(event_id).strip().lower()
+        for region_id, region_data in self.regional_event_zones.items():
+            if not isinstance(region_data, dict):
+                continue
+            for entry in region_data.get("events", []):
+                if not isinstance(entry, dict):
+                    continue
+                if str(entry.get("event_id", "")).strip().lower() != normalized_event:
+                    continue
+                merged = copy.deepcopy(entry)
+                merged["event_id"] = normalized_event
+                merged["region_id"] = str(region_id).strip().lower()
+                return merged
+        return {}
+
+    def regional_region_for_location(self, location_id: str) -> str:
+        normalized_location = str(location_id).strip().lower()
+        for region_id, region_data in self.regional_event_zones.items():
+            if not isinstance(region_data, dict):
+                continue
+            locations = region_data.get("locations", [])
+            if not isinstance(locations, list):
+                continue
+            normalized_locations = {str(entry).strip().lower() for entry in locations}
+            if normalized_location in normalized_locations:
+                return str(region_id).strip().lower()
+        return ""
+
+    def regional_event_candidates(self, location_id: str) -> list[dict]:
+        region_id = self.regional_region_for_location(location_id)
+        if not region_id:
+            return []
+        region_data = self._regional_region(region_id)
+        if not isinstance(region_data, dict):
+            return []
+
+        max_active = max(1, int(region_data.get("max_active", 1)))
+        active_entries = self.active_regional_events_by_region.get(region_id, [])
+        if len(active_entries) >= max_active:
+            return []
+
+        active_chain_ids = {
+            str(active.get("chain_id", "")).strip().lower()
+            for active in active_entries
+            if str(active.get("chain_id", "")).strip()
+        }
+        candidates = []
+        for entry in region_data.get("events", []):
+            if not isinstance(entry, dict):
+                continue
+            event_id = str(entry.get("event_id", "")).strip().lower()
+            if not event_id:
+                continue
+            if int(entry.get("stage", 1) or 1) != 1:
+                continue
+            chain_id = str(entry.get("chain_id", "")).strip().lower()
+            if chain_id and chain_id in active_chain_ids:
+                continue
+            candidate = copy.deepcopy(entry)
+            candidate["event_id"] = event_id
+            candidate["region_id"] = region_id
+            candidates.append(candidate)
+        return candidates
+
+    def regional_activation_chance(self, location_id: str) -> int:
+        region_id = self.regional_region_for_location(location_id)
+        if not region_id:
+            return 0
+        region_data = self._regional_region(region_id)
+        if not isinstance(region_data, dict):
+            return 0
+        return max(0, min(100, int(region_data.get("activation_chance", 0) or 0)))
+
+    def activate_regional_event(self, event_id: str, location_id: str) -> dict | None:
+        entry = self._regional_event_entry(event_id)
+        if not entry:
+            return None
+        region_id = str(entry.get("region_id", "")).strip().lower()
+        if not region_id:
+            return None
+        active_entries = self.active_regional_events_by_region.setdefault(region_id, [])
+        max_active = max(1, int(self._regional_region(region_id).get("max_active", 1)))
+        if len(active_entries) >= max_active:
+            return None
+
+        chain_id = str(entry.get("chain_id", "")).strip().lower()
+        if chain_id:
+            for active in active_entries:
+                if str(active.get("chain_id", "")).strip().lower() == chain_id:
+                    return None
+
+        target_location = str(entry.get("location_id", location_id)).strip().lower()
+        if target_location not in self.locations:
+            target_location = str(location_id).strip().lower()
+        if target_location not in self.locations:
+            locations = self._regional_region(region_id).get("locations", [])
+            if isinstance(locations, list) and locations:
+                first_location = str(locations[0]).strip().lower()
+                if first_location in self.locations:
+                    target_location = first_location
+
+        active = {
+            "event_id": str(entry.get("event_id", "")).strip().lower(),
+            "region_id": region_id,
+            "location_id": target_location,
+            "turns_active": 0,
+            "stage": int(entry.get("stage", 1) or 1),
+            "chain_id": chain_id,
+        }
+        active_entries.append(active)
+        self._sync_regional_state_side_effects(target_location, entry)
+
+        activated = copy.deepcopy(entry)
+        activated.update(active)
+        activated["location_name"] = self.get_location(target_location).get("name", self._fallback_name(target_location))
+        activated["region_name"] = str(self._regional_region(region_id).get("name", "")).strip()
+        return activated
+
+    def _sync_regional_state_side_effects(self, location_id: str, entry: dict) -> None:
+        spawn_enemy = self._normalize_entity_id(entry.get("spawn_enemy", ""))
+        if spawn_enemy and self.has_enemy(spawn_enemy):
+            self.add_enemy(location_id, spawn_enemy)
+        for npc_id in entry.get("add_npcs", []):
+            normalized_npc = self._normalize_entity_id(npc_id)
+            if normalized_npc and self.has_npc(normalized_npc):
+                self.add_npc(location_id, normalized_npc)
+
+    def _clear_regional_state_side_effects(self, location_id: str, entry: dict, *, keep_event_id: str = "") -> None:
+        normalized_location = str(location_id).strip().lower()
+        if normalized_location not in self.state_locations:
+            return
+
+        spawn_enemy = self._normalize_entity_id(entry.get("spawn_enemy", ""))
+        if spawn_enemy and spawn_enemy in self.get_enemies_at(normalized_location):
+            base_enemies = {
+                self._normalize_entity_id(enemy_id)
+                for enemy_id in self.locations.get(normalized_location, {}).get("enemies", [])
+            }
+            still_required = False
+            for active in self.active_regional_events():
+                if str(active.get("location_id", "")).strip().lower() != normalized_location:
+                    continue
+                if keep_event_id and str(active.get("event_id", "")).strip().lower() == keep_event_id:
+                    continue
+                if self._normalize_entity_id(active.get("spawn_enemy", "")) == spawn_enemy:
+                    still_required = True
+                    break
+            if spawn_enemy not in base_enemies and not still_required:
+                self.remove_enemy(normalized_location, spawn_enemy)
+
+        transient_npcs = {
+            self._normalize_entity_id(npc_id)
+            for npc_id in entry.get("add_npcs", [])
+            if self.has_npc(npc_id)
+        }
+        if transient_npcs:
+            retained_npcs = list(self.locations.get(normalized_location, {}).get("npcs", []))
+            for npc_id in self._state_added_npcs(normalized_location):
+                normalized_npc = self._normalize_entity_id(npc_id)
+                if normalized_npc and normalized_npc not in retained_npcs:
+                    retained_npcs.append(normalized_npc)
+            for active in self.active_regional_events():
+                if str(active.get("location_id", "")).strip().lower() != normalized_location:
+                    continue
+                if keep_event_id and str(active.get("event_id", "")).strip().lower() == keep_event_id:
+                    continue
+                for npc_id in active.get("add_npcs", []):
+                    normalized_npc = self._normalize_entity_id(npc_id)
+                    if normalized_npc and normalized_npc not in retained_npcs:
+                        retained_npcs.append(normalized_npc)
+            self.state_locations[normalized_location]["npcs"] = retained_npcs
+
+    def _regional_transition_payload(self, entry: dict) -> dict:
+        payload = copy.deepcopy(entry)
+        location_id = str(payload.get("location_id", "")).strip().lower()
+        payload["location_id"] = location_id
+        payload["location_name"] = self.get_location(location_id).get("name", self._fallback_name(location_id))
+        payload["region_name"] = str(self._regional_region(payload.get("region_id", "")).get("name", "")).strip()
+        return payload
+
+    def advance_regional_events(self, turns: int = 1) -> list[dict]:
+        transitions = []
+        for _ in range(max(1, int(turns))):
+            for region_id in list(self.active_regional_events_by_region.keys()):
+                active_entries = self.active_regional_events_by_region.get(region_id, [])
+                next_entries = []
+                for active in active_entries:
+                    active["turns_active"] = int(active.get("turns_active", 0)) + 1
+                    entry = self._regional_event_entry(active.get("event_id", ""))
+                    if not entry:
+                        continue
+
+                    expire_after = int(entry.get("expire_after_turns", 0) or 0)
+                    if expire_after > 0 and active["turns_active"] >= expire_after:
+                        self._clear_regional_state_side_effects(
+                            active.get("location_id", ""),
+                            entry,
+                            keep_event_id=str(active.get("event_id", "")).strip().lower(),
+                        )
+                        resolved = self._regional_transition_payload({**entry, **active, "resolution_reason": "timed_expiration"})
+                        resolved["transition"] = "resolved"
+                        transitions.append(resolved)
+                        continue
+
+                    escalate_after = int(entry.get("turns_to_escalate", 0) or 0)
+                    escalates_to = str(entry.get("escalates_to", "")).strip().lower()
+                    if escalate_after > 0 and escalates_to and active["turns_active"] >= escalate_after:
+                        next_entry = self._regional_event_entry(escalates_to)
+                        if next_entry:
+                            self._clear_regional_state_side_effects(
+                                active.get("location_id", ""),
+                                entry,
+                                keep_event_id=str(active.get("event_id", "")).strip().lower(),
+                            )
+                            escalated = {
+                                "event_id": escalates_to,
+                                "region_id": region_id,
+                                "location_id": str(next_entry.get("location_id", active.get("location_id", ""))).strip().lower() or str(active.get("location_id", "")).strip().lower(),
+                                "turns_active": 0,
+                                "stage": int(next_entry.get("stage", active.get("stage", 1)) or 1),
+                                "chain_id": str(next_entry.get("chain_id", active.get("chain_id", ""))).strip().lower(),
+                            }
+                            self._sync_regional_state_side_effects(escalated["location_id"], next_entry)
+                            next_entries.append(escalated)
+                            transitioned = self._regional_transition_payload({**next_entry, **escalated, "previous_event_id": active.get("event_id", "")})
+                            transitioned["transition"] = "escalated"
+                            transitions.append(transitioned)
+                            continue
+
+                    next_entries.append(active)
+                if next_entries:
+                    self.active_regional_events_by_region[region_id] = next_entries
+                else:
+                    self.active_regional_events_by_region.pop(region_id, None)
+        return transitions
+
+    def _resolve_matching_regional_events(self, predicate, reason: str) -> list[dict]:
+        resolved = []
+        for region_id in list(self.active_regional_events_by_region.keys()):
+            active_entries = self.active_regional_events_by_region.get(region_id, [])
+            next_entries = []
+            for active in active_entries:
+                entry = self._regional_event_entry(active.get("event_id", ""))
+                if not entry:
+                    continue
+                if predicate(entry, active):
+                    self._clear_regional_state_side_effects(
+                        active.get("location_id", ""),
+                        entry,
+                        keep_event_id=str(active.get("event_id", "")).strip().lower(),
+                    )
+                    payload = self._regional_transition_payload({**entry, **active, "resolution_reason": reason})
+                    payload["transition"] = "resolved"
+                    resolved.append(payload)
+                    continue
+                next_entries.append(active)
+            if next_entries:
+                self.active_regional_events_by_region[region_id] = next_entries
+            else:
+                self.active_regional_events_by_region.pop(region_id, None)
+        return resolved
+
+    def resolve_regional_event_by_enemy(self, enemy_id: str, location_id: str = "") -> list[dict]:
+        normalized_enemy = str(enemy_id).strip().lower()
+        normalized_location = str(location_id).strip().lower()
+
+        def _predicate(entry: dict, active: dict) -> bool:
+            if normalized_location and str(active.get("location_id", "")).strip().lower() != normalized_location:
+                return False
+            targets = {str(target).strip().lower() for target in entry.get("resolve_on_enemy_defeat", [])}
+            return normalized_enemy in targets
+
+        return self._resolve_matching_regional_events(_predicate, reason=f"defeated_{normalized_enemy}")
+
+    def resolve_regional_event_by_contract(self, contract_id: str) -> list[dict]:
+        normalized_contract = str(contract_id).strip().lower()
+
+        def _predicate(entry: dict, active: dict) -> bool:
+            contracts = {str(target).strip().lower() for target in entry.get("resolve_on_contract_claim", [])}
+            return normalized_contract in contracts
+
+        return self._resolve_matching_regional_events(_predicate, reason=f"claimed_{normalized_contract}")
+
+    def active_regional_events(self) -> list[dict]:
+        active = []
+        for region_id in self.regional_event_zones:
+            for entry in self.active_regional_events_by_region.get(region_id, []):
+                event_data = self._regional_event_entry(entry.get("event_id", ""))
+                if not event_data:
+                    continue
+                payload = self._regional_transition_payload({**event_data, **entry})
+                payload["important"] = bool(event_data.get("important", True))
+                active.append(payload)
+        return active
+
+    def regional_encounter_modifiers(self, location_id: str) -> list[dict]:
+        normalized_location = str(location_id).strip().lower()
+        modifiers = []
+        for event in self.active_regional_events():
+            if str(event.get("location_id", "")).strip().lower() != normalized_location:
+                continue
+            for entry in event.get("encounter_modifiers", []):
+                if isinstance(entry, dict):
+                    modifiers.append(copy.deepcopy(entry))
+        return self.filter_encounter_entries(modifiers)
+
+    def regional_npc_dialogue_note(self, location_id: str, npc_id: str) -> str:
+        normalized_location = str(location_id).strip().lower()
+        normalized_npc = str(npc_id).strip().lower()
+        for event in self.active_regional_events():
+            if str(event.get("location_id", "")).strip().lower() != normalized_location:
+                continue
+            note = event.get("npc_notes", {}).get(normalized_npc)
+            if note:
+                return str(note)
+        return ""
+
+    def regional_travel_warnings(self, location_id: str) -> list[str]:
+        region_id = self.regional_region_for_location(location_id)
+        if not region_id:
+            return []
+        warnings = []
+        for event in self.active_regional_events_by_region.get(region_id, []):
+            entry = self._regional_event_entry(event.get("event_id", ""))
+            warning = str(entry.get("travel_warning", "")).strip()
+            if warning and warning not in warnings:
+                warnings.append(warning)
+        return warnings
+
+    def regional_contract_focus(self, board_location: str) -> list[str]:
+        normalized_board = str(board_location).strip().lower()
+        focus = []
+        for event in self.active_regional_events():
+            board = str(event.get("board_location", "market_square")).strip().lower()
+            if board != normalized_board:
+                continue
+            for contract_id in event.get("contract_focus", []):
+                normalized_contract = str(contract_id).strip().lower()
+                if normalized_contract and normalized_contract not in focus:
+                    focus.append(normalized_contract)
+        return focus
+
+    def road_encounter_chance(self) -> int:
+        meta = self.road_encounters.get("meta", {}) if isinstance(self.road_encounters, dict) else {}
+        return max(0, min(100, int(meta.get("travel_chance", 15) or 0)))
+
+    def road_encounter_candidates(self, route: dict) -> list[dict]:
+        if not isinstance(route, dict):
+            return []
+
+        origin = str(route.get("origin", "")).strip().lower()
+        destination = str(route.get("destination", "")).strip().lower()
+        mode = str(route.get("mode", "")).strip().lower()
+        route_id = str(route.get("route_id", "")).strip().lower()
+        origin_region = str(self.locations.get(origin, {}).get("region", "")).strip().lower()
+        destination_region = str(self.locations.get(destination, {}).get("region", "")).strip().lower()
+
+        entries = self.road_encounters.get("encounters", []) if isinstance(self.road_encounters, dict) else []
+        candidates = []
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            encounter_id = str(entry.get("encounter_id", "")).strip().lower()
+            if not encounter_id:
+                continue
+
+            def _matches(field: str, value: str) -> bool:
+                allowed = entry.get(field, [])
+                if not allowed:
+                    return True
+                if isinstance(allowed, str):
+                    allowed_values = {str(allowed).strip().lower()}
+                elif isinstance(allowed, list):
+                    allowed_values = {str(item).strip().lower() for item in allowed if str(item).strip()}
+                else:
+                    return True
+                return value in allowed_values
+
+            if not _matches("route_ids", route_id):
+                continue
+            if not _matches("origins", origin):
+                continue
+            if not _matches("destinations", destination):
+                continue
+            if not _matches("modes", mode):
+                continue
+            if not _matches("origin_regions", origin_region):
+                continue
+            if not _matches("destination_regions", destination_region):
+                continue
+
+            candidate = copy.deepcopy(entry)
+            candidate["encounter_id"] = encounter_id
+            candidates.append(candidate)
+        return candidates
+
     def active_world_states(self) -> list[dict]:
         active = []
         for location_id in self.locations:
@@ -441,16 +1055,32 @@ class World:
                         "important": bool(state.get("important", False)),
                     }
                 )
+        for event in self.active_regional_events():
+            active.append(
+                {
+                    "location_id": event.get("location_id", ""),
+                    "location_name": event.get("location_name", event.get("location_id", "Unknown")),
+                    "state_id": event.get("event_id", ""),
+                    "name": event.get("name", event.get("event_id", "")),
+                    "summary": event.get("summary", ""),
+                    "important": bool(event.get("important", True)),
+                }
+            )
         return active
 
     def encounter_entries(self, location_id: str) -> list[dict]:
         base_entries = self.get_location(location_id).get("encounters", [])
-        entries = self.filter_encounter_entries(base_entries)
+        dungeon = self.dungeon_profile(location_id)
+        entries = []
+        for entry in self.filter_encounter_entries(base_entries):
+            weighted_entry = copy.deepcopy(entry)
+            weighted_entry["weight"] = self._ranked_entry_weight(dungeon or {}, weighted_entry)
+            entries.append(weighted_entry)
         for state in self.get_location_states(location_id):
             modifiers = state.get("encounter_modifiers", [])
             if isinstance(modifiers, list):
                 entries.extend(self.filter_encounter_entries(modifiers))
-        dungeon = self.dungeon_profile(location_id)
+        entries.extend(self.regional_encounter_modifiers(location_id))
         if dungeon:
             existing = {
                 (
@@ -464,7 +1094,14 @@ class World:
                 key = ("enemy", enemy_id)
                 if key in existing:
                     continue
-                entries.append({"type": "enemy", "target": enemy_id, "weight": 18})
+                entries.append({"type": "enemy", "target": enemy_id, "weight": int(dungeon.get("enemy_weight", 18))})
+                existing.add(key)
+            elite_weight = int(dungeon.get("elite_weight", 0))
+            for enemy_id in dungeon.get("elite_pool", []):
+                key = ("enemy", enemy_id)
+                if key in existing or elite_weight <= 0:
+                    continue
+                entries.append({"type": "enemy", "target": enemy_id, "weight": elite_weight})
                 existing.add(key)
             boss_weight = int(dungeon.get("boss_weight", 0))
             for enemy_id in dungeon.get("boss_pool", []):
@@ -481,6 +1118,9 @@ class World:
             note = state.get("dialogue_notes", {}).get(normalized_npc)
             if note:
                 return str(note)
+        regional_note = self.regional_npc_dialogue_note(location_id, normalized_npc)
+        if regional_note:
+            return regional_note
         return ""
 
     def location_state_lines(self, location_id: str, current: bool = False) -> list[str]:
@@ -693,6 +1333,13 @@ class World:
             for location_id in self.locations
             if self.location_states.get(location_id)
         }
+        world_state["_regional_events"] = {
+            region_id: copy.deepcopy(entries)
+            for region_id, entries in self.active_regional_events_by_region.items()
+            if entries
+        }
+        if self.active_road_encounter:
+            world_state["_road_encounter"] = copy.deepcopy(self.active_road_encounter)
         return world_state
 
     def load_state_from_dict(self, data: dict) -> None:
@@ -776,21 +1423,104 @@ class World:
                 self._sync_state_enemies(location_id)
                 self._sync_state_npcs(location_id)
 
+        regional_data = data.get("_regional_events", {})
+        self.active_regional_events_by_region = {}
+        if isinstance(regional_data, dict):
+            for region_id, entries in regional_data.items():
+                normalized_region = str(region_id).strip().lower()
+                if normalized_region not in self.regional_event_zones:
+                    continue
+                if not isinstance(entries, list):
+                    continue
+                restored_entries = []
+                for entry in entries:
+                    if not isinstance(entry, dict):
+                        continue
+                    event_id = str(entry.get("event_id", "")).strip().lower()
+                    event_data = self._regional_event_entry(event_id)
+                    if not event_data:
+                        continue
+                    location_id = str(entry.get("location_id", event_data.get("location_id", ""))).strip().lower()
+                    if location_id not in self.locations:
+                        continue
+                    restored = {
+                        "event_id": event_id,
+                        "region_id": normalized_region,
+                        "location_id": location_id,
+                        "turns_active": max(0, int(entry.get("turns_active", 0) or 0)),
+                        "stage": int(event_data.get("stage", entry.get("stage", 1)) or 1),
+                        "chain_id": str(event_data.get("chain_id", entry.get("chain_id", ""))).strip().lower(),
+                    }
+                    restored_entries.append(restored)
+                    self._sync_regional_state_side_effects(location_id, event_data)
+                if restored_entries:
+                    self.active_regional_events_by_region[normalized_region] = restored_entries
+
+        road_encounter = data.get("_road_encounter", {})
+        self.active_road_encounter = {}
+        if isinstance(road_encounter, dict):
+            encounter_id = str(road_encounter.get("encounter_id", "")).strip().lower()
+            location_id = str(road_encounter.get("location_id", "")).strip().lower()
+            enemy_id = str(road_encounter.get("enemy_id", "")).strip().lower()
+            if encounter_id and location_id in self.locations and enemy_id and self.has_enemy(enemy_id):
+                self.active_road_encounter = {
+                    "encounter_id": encounter_id,
+                    "name": str(road_encounter.get("name", encounter_id)).strip(),
+                    "route_id": str(road_encounter.get("route_id", "")).strip().lower(),
+                    "location_id": location_id,
+                    "enemy_id": enemy_id,
+                }
+
+    def set_active_road_encounter(self, encounter_id: str, name: str, route_id: str, location_id: str, enemy_id: str) -> None:
+        normalized_location = str(location_id).strip().lower()
+        normalized_enemy = self._normalize_entity_id(enemy_id)
+        if normalized_location not in self.locations or not self.has_enemy(normalized_enemy):
+            return
+        self.active_road_encounter = {
+            "encounter_id": str(encounter_id).strip().lower(),
+            "name": str(name).strip(),
+            "route_id": str(route_id).strip().lower(),
+            "location_id": normalized_location,
+            "enemy_id": normalized_enemy,
+        }
+
+    def clear_active_road_encounter(self, location_id: str, enemy_id: str) -> dict | None:
+        if not self.active_road_encounter:
+            return None
+        normalized_location = str(location_id).strip().lower()
+        normalized_enemy = self._normalize_entity_id(enemy_id)
+        if (
+            str(self.active_road_encounter.get("location_id", "")).strip().lower() != normalized_location
+            or str(self.active_road_encounter.get("enemy_id", "")).strip().lower() != normalized_enemy
+        ):
+            return None
+        payload = copy.deepcopy(self.active_road_encounter)
+        self.active_road_encounter = {}
+        return payload
+
     def map_lines(self, current_location: str) -> list[str]:
         lines = ["World Map"]
         for location_id, location in self.locations.items():
             location_name = location.get("name", self._fallback_name(location_id))
             current_marker = " [YOU]" if location_id == current_location else ""
+            rank_text = self.location_rank_text(location_id)
+            rank_suffix = f" | rank: {rank_text}" if rank_text else ""
+            hub_data = location.get("major_hub", {})
+            hub_suffix = ""
+            if isinstance(hub_data, dict):
+                hub_name = str(hub_data.get("name", "")).strip()
+                if hub_name:
+                    hub_suffix = f" | hub: {hub_name}"
             exits = location.get("connected_locations", {})
             if not exits:
-                lines.append(f"- {location_name}{current_marker} | exits: none")
+                lines.append(f"- {location_name}{current_marker}{rank_suffix}{hub_suffix} | exits: none")
                 continue
 
             exit_text = ", ".join(
                 f"{direction}->{self.locations.get(target_id, {}).get('name', self._fallback_name(target_id))}"
                 for direction, target_id in exits.items()
             )
-            lines.append(f"- {location_name}{current_marker} | exits: {exit_text}")
+            lines.append(f"- {location_name}{current_marker}{rank_suffix}{hub_suffix} | exits: {exit_text}")
 
         return lines
 
@@ -805,4 +1535,9 @@ class World:
             if not self.get_location_state_ids(location_id):
                 continue
             lines.extend(self.location_state_lines(location_id, current=(location_id == current_location)))
+        for event in self.active_regional_events():
+            location_id = str(event.get("location_id", "")).strip().lower()
+            location_name = str(event.get("location_name", self._fallback_name(location_id))).strip()
+            label = " [YOU]" if location_id == current_location else ""
+            lines.append(f"- {location_name}{label}: {event.get('name', event.get('event_id', 'Regional Event'))}")
         return lines

@@ -1,0 +1,732 @@
+{
+  "slot_meta": {
+    "slot_id": "1",
+    "character_name": "Tester",
+    "race": "Human",
+    "player_class": "Warrior",
+    "level": 1,
+    "current_location": "river_crossing",
+    "current_location_name": "River Crossing",
+    "saved_at": "2026-03-08T14:10:13",
+    "playtime_seconds": 0
+  },
+  "player": {
+    "name": "Tester",
+    "gender": "Other",
+    "race": "Human",
+    "player_class": "Warrior",
+    "background": "Village-born",
+    "bio": "",
+    "hp": 20,
+    "max_hp": 20,
+    "focus": 6,
+    "max_focus": 6,
+    "base_attack": 3,
+    "level": 1,
+    "xp": 0,
+    "gold": 0,
+    "inventory": [],
+    "known_recipes": [],
+    "item_upgrades": {},
+    "equipped_weapon": null,
+    "equipped_armor": null,
+    "equipped_accessory": null,
+    "stats": {
+      "strength": 10,
+      "agility": 10,
+      "vitality": 10,
+      "endurance": 10,
+      "mind": 10,
+      "wisdom": 10,
+      "charisma": 10,
+      "luck": 10
+    },
+    "skills": {
+      "swordsmanship": 0,
+      "archery": 0,
+      "defense": 0,
+      "spellcasting": 0,
+      "stealth": 0,
+      "survival": 0,
+      "lore": 0,
+      "persuasion": 1
+    },
+    "abilities": [],
+    "combat_boosts": {
+      "attack_bonus": 0,
+      "damage_bonus": 0,
+      "defense_bonus": 0,
+      "dodge_bonus": 0,
+      "crit_bonus": 0,
+      "spell_bonus": 0,
+      "heal_bonus": 0,
+      "enemy_attack_penalty": 0,
+      "enemy_defense_penalty": 0
+    },
+    "combat_boost_name": "",
+    "combat_boost_summary": "",
+    "faction_reputation": {
+      "kingdom_guard": 0,
+      "merchant_guild": 6,
+      "hunters_guild": 0,
+      "thieves_circle": 0,
+      "shrine_keepers": 0,
+      "forest_clans": 0,
+      "cult_of_ash": 0
+    },
+    "npc_memory": {
+      "elder": {
+        "faction": "forest_clans",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "merchant": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "scout": {
+        "faction": "kingdom_guard",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "caretaker": {
+        "faction": "shrine_keepers",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "captain": {
+        "faction": "kingdom_guard",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "ferryman": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "scholar": {
+        "faction": "shrine_keepers",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "hermit": {
+        "faction": "forest_clans",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "traveler": {
+        "faction": "forest_clans",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "gatewarden": {
+        "faction": "kingdom_guard",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "market_broker": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 2
+      },
+      "blacksmith": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "arcanist": {
+        "faction": "shrine_keepers",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "fletcher": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "innkeeper": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "quartermaster": {
+        "faction": "kingdom_guard",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "shrine_caretaker": {
+        "faction": "shrine_keepers",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "aldric": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "hold_warden": {
+        "faction": "kingdom_guard",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "thane_brom": {
+        "faction": "kingdom_guard",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "ledger_clerk": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "forgemistress": {
+        "faction": "merchant_guild",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "coast_ranger": {
+        "faction": "kingdom_guard",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      },
+      "vault_scholar": {
+        "faction": "shrine_keepers",
+        "quests_completed": [],
+        "helped": 0,
+        "harmed": 0,
+        "trust": 0
+      }
+    },
+    "event_log": [
+      {
+        "index": 1,
+        "type": "location_visited",
+        "details": {
+          "location_id": "village_square",
+          "location_name": "Village Square"
+        }
+      },
+      {
+        "index": 2,
+        "type": "location_visited",
+        "details": {
+          "location_id": "town_gate",
+          "location_name": "Town Gate"
+        }
+      },
+      {
+        "index": 3,
+        "type": "location_visited",
+        "details": {
+          "location_id": "market_square",
+          "location_name": "Market Square"
+        }
+      },
+      {
+        "index": 4,
+        "type": "quest_accepted",
+        "details": {
+          "quest_id": "q019_roadside_losses",
+          "quest_title": "Roadside Losses",
+          "location_id": "market_square",
+          "location_name": "Market Square"
+        }
+      },
+      {
+        "index": 5,
+        "type": "npc_trust_changed",
+        "details": {
+          "npc_id": "market_broker",
+          "npc_name": "Market Broker",
+          "amount": 2,
+          "trust": 2,
+          "source": "q019_roadside_losses"
+        }
+      },
+      {
+        "index": 6,
+        "type": "location_visited",
+        "details": {
+          "location_id": "river_crossing",
+          "location_name": "River Crossing"
+        }
+      },
+      {
+        "index": 7,
+        "type": "encounter_triggered",
+        "details": {
+          "encounter_id": "merchant",
+          "encounter_name": "Merchant",
+          "location_id": "river_crossing",
+          "location_name": "River Crossing"
+        }
+      },
+      {
+        "index": 8,
+        "type": "world_event_resolved",
+        "details": {
+          "event_id": "wandering_trader",
+          "event_name": "Wandering Trader",
+          "location_id": "river_crossing",
+          "location_name": "River Crossing",
+          "outcome": "A wandering trader arrives. Your persuasion check (4 + 1 = 5 vs DC 13) is not enough for a better offer."
+        }
+      },
+      {
+        "index": 9,
+        "type": "inspected",
+        "details": {
+          "target_id": "ferry_ledger",
+          "target_type": "lore",
+          "location_id": "river_crossing"
+        }
+      }
+    ]
+  },
+  "current_location": "river_crossing",
+  "quests": {
+    "progress": {
+      "q001_clear_forest_path": {
+        "stage": 0,
+        "count": 0
+      },
+      "q002_wolf_pelt_delivery": {
+        "stage": 0,
+        "count": 0
+      },
+      "q003_watchtower_threat": {
+        "stage": 0,
+        "count": 0
+      },
+      "q004_scout_field_notes": {
+        "stage": 0,
+        "count": 0
+      },
+      "q005_sigil_for_the_caretaker": {
+        "stage": 0,
+        "count": 0
+      },
+      "q006_ruins_survey": {
+        "stage": 0,
+        "count": 0
+      },
+      "q007_ferrymans_delivery": {
+        "stage": 0,
+        "count": 0
+      },
+      "q008_bandit_camp_hunt": {
+        "stage": 0,
+        "count": 0
+      },
+      "q009_silk_for_the_hermit": {
+        "stage": 0,
+        "count": 0
+      },
+      "q010_relics_of_the_ruins": {
+        "stage": 0,
+        "count": 0
+      },
+      "q011_road_relief": {
+        "stage": 0,
+        "count": 0
+      },
+      "q012_shrine_cleansing": {
+        "stage": 0,
+        "count": 0
+      },
+      "q013_badges_for_the_watch": {
+        "stage": 0,
+        "count": 0
+      },
+      "q014_ashes_for_stonewatch": {
+        "stage": 0,
+        "count": 0
+      },
+      "q015_tusk_for_the_forge": {
+        "stage": 0,
+        "count": 0
+      },
+      "q016_holdfast_raiders": {
+        "stage": 0,
+        "count": 0
+      },
+      "q017_stormbreak_sweep": {
+        "stage": 0,
+        "count": 0
+      },
+      "q018_seal_of_the_vault": {
+        "stage": 0,
+        "count": 0
+      },
+      "q019_roadside_losses": {
+        "stage": 0,
+        "count": 1
+      },
+      "q020_break_the_sundered": {
+        "stage": 0,
+        "count": 0
+      },
+      "q021_silence_the_husk": {
+        "stage": 0,
+        "count": 0
+      },
+      "q022_core_of_the_vault": {
+        "stage": 0,
+        "count": 0
+      }
+    },
+    "accepted": [
+      "q019_roadside_losses"
+    ],
+    "completed": [],
+    "demo_complete_shown": false
+  },
+  "contracts": {
+    "progress": {
+      "c001_wolfpack_culling": {
+        "stage": 0,
+        "count": 0
+      },
+      "c002_shrine_ash_clearing": {
+        "stage": 0,
+        "count": 0
+      },
+      "c003_bandit_road_tax": {
+        "stage": 0,
+        "count": 0
+      },
+      "c004_merchant_recovery": {
+        "stage": 0,
+        "count": 0
+      },
+      "c005_corrupted_grove": {
+        "stage": 0,
+        "count": 0
+      },
+      "c006_break_gorgos_toll": {
+        "stage": 0,
+        "count": 0
+      },
+      "c007_silence_the_weeping_shrine": {
+        "stage": 0,
+        "count": 0
+      },
+      "c008_alpha_on_ashwood_trail": {
+        "stage": 0,
+        "count": 0
+      },
+      "c009_blackroot_ash_mark": {
+        "stage": 0,
+        "count": 0
+      },
+      "c010_vault_keeper_expedition": {
+        "stage": 0,
+        "count": 0
+      }
+    },
+    "accepted": [],
+    "claimable": [],
+    "completed_counts": {
+      "c001_wolfpack_culling": 0,
+      "c002_shrine_ash_clearing": 0,
+      "c003_bandit_road_tax": 0,
+      "c004_merchant_recovery": 0,
+      "c005_corrupted_grove": 0,
+      "c006_break_gorgos_toll": 0,
+      "c007_silence_the_weeping_shrine": 0,
+      "c008_alpha_on_ashwood_trail": 0,
+      "c009_blackroot_ash_mark": 0,
+      "c010_vault_keeper_expedition": 0
+    },
+    "cooldowns": {},
+    "unlocked_ranks": [
+      "D",
+      "E"
+    ]
+  },
+  "world_state": {
+    "village_square": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "elder",
+        "merchant",
+        "captain"
+      ]
+    },
+    "shop": {
+      "enemies": [],
+      "items": [
+        "potion"
+      ],
+      "npcs": [
+        "merchant"
+      ]
+    },
+    "forest_path": {
+      "enemies": [
+        "slime"
+      ],
+      "items": [
+        "herb",
+        "herb_bundle"
+      ],
+      "npcs": []
+    },
+    "deep_forest": {
+      "enemies": [
+        "dire_wolf"
+      ],
+      "items": [
+        "herb",
+        "herb_bundle"
+      ],
+      "npcs": []
+    },
+    "old_watchtower": {
+      "enemies": [
+        "slime"
+      ],
+      "items": [
+        "bandage"
+      ],
+      "npcs": [
+        "scout"
+      ]
+    },
+    "ruined_shrine": {
+      "enemies": [
+        "shrine_guardian",
+        "ash_wisp"
+      ],
+      "items": [
+        "herb",
+        "herb_bundle"
+      ],
+      "npcs": [
+        "caretaker"
+      ]
+    },
+    "river_crossing": {
+      "enemies": [],
+      "items": [
+        "herb",
+        "herb_bundle"
+      ],
+      "npcs": [
+        "ferryman",
+        "merchant"
+      ]
+    },
+    "old_ruins": {
+      "enemies": [
+        "skeleton",
+        "ash_wisp"
+      ],
+      "items": [
+        "bandage"
+      ],
+      "npcs": [
+        "scholar"
+      ]
+    },
+    "bandit_camp": {
+      "enemies": [
+        "thief",
+        "bandit_raider"
+      ],
+      "items": [
+        "potion"
+      ],
+      "npcs": []
+    },
+    "whispering_cave": {
+      "enemies": [
+        "giant_spider"
+      ],
+      "items": [
+        "herb"
+      ],
+      "npcs": [
+        "hermit"
+      ]
+    },
+    "town_gate": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "gatewarden"
+      ]
+    },
+    "market_square": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "market_broker",
+        "aldric"
+      ]
+    },
+    "blacksmith": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "blacksmith"
+      ]
+    },
+    "mage_shop": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "arcanist"
+      ]
+    },
+    "weapon_shop": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "fletcher"
+      ]
+    },
+    "inn": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "innkeeper"
+      ]
+    },
+    "town_shrine": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "shrine_caretaker"
+      ]
+    },
+    "watch_barracks": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "quartermaster"
+      ]
+    },
+    "ironridge_pass": {
+      "enemies": [
+        "ridge_raider"
+      ],
+      "items": [
+        "bandage"
+      ],
+      "npcs": [
+        "hold_warden"
+      ]
+    },
+    "ironridge_square": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "thane_brom",
+        "ledger_clerk"
+      ]
+    },
+    "ironridge_forge": {
+      "enemies": [],
+      "items": [],
+      "npcs": [
+        "forgemistress"
+      ]
+    },
+    "stormbreak_cliffs": {
+      "enemies": [
+        "wreck_diver"
+      ],
+      "items": [
+        "herb"
+      ],
+      "npcs": [
+        "coast_ranger"
+      ]
+    },
+    "stormbreak_cove": {
+      "enemies": [
+        "sea_raider"
+      ],
+      "items": [
+        "bandage"
+      ],
+      "npcs": []
+    },
+    "ashen_stair": {
+      "enemies": [
+        "ash_adept"
+      ],
+      "items": [
+        "mana_tonic"
+      ],
+      "npcs": [
+        "vault_scholar"
+      ]
+    },
+    "ashen_vault": {
+      "enemies": [
+        "cinder_guardian",
+        "ash_adept"
+      ],
+      "items": [
+        "potion"
+      ],
+      "npcs": []
+    },
+    "_events": {
+      "village_well": {
+        "resolved": false
+      }
+    },
+    "_location_states": {}
+  }
+}

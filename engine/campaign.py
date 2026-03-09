@@ -79,6 +79,10 @@ class CampaignEngine:
             quest_id = str(requirement.get("quest_id", "")).strip().lower()
             return bool(quest_id) and quest_id in getattr(quests, "completed", set())
 
+        if requirement_type == "contract_completed":
+            contract_id = str(requirement.get("contract_id", "")).strip().lower()
+            return bool(contract_id) and player.has_event("contract_completed", "contract_id", contract_id)
+
         if requirement_type == "location_visited":
             location_id = str(requirement.get("location_id", "")).strip().lower()
             return bool(location_id) and player.has_event("location_visited", "location_id", location_id)

@@ -1,0 +1,583 @@
+{
+  "schema_version": 2,
+  "classes": {
+    "warrior": {
+      "name": "Warrior",
+      "unlocked_by_default": true,
+      "lore": "Warriors are taught that Valerion holds only while someone plants their feet, keeps formation, and refuses to let fear make the next decision.",
+      "stats": {
+        "strength": 2,
+        "vitality": 1,
+        "endurance": 1
+      },
+      "max_hp": 3,
+      "base_attack": 1,
+      "skills": {
+        "swordsmanship": 2,
+        "defense": 1,
+        "intimidation": 1
+      },
+      "abilities": [
+        "power_strike",
+        "guard_stance"
+      ],
+      "items": [
+        "rusty_sword",
+        "leather_vest",
+        "bandage"
+      ],
+      "equip": "rusty_sword",
+      "equip_armor": "leather_vest",
+      "attack_stat": "strength",
+      "weapon_skill": "swordsmanship",
+      "level_growth": [
+        {"strength": 1},
+        {"vitality": 1},
+        {"endurance": 1}
+      ],
+      "level_skill_growth": [
+        "swordsmanship",
+        "defense",
+        "intimidation"
+      ],
+      "summary": "+2 Strength, +1 Vitality, +1 Endurance, +3 Max HP, +1 Attack, +2 Swordsmanship, +1 Defense, +1 Intimidation, Power Strike, Guard Stance, Rusty Sword, Leather Vest, Bandage"
+    },
+    "ranger": {
+      "name": "Ranger",
+      "unlocked_by_default": true,
+      "lore": "Rangers keep the realm by reading the edge before it breaks, holding the road through patience, tracks, and arrows loosed before panic starts.",
+      "stats": {
+        "agility": 2,
+        "endurance": 1,
+        "luck": 1
+      },
+      "skills": {
+        "archery": 2,
+        "survival": 1,
+        "stealth": 1,
+        "tracking": 1
+      },
+      "abilities": [
+        "aimed_shot",
+        "track_prey"
+      ],
+      "items": [
+        "short_bow",
+        "herb",
+        "bandage"
+      ],
+      "equip": "short_bow",
+      "attack_stat": "agility",
+      "weapon_skill": "archery",
+      "level_growth": [
+        {"agility": 1},
+        {"endurance": 1},
+        {"luck": 1}
+      ],
+      "level_skill_growth": [
+        "archery",
+        "survival",
+        "tracking"
+      ],
+      "summary": "+2 Agility, +1 Endurance, +1 Luck, +2 Archery, +1 Survival, +1 Stealth, +1 Tracking, Aimed Shot, Track Prey, Short Bow, Herb, Bandage"
+    },
+    "mage": {
+      "name": "Mage",
+      "unlocked_by_default": true,
+      "lore": "Mages are trusted with power only after they learn the older lesson first: a ward unkept, a seal broken, or a careless flame can fail a whole line of people.",
+      "stats": {
+        "mind": 2,
+        "wisdom": 2
+      },
+      "skills": {
+        "spellcasting": 2,
+        "lore": 1,
+        "arcana": 1,
+        "alchemy": 1
+      },
+      "focus": 4,
+      "abilities": [
+        "firebolt",
+        "frost_shard",
+        "healing_light"
+      ],
+      "items": [
+        "apprentice_staff",
+        "mana_tonic",
+        "potion"
+      ],
+      "equip": "apprentice_staff",
+      "attack_stat": "mind",
+      "weapon_skill": "spellcasting",
+      "level_growth": [
+        {"mind": 1},
+        {"wisdom": 1},
+        {"mind": 1, "wisdom": 1}
+      ],
+      "level_skill_growth": [
+        "spellcasting",
+        "arcana",
+        "lore"
+      ],
+      "summary": "+2 Mind, +2 Wisdom, +2 Spellcasting, +1 Lore, +1 Arcana, +1 Alchemy, +4 Focus, Firebolt, Frost Shard, Healing Light, Apprentice Staff, Mana Tonic, Potion"
+    },
+    "rogue": {
+      "name": "Rogue",
+      "unlocked_by_default": true,
+      "lore": "Rogues survive in the cracks of a wounded realm, turning timing, nerve, and plain practical selfishness into a craft that can still serve the line when used carefully.",
+      "stats": {
+        "agility": 2,
+        "charisma": 1,
+        "luck": 1
+      },
+      "skills": {
+        "stealth": 2,
+        "persuasion": 1,
+        "swordsmanship": 1,
+        "lockpicking": 1,
+        "barter": 1
+      },
+      "gold": 3,
+      "abilities": [
+        "backstab",
+        "smoke_step"
+      ],
+      "items": [
+        "road_knife",
+        "bandage"
+      ],
+      "equip": "road_knife",
+      "attack_stat": "agility",
+      "weapon_skill": "swordsmanship",
+      "level_growth": [
+        {"agility": 1},
+        {"charisma": 1},
+        {"luck": 1}
+      ],
+      "level_skill_growth": [
+        "stealth",
+        "lockpicking",
+        "persuasion"
+      ],
+      "summary": "+2 Agility, +1 Charisma, +1 Luck, +2 Stealth, +1 Persuasion, +1 Swordsmanship, +1 Lockpicking, +1 Barter, +3 Gold, Backstab, Smoke Step, Road Knife, Bandage"
+    },
+    "templar": {
+      "name": "Templar",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_events": [
+          {
+            "type": "miniboss_defeated",
+            "details": {
+              "enemy_id": "gorgos_the_sundered"
+            }
+          }
+        ]
+      },
+      "lore": "Templars walk the held line between shrine-duty and shield-duty, answering fear with formation, oath, and a faith meant to stand inside battle rather than outside it.",
+      "stats": {
+        "strength": 1,
+        "vitality": 1,
+        "endurance": 1,
+        "wisdom": 1
+      },
+      "max_hp": 2,
+      "base_attack": 1,
+      "skills": {
+        "defense": 2,
+        "swordsmanship": 1,
+        "lore": 1,
+        "warding": 1
+      },
+      "abilities": [
+        "guard_stance",
+        "healing_light"
+      ],
+      "items": [
+        "rusty_sword",
+        "leather_vest",
+        "bandage",
+        "potion"
+      ],
+      "equip": "rusty_sword",
+      "equip_armor": "leather_vest",
+      "attack_stat": "strength",
+      "weapon_skill": "swordsmanship",
+      "level_growth": [
+        {"endurance": 1},
+        {"strength": 1},
+        {"wisdom": 1}
+      ],
+      "level_skill_growth": [
+        "defense",
+        "swordsmanship",
+        "warding"
+      ],
+      "summary": "+1 Strength, +1 Vitality, +1 Endurance, +1 Wisdom, +2 Max HP, +1 Attack, +2 Defense, +1 Swordsmanship, +1 Lore, +1 Warding, Guard Stance, Healing Light, Rusty Sword, Leather Vest, Bandage, Potion"
+    },
+    "warden": {
+      "name": "Warden",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_rank": "C"
+      },
+      "lore": "Wardens are the realm's border-keepers, trained to hold bad ground, read pursuit, and keep whatever follows them from reaching the people behind.",
+      "stats": {
+        "agility": 1,
+        "vitality": 1,
+        "endurance": 2
+      },
+      "max_hp": 2,
+      "skills": {
+        "survival": 2,
+        "defense": 1,
+        "archery": 1,
+        "tracking": 1,
+        "beast_handling": 1
+      },
+      "abilities": [
+        "track_prey",
+        "guard_stance"
+      ],
+      "items": [
+        "short_bow",
+        "leather_vest",
+        "herb",
+        "bandage"
+      ],
+      "equip": "short_bow",
+      "equip_armor": "leather_vest",
+      "attack_stat": "agility",
+      "weapon_skill": "archery",
+      "level_growth": [
+        {"endurance": 1},
+        {"agility": 1},
+        {"vitality": 1}
+      ],
+      "level_skill_growth": [
+        "survival",
+        "tracking",
+        "defense"
+      ],
+      "summary": "+1 Agility, +1 Vitality, +2 Endurance, +2 Max HP, +2 Survival, +1 Defense, +1 Archery, +1 Tracking, +1 Beast Handling, Track Prey, Guard Stance, Short Bow, Leather Vest, Herb, Bandage"
+    },
+    "spellblade": {
+      "name": "Spellblade",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_quests": [
+          "q005_sigil_for_the_caretaker"
+        ]
+      },
+      "lore": "Spellblades are taught that a ward does not always look like a wall; sometimes it is a duelist holding the breach long enough for everyone else to live.",
+      "stats": {
+        "strength": 1,
+        "agility": 1,
+        "mind": 1,
+        "wisdom": 1
+      },
+      "focus": 2,
+      "base_attack": 1,
+      "skills": {
+        "spellcasting": 2,
+        "swordsmanship": 1,
+        "defense": 1,
+        "arcana": 1
+      },
+      "abilities": [
+        "firebolt",
+        "power_strike",
+        "smoke_step"
+      ],
+      "items": [
+        "apprentice_staff",
+        "road_knife",
+        "mana_tonic",
+        "bandage"
+      ],
+      "equip": "apprentice_staff",
+      "attack_stat": "mind",
+      "weapon_skill": "spellcasting",
+      "level_growth": [
+        {"mind": 1},
+        {"agility": 1},
+        {"strength": 1}
+      ],
+      "level_skill_growth": [
+        "spellcasting",
+        "arcana",
+        "swordsmanship"
+      ],
+      "summary": "+1 Strength, +1 Agility, +1 Mind, +1 Wisdom, +1 Attack, +2 Focus, +2 Spellcasting, +1 Swordsmanship, +1 Defense, +1 Arcana, Firebolt, Power Strike, Smoke Step, Apprentice Staff, Road Knife, Mana Tonic, Bandage"
+    },
+    "mystic": {
+      "name": "Mystic",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_reputation": [
+          {
+            "faction": "shrine_keepers",
+            "min": 8
+          }
+        ]
+      },
+      "lore": "Mystics keep the quieter obligations of Valerion: old signs interpreted correctly, broken wards restored, and frightened people given enough certainty to keep standing.",
+      "stats": {
+        "mind": 2,
+        "wisdom": 1,
+        "charisma": 1
+      },
+      "focus": 3,
+      "skills": {
+        "spellcasting": 2,
+        "lore": 1,
+        "persuasion": 1,
+        "warding": 1,
+        "relic_lore": 1
+      },
+      "abilities": [
+        "healing_light",
+        "frost_shard",
+        "firebolt"
+      ],
+      "items": [
+        "apprentice_staff",
+        "mana_tonic",
+        "potion"
+      ],
+      "equip": "apprentice_staff",
+      "attack_stat": "mind",
+      "weapon_skill": "spellcasting",
+      "level_growth": [
+        {"wisdom": 1},
+        {"mind": 1},
+        {"charisma": 1}
+      ],
+      "level_skill_growth": [
+        "spellcasting",
+        "warding",
+        "relic_lore"
+      ],
+      "summary": "+2 Mind, +1 Wisdom, +1 Charisma, +3 Focus, +2 Spellcasting, +1 Lore, +1 Persuasion, +1 Warding, +1 Relic Lore, Healing Light, Frost Shard, Firebolt, Apprentice Staff, Mana Tonic, Potion"
+    },
+    "hunter": {
+      "name": "Hunter",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_quests": [
+          "q003_watchtower_threat"
+        ],
+        "requires_reputation": [
+          {
+            "faction": "hunters_guild",
+            "min": 5
+          }
+        ]
+      },
+      "lore": "Hunters turn fear into clean work, swearing no grand vow except that the thing stalking the road should end before it reaches somebody unready.",
+      "stats": {
+        "agility": 2,
+        "endurance": 1,
+        "luck": 1
+      },
+      "skills": {
+        "archery": 1,
+        "stealth": 1,
+        "survival": 2,
+        "tracking": 1
+      },
+      "abilities": [
+        "aimed_shot",
+        "backstab",
+        "track_prey"
+      ],
+      "items": [
+        "short_bow",
+        "road_knife",
+        "herb",
+        "bandage"
+      ],
+      "equip": "short_bow",
+      "attack_stat": "agility",
+      "weapon_skill": "archery",
+      "level_growth": [
+        {"agility": 1},
+        {"luck": 1},
+        {"endurance": 1}
+      ],
+      "level_skill_growth": [
+        "survival",
+        "tracking",
+        "archery"
+      ],
+      "summary": "+2 Agility, +1 Endurance, +1 Luck, +1 Archery, +1 Stealth, +2 Survival, +1 Tracking, Aimed Shot, Backstab, Track Prey, Short Bow, Road Knife, Herb, Bandage"
+    },
+    "hexcaller": {
+      "name": "Hexcaller",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_contracts_completed": [
+          "c007_silence_the_weeping_shrine"
+        ],
+        "requires_reputation": [
+          {
+            "faction": "shrine_keepers",
+            "min": 14
+          }
+        ]
+      },
+      "lore": "Hexcallers study the hostile side of ward-lore, learning how to answer cursed ground, ash-rites, and shrine malice with sharper symbols and colder resolve.",
+      "stats": {
+        "mind": 2,
+        "wisdom": 1,
+        "luck": 1
+      },
+      "focus": 3,
+      "skills": {
+        "spellcasting": 2,
+        "arcana": 2,
+        "warding": 1,
+        "relic_lore": 1
+      },
+      "abilities": [
+        "firebolt",
+        "frost_shard",
+        "smoke_step"
+      ],
+      "items": [
+        "apprentice_staff",
+        "ritual_knife",
+        "novice_grimoire",
+        "mana_tonic"
+      ],
+      "equip": "apprentice_staff",
+      "attack_stat": "mind",
+      "weapon_skill": "spellcasting",
+      "level_growth": [
+        {"mind": 1},
+        {"wisdom": 1},
+        {"luck": 1}
+      ],
+      "level_skill_growth": [
+        "arcana",
+        "warding",
+        "spellcasting"
+      ],
+      "summary": "+2 Mind, +1 Wisdom, +1 Luck, +3 Focus, +2 Spellcasting, +2 Arcana, +1 Warding, +1 Relic Lore, Firebolt, Frost Shard, Smoke Step, Apprentice Staff, Ritual Knife, Novice Grimoire, Mana Tonic"
+    },
+    "beast_hunter": {
+      "name": "Beast Hunter",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_contracts_completed": [
+          "c008_alpha_on_ashwood_trail"
+        ],
+        "requires_reputation": [
+          {
+            "faction": "hunters_guild",
+            "min": 14
+          }
+        ]
+      },
+      "lore": "Beast Hunters are sworn to end the predators that learn to treat the realm itself as prey, reading spoor, fear, and wounded ground like a battlefield report.",
+      "stats": {
+        "agility": 2,
+        "endurance": 1,
+        "wisdom": 1
+      },
+      "skills": {
+        "tracking": 2,
+        "survival": 2,
+        "archery": 1,
+        "beast_handling": 1,
+        "intimidation": 1
+      },
+      "abilities": [
+        "aimed_shot",
+        "track_prey",
+        "backstab"
+      ],
+      "items": [
+        "hunting_bow",
+        "hunting_spear",
+        "wolfhide_vest",
+        "bandage"
+      ],
+      "equip": "hunting_bow",
+      "equip_armor": "wolfhide_vest",
+      "attack_stat": "agility",
+      "weapon_skill": "archery",
+      "level_growth": [
+        {"agility": 1},
+        {"wisdom": 1},
+        {"endurance": 1}
+      ],
+      "level_skill_growth": [
+        "tracking",
+        "survival",
+        "beast_handling"
+      ],
+      "summary": "+2 Agility, +1 Endurance, +1 Wisdom, +2 Tracking, +2 Survival, +1 Archery, +1 Beast Handling, +1 Intimidation, Aimed Shot, Track Prey, Backstab, Hunting Bow, Hunting Spear, Wolfhide Vest, Bandage"
+    },
+    "relic_knight": {
+      "name": "Relic Knight",
+      "unlocked_by_default": false,
+      "unlock_conditions": {
+        "requires_contracts_completed": [
+          "c009_blackroot_ash_mark"
+        ],
+        "requires_rank": "B",
+        "requires_events": [
+          {
+            "type": "location_visited",
+            "details": {
+              "location_id": "vaultreach"
+            }
+          }
+        ]
+      },
+      "lore": "Relic Knights are charged to bear dangerous history without letting it rule them, standing as armored custodians when the realm must reclaim what it once sealed away.",
+      "stats": {
+        "strength": 1,
+        "vitality": 1,
+        "endurance": 1,
+        "wisdom": 1
+      },
+      "max_hp": 3,
+      "focus": 2,
+      "base_attack": 1,
+      "skills": {
+        "defense": 2,
+        "swordsmanship": 1,
+        "warding": 2,
+        "relic_lore": 1
+      },
+      "abilities": [
+        "power_strike",
+        "guard_stance",
+        "healing_light"
+      ],
+      "items": [
+        "iron_sword",
+        "guardian_plate",
+        "ember_focus",
+        "potion"
+      ],
+      "equip": "iron_sword",
+      "equip_armor": "guardian_plate",
+      "attack_stat": "strength",
+      "weapon_skill": "swordsmanship",
+      "level_growth": [
+        {"endurance": 1},
+        {"wisdom": 1},
+        {"strength": 1}
+      ],
+      "level_skill_growth": [
+        "warding",
+        "defense",
+        "relic_lore"
+      ],
+      "summary": "+1 Strength, +1 Vitality, +1 Endurance, +1 Wisdom, +3 Max HP, +2 Focus, +1 Attack, +2 Defense, +1 Swordsmanship, +2 Warding, +1 Relic Lore, Power Strike, Guard Stance, Healing Light, Iron Sword, Guardian Plate, Ember Focus, Potion"
+    }
+  }
+}

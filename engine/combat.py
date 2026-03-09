@@ -542,10 +542,11 @@ class CombatEngine:
 
         return [{"id": ability_id, **self.ENEMY_ABILITIES[ability_id]} for ability_id in resolved_ids]
 
-    def _enemy_profile(self, enemy_id: str, enemy_data: dict) -> dict:
+    def _enemy_profile(self, enemy_id: str, enemy_data: dict, combat_modifiers: dict | None = None) -> dict:
+        combat_modifiers = combat_modifiers or {}
         family = self._enemy_family(enemy_data.get("family", ""))
         class_type = self._normalize_key(enemy_data.get("class_type", "")) or "foe"
-        level = max(1, int(enemy_data.get("level", 1)))
+        level = max(1, int(enemy_data.get("level", 1)) + int(combat_modifiers.get("level_bonus", 0)))
         stats = self._normalized_enemy_stats(enemy_data.get("stats", {}))
         skills = self._normalized_enemy_skills(enemy_data.get("skills", {}))
         abilities = self._resolve_enemy_abilities(family, class_type, level, enemy_data.get("abilities", []))
@@ -571,8 +572,8 @@ class CombatEngine:
             "phase_only_abilities": phase_only_abilities,
         }
 
-    def preview_enemy(self, enemy_id: str, enemy_data: dict) -> dict:
-        return self._enemy_profile(enemy_id, enemy_data)
+    def preview_enemy(self, enemy_id: str, enemy_data: dict, combat_modifiers: dict | None = None) -> dict:
+        return self._enemy_profile(enemy_id, enemy_data, combat_modifiers=combat_modifiers)
 
     def _enemy_stat_value(self, profile: dict, stat_name: str) -> int:
         return int(profile["stats"].get(stat_name, self.DEFAULT_ENEMY_STATS.get(stat_name, 10)))
@@ -1056,7 +1057,9 @@ class CombatEngine:
         enemies_data: dict,
         items_data: dict,
         starting_enemy_hp: int | None = None,
+        combat_modifiers: dict | None = None,
     ) -> dict:
+        combat_modifiers = combat_modifiers or {}
         enemy_data = enemies_data.get(enemy_id)
         if not enemy_data:
             return {
@@ -1068,16 +1071,16 @@ class CombatEngine:
                 "enemy_hp": 0,
             }
 
-        profile = self._enemy_profile(enemy_id, enemy_data)
-        enemy_max_hp = max(1, int(enemy_data.get("hp", 1)))
+        profile = self._enemy_profile(enemy_id, enemy_data, combat_modifiers=combat_modifiers)
+        enemy_max_hp = max(1, int(enemy_data.get("hp", 1)) + int(combat_modifiers.get("hp_bonus", 0)))
         enemy_hp = enemy_max_hp
         if starting_enemy_hp is not None:
             enemy_hp = max(0, min(enemy_max_hp, int(starting_enemy_hp)))
-        enemy_attack = int(enemy_data.get("attack", 1))
-        enemy_defense = int(enemy_data.get("defense", self.DEFAULT_ENEMY_DEFENSE))
+        enemy_attack = int(enemy_data.get("attack", 1)) + int(combat_modifiers.get("attack_bonus", 0))
+        enemy_defense = int(enemy_data.get("defense", self.DEFAULT_ENEMY_DEFENSE)) + int(combat_modifiers.get("defense_bonus", 0))
         enemy_name = str(enemy_data.get("name", enemy_id))
         behavior = str(enemy_data.get("behavior", "aggressive")).strip().lower()
-        xp_reward = int(enemy_data.get("xp", max(5, enemy_hp * 5)))
+        xp_reward = int(enemy_data.get("xp", max(5, enemy_hp * 5))) + int(combat_modifiers.get("xp_bonus", 0))
 
         log = []
         turn = 1

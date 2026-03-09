@@ -1,4 +1,6 @@
+import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import ClassVar, Optional
 
 
@@ -34,6 +36,16 @@ class Character:
         "survival": 0,
         "lore": 0,
         "persuasion": 0,
+        "tracking": 0,
+        "barter": 0,
+        "alchemy": 0,
+        "crafting": 0,
+        "arcana": 0,
+        "intimidation": 0,
+        "lockpicking": 0,
+        "warding": 0,
+        "relic_lore": 0,
+        "beast_handling": 0,
     }
     SKILL_STAT_MAP: ClassVar[dict[str, str]] = {
         "swordsmanship": "strength",
@@ -44,14 +56,20 @@ class Character:
         "survival": "wisdom",
         "lore": "wisdom",
         "persuasion": "charisma",
-        "athletics": "endurance",
+        "tracking": "wisdom",
+        "barter": "charisma",
+        "alchemy": "mind",
+        "crafting": "endurance",
         "arcana": "mind",
+        "intimidation": "strength",
         "lockpicking": "agility",
+        "warding": "wisdom",
+        "relic_lore": "wisdom",
+        "beast_handling": "charisma",
+        "athletics": "endurance",
     }
     SKILL_ALIASES: ClassVar[dict[str, str]] = {
         "athletics": "defense",
-        "arcana": "spellcasting",
-        "lockpicking": "stealth",
     }
     ABILITY_ALIASES: ClassVar[dict[str, str]] = {
         "second_wind": "guard_stance",
@@ -59,11 +77,12 @@ class Character:
         "mend": "healing_light",
         "cunning_strike": "backstab",
     }
-    CLASS_ATTACK_STATS: ClassVar[dict[str, str]] = {
-        "warrior": "strength",
-        "ranger": "agility",
-        "mage": "mind",
-        "rogue": "agility",
+    HUNTER_GUILD_RANK_ORDER: ClassVar[dict[str, int]] = {
+        "iron": 0,
+        "bronze": 1,
+        "silver": 2,
+        "gold": 3,
+        "platinum": 4,
     }
     DEFAULT_COMBAT_BOOSTS: ClassVar[dict[str, int]] = {
         "attack_bonus": 0,
@@ -83,138 +102,50 @@ class Character:
         {"id": "nonbinary", "name": "Nonbinary", "lore": "Seen as you choose to present yourself in the world."},
         {"id": "other", "name": "Other", "lore": "A personal identity that matters because it is yours."},
     ]
-    RACES: ClassVar[dict[str, dict]] = {
-        "human": {
-            "name": "Human",
-            "lore": "Humans spread along the roads between village and town, known less for one gift than for surviving change faster than anyone expects.",
-            "stats": {"strength": 1, "charisma": 1},
-            "skills": {"persuasion": 1},
-            "gold": 2,
-            "summary": "+1 Strength, +1 Charisma, +1 Persuasion, +2 Gold",
-        },
-        "elf": {
-            "name": "Elf",
-            "lore": "Elves keep long memory and sharp senses, moving through old woodland paths with a patience most younger peoples never quite learn.",
-            "stats": {"agility": 2, "wisdom": 1},
-            "skills": {"archery": 1, "stealth": 1},
-            "focus": 1,
-            "summary": "+2 Agility, +1 Wisdom, +1 Archery, +1 Stealth, +1 Focus",
-        },
-        "dwarf": {
-            "name": "Dwarf",
-            "lore": "Dwarves are people of stonework, forge smoke, and plain promises, carrying a reputation for endurance that can feel like stubbornness from the outside.",
-            "stats": {"strength": 1, "vitality": 1, "endurance": 1},
-            "max_hp": 2,
-            "skills": {"defense": 1},
-            "summary": "+1 Strength, +1 Vitality, +1 Endurance, +2 Max HP, +1 Defense",
-        },
-        "ashenborn": {
-            "name": "Ashenborn",
-            "lore": "Ashenborn descend from lands touched by old fire and sacred collapse, marked by restless instincts and an uneasy closeness to forgotten power.",
-            "stats": {"mind": 1, "wisdom": 1, "luck": 1},
-            "skills": {"spellcasting": 1, "stealth": 1},
-            "focus": 1,
-            "summary": "+1 Mind, +1 Wisdom, +1 Luck, +1 Spellcasting, +1 Stealth, +1 Focus",
-        },
-    }
-    CLASSES: ClassVar[dict[str, dict]] = {
-        "warrior": {
-            "name": "Warrior",
-            "lore": "Warriors are taught that fear can be survived if the stance holds, the line stays steady, and the work gets finished.",
-            "stats": {"strength": 2, "vitality": 1, "endurance": 1},
-            "max_hp": 3,
-            "base_attack": 1,
-            "skills": {"swordsmanship": 2, "defense": 1},
-            "abilities": ["power_strike", "guard_stance"],
-            "items": ["rusty_sword", "leather_vest", "bandage"],
-            "equip": "rusty_sword",
-            "equip_armor": "leather_vest",
-            "summary": "+2 Strength, +1 Vitality, +1 Endurance, +3 Max HP, +1 Attack, +2 Swordsmanship, +1 Defense, Power Strike, Guard Stance, Rusty Sword, Leather Vest, Bandage",
-        },
-        "ranger": {
-            "name": "Ranger",
-            "lore": "Rangers live by noticing the bent grass, the wrong birdsong, and the shape of danger before it reaches sword range.",
-            "stats": {"agility": 2, "endurance": 1, "luck": 1},
-            "skills": {"archery": 2, "survival": 1, "stealth": 1},
-            "abilities": ["aimed_shot", "track_prey"],
-            "items": ["short_bow", "herb", "bandage"],
-            "equip": "short_bow",
-            "summary": "+2 Agility, +1 Endurance, +1 Luck, +2 Archery, +1 Survival, +1 Stealth, Aimed Shot, Track Prey, Short Bow, Herb, Bandage",
-        },
-        "mage": {
-            "name": "Mage",
-            "lore": "Mages learn restraint before power, trained to keep thought, symbol, and will aligned before they dare call on force.",
-            "stats": {"mind": 2, "wisdom": 2},
-            "skills": {"spellcasting": 2, "lore": 1},
-            "focus": 4,
-            "abilities": ["firebolt", "frost_shard", "healing_light"],
-            "items": ["apprentice_staff", "mana_tonic", "potion"],
-            "equip": "apprentice_staff",
-            "summary": "+2 Mind, +2 Wisdom, +2 Spellcasting, +1 Lore, +4 Focus, Firebolt, Frost Shard, Healing Light, Apprentice Staff, Mana Tonic, Potion",
-        },
-        "rogue": {
-            "name": "Rogue",
-            "lore": "Rogues survive in the spaces between law and trouble, relying on timing, nerve, and knowing which risk is worth taking.",
-            "stats": {"agility": 2, "charisma": 1, "luck": 1},
-            "skills": {"stealth": 2, "persuasion": 1, "swordsmanship": 1},
-            "gold": 3,
-            "abilities": ["backstab", "smoke_step"],
-            "items": ["road_knife", "bandage"],
-            "equip": "road_knife",
-            "summary": "+2 Agility, +1 Charisma, +1 Luck, +2 Stealth, +1 Persuasion, +1 Swordsmanship, +3 Gold, Backstab, Smoke Step, Road Knife, Bandage",
-        },
-    }
+    DATA_DIR: ClassVar[Path] = Path(__file__).resolve().parent.parent / "data"
+    RACE_DATA_FILE: ClassVar[Path] = DATA_DIR / "races.json"
+    CLASS_DATA_FILE: ClassVar[Path] = DATA_DIR / "classes.json"
+    _RACE_CACHE: ClassVar[dict[str, dict] | None] = None
+    _CLASS_CACHE: ClassVar[dict[str, dict] | None] = None
     BACKGROUNDS: ClassVar[dict[str, dict]] = {
         "village_born": {
             "name": "Village-born",
             "lore": "You were raised where everyone notices who returns at dusk, and where every lost road or failed harvest becomes everybody's problem.",
             "stats": {"vitality": 1, "charisma": 1},
-            "skills": {"persuasion": 1},
+            "skills": {"persuasion": 1, "barter": 1},
             "gold": 4,
             "items": ["ration"],
             "faction_reputation": {"merchant_guild": 2},
-            "summary": "+1 Vitality, +1 Charisma, +1 Persuasion, +4 Gold, Travel Ration, +2 Merchant Guild reputation",
+            "summary": "+1 Vitality, +1 Charisma, +1 Persuasion, +1 Barter, +4 Gold, Travel Ration, +2 Merchant Guild reputation",
         },
         "watcher": {
             "name": "Watcher",
             "lore": "You learned early to read road dust, tree lines, and distant movement, because warning a settlement half a minute sooner can matter.",
             "stats": {"agility": 1, "wisdom": 1},
-            "skills": {"archery": 1, "survival": 1},
+            "skills": {"archery": 1, "survival": 1, "tracking": 1},
             "items": ["ration"],
             "faction_reputation": {"kingdom_guard": 3},
-            "summary": "+1 Agility, +1 Wisdom, +1 Archery, +1 Survival, Travel Ration, +3 Kingdom Guard reputation",
+            "summary": "+1 Agility, +1 Wisdom, +1 Archery, +1 Survival, +1 Tracking, Travel Ration, +3 Kingdom Guard reputation",
         },
         "shrine_touched": {
             "name": "Shrine-touched",
             "lore": "Something in the old shrines answered you once, and ever since then ruined altars and sacred marks have felt a little too familiar.",
             "stats": {"mind": 1, "wisdom": 1},
-            "skills": {"lore": 1, "spellcasting": 1},
+            "skills": {"lore": 1, "spellcasting": 1, "warding": 1},
             "focus": 1,
             "items": ["mana_tonic"],
             "faction_reputation": {"shrine_keepers": 3},
-            "summary": "+1 Mind, +1 Wisdom, +1 Lore, +1 Spellcasting, +1 Focus, Mana Tonic, +3 Shrine Keepers reputation",
+            "summary": "+1 Mind, +1 Wisdom, +1 Lore, +1 Spellcasting, +1 Warding, +1 Focus, Mana Tonic, +3 Shrine Keepers reputation",
         },
         "wanderer": {
             "name": "Wanderer",
             "lore": "You belong more to the road than to any one roof, shaped by crossings, campfires, and the habit of leaving before luck turns.",
             "stats": {"endurance": 1, "luck": 1},
-            "skills": {"survival": 1, "stealth": 1},
+            "skills": {"survival": 1, "stealth": 1, "tracking": 1},
             "items": ["herb", "ration"],
             "faction_reputation": {"forest_clans": 3},
-            "summary": "+1 Endurance, +1 Luck, +1 Survival, +1 Stealth, Herb, Travel Ration, +3 Forest Clans reputation",
+            "summary": "+1 Endurance, +1 Luck, +1 Survival, +1 Stealth, +1 Tracking, Herb, Travel Ration, +3 Forest Clans reputation",
         },
-    }
-    LEVEL_GROWTH: ClassVar[dict[str, list[dict[str, int]]]] = {
-        "warrior": [{"strength": 1}, {"vitality": 1}, {"endurance": 1}],
-        "ranger": [{"agility": 1}, {"endurance": 1}, {"luck": 1}],
-        "mage": [{"mind": 1}, {"wisdom": 1}, {"mind": 1, "wisdom": 1}],
-        "rogue": [{"agility": 1}, {"charisma": 1}, {"luck": 1}],
-    }
-    LEVEL_SKILL_GROWTH: ClassVar[dict[str, list[str]]] = {
-        "warrior": ["swordsmanship", "defense"],
-        "ranger": ["archery", "survival", "stealth"],
-        "mage": ["spellcasting", "lore"],
-        "rogue": ["stealth", "persuasion", "swordsmanship"],
     }
     ITEM_UPGRADE_CAPS: ClassVar[dict[str, int]] = {
         "common": 2,
@@ -253,6 +184,10 @@ class Character:
     combat_boost_summary: str = ""
     faction_reputation: dict[str, int] = field(default_factory=lambda: dict(Character.DEFAULT_FACTION_REPUTATION))
     npc_memory: dict[str, dict] = field(default_factory=dict)
+    hunter_guild_rank: str = "Iron"
+    hunter_guild_points: int = 0
+    rival_hunter_flags: dict[str, dict] = field(default_factory=dict)
+    unlocked_titles: list[str] = field(default_factory=list)
     event_log: list[dict] = field(default_factory=list)
     loot_log: list[dict] = field(default_factory=list)
     """A persistent log of deterministic events that narration/quests read."""
@@ -287,6 +222,10 @@ class Character:
             self.equipped_armor = None
         if self.equipped_accessory not in self.inventory:
             self.equipped_accessory = None
+        self.hunter_guild_rank = self.normalize_hunter_guild_rank(self.hunter_guild_rank)
+        self.hunter_guild_points = max(0, int(self.hunter_guild_points))
+        self.rival_hunter_flags = self._normalized_rival_hunter_flags(self.rival_hunter_flags)
+        self.unlocked_titles = self._normalized_title_ids(self.unlocked_titles)
         self.loot_log = self._normalized_loot_log(self.loot_log)
 
     @staticmethod
@@ -308,12 +247,193 @@ class Character:
         return cleaned[:max_length]
 
     @classmethod
+    def normalize_hunter_guild_rank(cls, rank: str) -> str:
+        normalized = str(rank or "").strip().lower()
+        if normalized not in cls.HUNTER_GUILD_RANK_ORDER:
+            normalized = "iron"
+        return normalized.title()
+
+    @classmethod
+    def hunter_guild_rank_value(cls, rank: str) -> int:
+        return cls.HUNTER_GUILD_RANK_ORDER.get(str(rank or "").strip().lower(), -1)
+
+    @classmethod
+    def _normalized_rival_hunter_flags(cls, flags: dict | None) -> dict[str, dict]:
+        normalized = {}
+        if not isinstance(flags, dict):
+            return normalized
+        for npc_id, entry in flags.items():
+            if not isinstance(entry, dict):
+                continue
+            normalized_npc = cls._normalize_key(npc_id)
+            if not normalized_npc:
+                continue
+            normalized[normalized_npc] = {
+                "met": bool(entry.get("met", False)),
+                "spoken": max(0, cls._safe_int(entry.get("spoken"), 0)),
+                "last_location": cls._normalize_key(entry.get("last_location", "")),
+            }
+        return normalized
+
+    @classmethod
+    def _normalized_title_ids(cls, titles: list | None) -> list[str]:
+        normalized = []
+        seen = set()
+        if not isinstance(titles, list):
+            return normalized
+        for title_id in titles:
+            normalized_id = cls._normalize_key(title_id)
+            if not normalized_id or normalized_id in seen:
+                continue
+            seen.add(normalized_id)
+            normalized.append(normalized_id)
+        return normalized
+
+    @classmethod
+    def _load_json_catalog(cls, file_path: Path, root_key: str) -> dict[str, dict]:
+        try:
+            payload = json.loads(file_path.read_text())
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}
+        raw_catalog = payload.get(root_key, payload) if isinstance(payload, dict) else {}
+        if not isinstance(raw_catalog, dict):
+            return {}
+        catalog = {}
+        for option_id, option in raw_catalog.items():
+            normalized_id = cls._normalize_key(option_id)
+            if not normalized_id or not isinstance(option, dict):
+                continue
+            catalog[normalized_id] = cls._normalized_creation_entry(normalized_id, option)
+        return catalog
+
+    @classmethod
+    def _normalized_creation_entry(cls, option_id: str, option: dict) -> dict:
+        normalized = {
+            "name": str(option.get("name", option_id.replace("_", " ").title())),
+            "lore": str(option.get("lore", "")),
+            "summary": str(option.get("summary", "")),
+            "homeland": str(option.get("homeland", "")),
+            "stats": {},
+            "skills": {},
+            "items": [],
+            "abilities": [],
+            "gold": cls._safe_int(option.get("gold"), 0),
+            "max_hp": cls._safe_int(option.get("max_hp"), 0),
+            "focus": cls._safe_int(option.get("focus"), 0),
+            "base_attack": cls._safe_int(option.get("base_attack"), 0),
+            "faction_reputation": {},
+            "attack_stat": cls._normalize_key(option.get("attack_stat", "")),
+            "weapon_skill": cls._normalize_skill_key(option.get("weapon_skill", "")),
+            "level_growth": [],
+            "level_skill_growth": [],
+            "unlocked_by_default": bool(option.get("unlocked_by_default", True)),
+            "unlock_conditions": {},
+        }
+
+        if isinstance(option.get("stats"), dict):
+            for stat_name, amount in option["stats"].items():
+                normalized_stat = cls._normalize_key(stat_name)
+                if normalized_stat in cls.DEFAULT_STATS:
+                    normalized["stats"][normalized_stat] = int(amount)
+
+        if isinstance(option.get("skills"), dict):
+            for skill_name, amount in option["skills"].items():
+                normalized_skill = cls._normalize_skill_key(skill_name)
+                if normalized_skill in cls.DEFAULT_SKILLS:
+                    normalized["skills"][normalized_skill] = int(amount)
+
+        if isinstance(option.get("items"), list):
+            normalized["items"] = [cls._normalize_key(item_id) for item_id in option["items"] if cls._normalize_key(item_id)]
+
+        if isinstance(option.get("abilities"), list):
+            normalized["abilities"] = [
+                cls.ABILITY_ALIASES.get(cls._normalize_key(ability_id), cls._normalize_key(ability_id))
+                for ability_id in option["abilities"]
+                if cls._normalize_key(ability_id)
+            ]
+
+        if isinstance(option.get("faction_reputation"), dict):
+            for faction_id, amount in option["faction_reputation"].items():
+                normalized_faction = cls._normalize_key(faction_id)
+                if normalized_faction:
+                    normalized["faction_reputation"][normalized_faction] = int(amount)
+
+        if isinstance(option.get("passive"), dict):
+            normalized["passive"] = {
+                "name": str(option["passive"].get("name", "")),
+                "description": str(option["passive"].get("description", "")),
+            }
+        if isinstance(option.get("unlock_conditions"), dict):
+            normalized["unlock_conditions"] = dict(option.get("unlock_conditions", {}))
+
+        equip_item = cls._normalize_key(option.get("equip", ""))
+        if equip_item:
+            normalized["equip"] = equip_item
+        equip_armor = cls._normalize_key(option.get("equip_armor", ""))
+        if equip_armor:
+            normalized["equip_armor"] = equip_armor
+
+        level_growth = option.get("level_growth", [])
+        if isinstance(level_growth, list):
+            for entry in level_growth:
+                if not isinstance(entry, dict):
+                    continue
+                growth = {}
+                for stat_name, amount in entry.items():
+                    normalized_stat = cls._normalize_key(stat_name)
+                    if normalized_stat in cls.DEFAULT_STATS:
+                        growth[normalized_stat] = int(amount)
+                if growth:
+                    normalized["level_growth"].append(growth)
+
+        level_skill_growth = option.get("level_skill_growth", [])
+        if isinstance(level_skill_growth, list):
+            for skill_name in level_skill_growth:
+                normalized_skill = cls._normalize_skill_key(skill_name)
+                if normalized_skill in cls.DEFAULT_SKILLS:
+                    normalized["level_skill_growth"].append(normalized_skill)
+
+        return normalized
+
+    @classmethod
+    def race_catalog(cls) -> dict[str, dict]:
+        if cls._RACE_CACHE is None:
+            cls._RACE_CACHE = cls._load_json_catalog(cls.RACE_DATA_FILE, "races")
+        return cls._RACE_CACHE
+
+    @classmethod
+    def class_catalog(cls) -> dict[str, dict]:
+        if cls._CLASS_CACHE is None:
+            cls._CLASS_CACHE = cls._load_json_catalog(cls.CLASS_DATA_FILE, "classes")
+        return cls._CLASS_CACHE
+
+    @classmethod
+    def default_unlocked_class_ids(cls) -> set[str]:
+        return {
+            class_id
+            for class_id, class_data in cls.class_catalog().items()
+            if bool(class_data.get("unlocked_by_default", True))
+        }
+
+    @classmethod
+    def default_unlocked_race_ids(cls) -> set[str]:
+        return {
+            race_id
+            for race_id, race_data in cls.race_catalog().items()
+            if bool(race_data.get("unlocked_by_default", True))
+        }
+
+    @classmethod
+    def skill_order(cls) -> list[str]:
+        return list(cls.DEFAULT_SKILLS.keys())
+
+    @classmethod
     def _catalog(cls, category: str):
         normalized = cls._normalize_key(category)
         if normalized == "race":
-            return cls.RACES
+            return cls.race_catalog()
         if normalized in {"class", "player_class"}:
-            return cls.CLASSES
+            return cls.class_catalog()
         if normalized == "background":
             return cls.BACKGROUNDS
         return {}
@@ -441,11 +561,12 @@ class Character:
     def creation_option_details(cls, category: str, value: str) -> dict:
         normalized = cls.normalize_choice(category, value)
         option = cls._catalog(category).get(normalized, {})
-        return {
+        details = {
             "id": normalized,
             "name": str(option.get("name", normalized.replace("_", " ").title())),
             "lore": str(option.get("lore", "")),
             "summary": str(option.get("summary", "")),
+            "homeland": str(option.get("homeland", "")),
             "stats": {str(key): int(amount) for key, amount in option.get("stats", {}).items()},
             "skills": {str(key): int(amount) for key, amount in option.get("skills", {}).items()},
             "items": [str(item_id) for item_id in option.get("items", [])],
@@ -458,6 +579,25 @@ class Character:
                 str(key): int(amount) for key, amount in option.get("faction_reputation", {}).items()
             },
         }
+        passive = option.get("passive", {})
+        if isinstance(passive, dict) and (passive.get("name") or passive.get("description")):
+            details["passive"] = {
+                "name": str(passive.get("name", "")),
+                "description": str(passive.get("description", "")),
+            }
+        if option.get("attack_stat"):
+            details["attack_stat"] = str(option.get("attack_stat", ""))
+        if option.get("weapon_skill"):
+            details["weapon_skill"] = str(option.get("weapon_skill", ""))
+        if option.get("level_growth"):
+            details["level_growth"] = [
+                {str(key): int(amount) for key, amount in entry.items()}
+                for entry in option.get("level_growth", [])
+                if isinstance(entry, dict)
+            ]
+        if option.get("level_skill_growth"):
+            details["level_skill_growth"] = [str(skill_name) for skill_name in option.get("level_skill_growth", [])]
+        return details
 
     @classmethod
     def option_name(cls, category: str, value: str) -> str:
@@ -533,9 +673,9 @@ class Character:
         self.combat_boost_summary = ""
         self.faction_reputation = dict(self.DEFAULT_FACTION_REPUTATION)
 
-        self._apply_template(self.RACES[self.normalize_choice("race", race_id)])
-        self._apply_template(self.CLASSES[self.normalize_choice("class", class_id)])
-        self._apply_template(self.BACKGROUNDS[self.normalize_choice("background", background_id)])
+        self._apply_template(self._catalog("race")[self.normalize_choice("race", race_id)])
+        self._apply_template(self._catalog("class")[self.normalize_choice("class", class_id)])
+        self._apply_template(self._catalog("background")[self.normalize_choice("background", background_id)])
         self._apply_stat_resource_bonuses(previous_stats=self.DEFAULT_STATS)
         self.hp = self.max_hp
         self.focus = self.max_focus
@@ -823,23 +963,28 @@ class Character:
             if configured in self.DEFAULT_STATS:
                 return configured
         class_id = self.normalize_choice("class", self.player_class)
-        return self.CLASS_ATTACK_STATS.get(class_id, "strength")
+        class_profile = self._catalog("class").get(class_id, {})
+        configured = self._normalize_key(class_profile.get("attack_stat", ""))
+        if configured in self.DEFAULT_STATS:
+            return configured
+        return "strength"
 
     def weapon_skill_name(self, items_data: dict) -> str:
         if self.equipped_weapon and self.equipped_weapon in self.inventory:
             weapon_id = self._normalize_key(self.equipped_weapon)
             weapon = items_data.get(weapon_id, {})
-            attack_stat = self._normalize_key(weapon.get("attack_stat", ""))
-            if attack_stat == "mind":
-                return "spellcasting"
-            if "bow" in weapon_id:
-                return "archery"
-            return "swordsmanship"
+            if weapon:
+                attack_stat = self._normalize_key(weapon.get("attack_stat", ""))
+                if attack_stat == "mind":
+                    return "spellcasting"
+                if "bow" in weapon_id:
+                    return "archery"
+                return "swordsmanship"
         class_id = self.normalize_choice("class", self.player_class)
-        if class_id == "ranger":
-            return "archery"
-        if class_id == "mage":
-            return "spellcasting"
+        class_profile = self._catalog("class").get(class_id, {})
+        configured = self._normalize_skill_key(class_profile.get("weapon_skill", ""))
+        if configured in self.DEFAULT_SKILLS:
+            return configured
         return "swordsmanship"
 
     @classmethod
@@ -1107,11 +1252,19 @@ class Character:
 
     def _level_growth_pattern(self) -> list[dict[str, int]]:
         class_id = self.normalize_choice("class", self.player_class)
-        return self.LEVEL_GROWTH.get(class_id, [{"vitality": 1}])
+        class_profile = self._catalog("class").get(class_id, {})
+        growth = class_profile.get("level_growth", [])
+        if isinstance(growth, list) and growth:
+            return growth
+        return [{"vitality": 1}]
 
     def _level_skill_pattern(self) -> list[str]:
         class_id = self.normalize_choice("class", self.player_class)
-        return self.LEVEL_SKILL_GROWTH.get(class_id, ["defense"])
+        class_profile = self._catalog("class").get(class_id, {})
+        growth = class_profile.get("level_skill_growth", [])
+        if isinstance(growth, list) and growth:
+            return growth
+        return ["defense"]
 
     def gain_xp(self, amount: int) -> list[dict]:
         amount = max(0, int(amount))
@@ -1392,6 +1545,18 @@ class Character:
                 for npc_id, memory in self.npc_memory.items()
                 if isinstance(memory, dict)
             },
+            "hunter_guild_rank": self.hunter_guild_rank,
+            "hunter_guild_points": self.hunter_guild_points,
+            "rival_hunter_flags": {
+                npc_id: {
+                    "met": bool(entry.get("met", False)),
+                    "spoken": max(0, int(entry.get("spoken", 0))),
+                    "last_location": str(entry.get("last_location", "")),
+                }
+                for npc_id, entry in self.rival_hunter_flags.items()
+                if isinstance(entry, dict)
+            },
+            "unlocked_titles": list(self.unlocked_titles),
             "event_log": [dict(event) for event in self.event_log if isinstance(event, dict)],
         }
 
@@ -1530,6 +1695,11 @@ class Character:
                     }
                 )
 
+        hunter_guild_rank = cls.normalize_hunter_guild_rank(data.get("hunter_guild_rank", "Iron"))
+        hunter_guild_points = max(0, cls._safe_int(data.get("hunter_guild_points"), 0))
+        rival_hunter_flags = cls._normalized_rival_hunter_flags(data.get("rival_hunter_flags", {}))
+        unlocked_titles = cls._normalized_title_ids(data.get("unlocked_titles", []))
+
         return cls(
             name=name,
             gender=gender,
@@ -1559,5 +1729,9 @@ class Character:
             combat_boost_summary=combat_boost_summary,
             faction_reputation=faction_reputation,
             npc_memory=npc_memory,
+            hunter_guild_rank=hunter_guild_rank,
+            hunter_guild_points=hunter_guild_points,
+            rival_hunter_flags=rival_hunter_flags,
+            unlocked_titles=unlocked_titles,
             event_log=event_log,
         )

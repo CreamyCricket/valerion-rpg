@@ -25,12 +25,16 @@ class BossProgressionTests(unittest.TestCase):
             location["world_events"] = []
             location["state_events"] = []
             location["encounters"] = []
+            if isinstance(location.get("dungeon"), dict):
+                location["dungeon"] = {}
         for location in game.world.state_locations.values():
             location["world_event_chance"] = 0
             location["state_event_chance"] = 0
             location["world_events"] = []
             location["state_events"] = []
             location["encounters"] = []
+            if isinstance(location.get("dungeon"), dict):
+                location["dungeon"] = {}
 
     @staticmethod
     def _move_to_market(game: Game) -> None:
