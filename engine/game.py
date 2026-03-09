@@ -1,4 +1,5 @@
 import json
+import hashlib
 import re
 import re
 import time
@@ -1071,7 +1072,7 @@ class Game:
         self._log_event("location_visited", location_id=location_id, location_name=location_name)
 
     def _record_important_item_acquired(self, item_id: str, source: str) -> None:
-        if item_id not in self.IMPORTANT_ITEM_IDS:
+        if item_id not in self.IMPORTANT_ITEM_IDS and item_id not in self.world.relics:
             return
         if self.player.has_event("important_item_acquired", "item_id", item_id):
             return
@@ -1352,6 +1353,44 @@ class Game:
         dungeon = self.world.dungeon_profile(active_location) or {}
         boss_pool = {str(candidate).strip().lower() for candidate in dungeon.get("boss_pool", [])}
         return str(enemy_id).strip().lower() in boss_pool
+
+    @staticmethod
+    def _deterministic_percent(seed: str) -> int:
+        digest = hashlib.sha256(str(seed).encode("utf-8")).hexdigest()
+        return (int(digest[:8], 16) % 100) + 1
+
+    @staticmethod
+    def _deterministic_index(seed: str, size: int) -> int:
+        if size <= 0:
+            return 0
+        digest = hashlib.sha256(str(seed).encode("utf-8")).hexdigest()
+        return int(digest[8:16], 16) % size
+
+    def _roll_boss_relic_drop(self, enemy_id: str, enemy_name: str) -> str | None:
+        if self.player.has_event("boss_relic_dropped", "enemy_id", enemy_id):
+            return None
+
+        relic_pool = self.world.relic_ids_for_boss(enemy_id)
+        if not relic_pool:
+            return None
+
+        chance = self.world.boss_relic_drop_chance(enemy_id)
+        roll = self._deterministic_percent(f"{self.player.name}|{enemy_id}|relic_roll")
+        if roll > chance:
+            return None
+
+        pick_index = self._deterministic_index(f"{self.player.name}|{enemy_id}|relic_pick", len(relic_pool))
+        relic_id = relic_pool[pick_index]
+        self._log_event(
+            "boss_relic_dropped",
+            enemy_id=enemy_id,
+            enemy_name=enemy_name,
+            item_id=relic_id,
+            item_name=self.world.item_name(relic_id),
+            roll=roll,
+            chance=chance,
+        )
+        return relic_id
 
     @staticmethod
     def _crit_threshold_for_chance(chance: int) -> int:
@@ -3440,6 +3479,7 @@ class Game:
         lines = [Narrator.combat_result(True, enemy_name)]
         self.world.remove_enemy(self.current_location, enemy_id)
         cleared_road_encounter = self.world.clear_active_road_encounter(self.current_location, enemy_id)
+        loot_ids = [str(item_id).strip().lower() for item_id in result.get("loot", []) if str(item_id).strip()]
         self._log_event(
             "enemy_defeated",
             enemy_id=enemy_id,
@@ -3455,17 +3495,28 @@ class Game:
                 location_id=self.current_location,
                 location_name=self.world.get_location(self.current_location).get("name", self.current_location),
             )
+            relic_drop = self._roll_boss_relic_drop(enemy_id, enemy_name)
+            if relic_drop:
+                loot_ids.append(relic_drop)
+                relic_data = self.world.relic_entry(relic_drop)
+                lines.append(
+                    Narrator.relic_drop_text(
+                        self.world.item_name(relic_drop),
+                        str(relic_data.get("lore", "")).strip(),
+                        boss_name=enemy_name,
+                    )
+                )
         lines.extend(self._refresh_hunter_guild_rank(source=enemy_name))
         if cleared_road_encounter:
             encounter_name = str(cleared_road_encounter.get("name", "Road encounter")).strip()
             lines.append(f"Road cleared: {encounter_name} no longer threatens the route into {self.current_location_name()}.")
 
-        for item_id in result["loot"]:
+        for item_id in loot_ids:
             self.inventory.add_item(self.player, item_id)
             self._record_important_item_acquired(item_id, source="combat_loot")
-        loot_names = [self.world.item_name(item_id) for item_id in result["loot"]]
+        loot_names = [self.world.item_name(item_id) for item_id in loot_ids]
         lines.append(Narrator.loot_text(loot_names))
-        if result["loot"]:
+        if loot_ids:
             carry_status = self.inventory.carry_status_line(self.player, self.world.items)
             if carry_status:
                 lines.append(carry_status)
@@ -3480,7 +3531,7 @@ class Game:
             self.player.gold += reward_gold
             lines.append(f"Rank payout: {reward_gold} gold.")
 
-        for item_id in result["loot"]:
+        for item_id in loot_ids:
             lines.extend(
                 self.quests.on_item_obtained(
                     self.player,

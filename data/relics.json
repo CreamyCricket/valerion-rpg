@@ -1,0 +1,209 @@
+{
+  "gorgos_war_shield": {
+    "name": "Gorgos' War Shield",
+    "type": "shield",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "defense_bonus": 4,
+      "stat_bonuses": {"endurance": 1}
+    },
+    "lore": "A battered tower shield once carried by Gorgos when he broke the Stonewatch line.",
+    "boss_tie": "gorgos_the_sundered",
+    "region_tie": "Ironridge Hold",
+    "drop_chance": 50
+  },
+  "sundered_captain_sabre": {
+    "name": "Sundered Captain Sabre",
+    "type": "weapon",
+    "rarity": "relic",
+    "tier": 4,
+    "attack_stat": "agility",
+    "stats": {
+      "attack_bonus": 4,
+      "crit_bonus": 1,
+      "skill_bonuses": {"swordsmanship": 1}
+    },
+    "lore": "The personal blade of the pass captain who ruled toll roads through fear.",
+    "boss_tie": "gorgos_the_sundered",
+    "region_tie": "Ironridge Hold",
+    "drop_chance": 50
+  },
+  "ashbound_ring": {
+    "name": "Ashbound Ring",
+    "type": "gear",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "spell_power_bonus": 1,
+      "magic_guard_bonus": 1,
+      "skill_bonuses": {"relic_lore": 1}
+    },
+    "lore": "A shrine ring scorched into black glass during the first ash vows.",
+    "boss_tie": "weeping_husk",
+    "region_tie": "Shrine March",
+    "drop_chance": 45
+  },
+  "huskmourne_pendant": {
+    "name": "Huskmourne Pendant",
+    "type": "gear",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "defense_bonus": 2,
+      "stat_bonuses": {"mind": 1},
+      "skill_bonuses": {"warding": 1}
+    },
+    "lore": "A mourning charm worn by shrine wardens who stood watch through the long ash years.",
+    "boss_tie": "weeping_husk",
+    "region_tie": "Shrine March",
+    "drop_chance": 45
+  },
+  "stormbreak_navigator_compass": {
+    "name": "Stormbreak Navigator Compass",
+    "type": "gear",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "dodge_bonus": 2,
+      "skill_bonuses": {"tracking": 1}
+    },
+    "lore": "A bronze compass used by coast pilots to guide ferries through lightning squalls.",
+    "region_tie": "Stormbreak Coast"
+  },
+  "ironridge_sentinel_armor": {
+    "name": "Ironridge Sentinel Armor",
+    "type": "armor",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "defense_bonus": 4,
+      "stat_bonuses": {"endurance": 1}
+    },
+    "lore": "Layered plate from the old mountain sentinels who held the ridge gates.",
+    "region_tie": "Ironridge Hold"
+  },
+  "vault_core_blade": {
+    "name": "Vault Core Blade",
+    "type": "weapon",
+    "rarity": "relic",
+    "tier": 5,
+    "attack_stat": "mind",
+    "stats": {
+      "attack_bonus": 5,
+      "crit_bonus": 1,
+      "stat_bonuses": {"mind": 1}
+    },
+    "lore": "A relic-edge keyed to ancient lock runes, humming with sealed vault power.",
+    "boss_tie": "vault_keeper",
+    "region_tie": "Ashen Vault",
+    "drop_chance": 40
+  },
+  "vaultkeeper_ward_plate": {
+    "name": "Vaultkeeper Ward Plate",
+    "type": "armor",
+    "rarity": "relic",
+    "tier": 5,
+    "stats": {
+      "defense_bonus": 5,
+      "magic_guard_bonus": 1
+    },
+    "lore": "Interlocked guardian plate engraved with maintenance vows from the first keepers.",
+    "boss_tie": "vault_keeper",
+    "region_tie": "Ashen Vault",
+    "drop_chance": 40
+  },
+  "shrineward_votive_chain": {
+    "name": "Shrineward Votive Chain",
+    "type": "gear",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "magic_guard_bonus": 2,
+      "skill_bonuses": {"warding": 1}
+    },
+    "lore": "A silvered chain once worn by caretakers sworn to wake the stone guardian.",
+    "boss_tie": "shrine_guardian",
+    "region_tie": "Shrine March",
+    "drop_chance": 55
+  },
+  "guardian_oath_bulwark": {
+    "name": "Guardian Oath Bulwark",
+    "type": "armor",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "defense_bonus": 4,
+      "stat_bonuses": {"vitality": 1}
+    },
+    "lore": "Stone-forged armor bound with vow script from the shrine's first defenders.",
+    "boss_tie": "shrine_guardian",
+    "region_tie": "Shrine March",
+    "drop_chance": 55
+  },
+  "cinderbrand_gauntlet": {
+    "name": "Cinderbrand Gauntlet",
+    "type": "gear",
+    "rarity": "relic",
+    "tier": 5,
+    "stats": {
+      "spell_power_bonus": 2,
+      "crit_bonus": 1
+    },
+    "lore": "A furnace-forged gauntlet stamped by the Ash Herald's burning sign.",
+    "boss_tie": "ash_herald",
+    "region_tie": "Emberfall",
+    "drop_chance": 45
+  },
+  "emberfall_phoenix_cloak": {
+    "name": "Emberfall Phoenix Cloak",
+    "type": "armor",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "defense_bonus": 3,
+      "dodge_bonus": 1,
+      "skill_bonuses": {"survival": 1}
+    },
+    "lore": "A heat-scored cloak woven by Emberfall scouts who crossed fresh cinder fields.",
+    "region_tie": "Emberfall"
+  },
+  "valewood_huntmaster_quiver": {
+    "name": "Valewood Huntmaster Quiver",
+    "type": "gear",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "crit_bonus": 1,
+      "stat_bonuses": {"agility": 1},
+      "skill_bonuses": {"archery": 1}
+    },
+    "lore": "A weathered quiver marked by generations of Valewood trail captains.",
+    "region_tie": "Valewood"
+  },
+  "stonewatch_command_seal": {
+    "name": "Stonewatch Command Seal",
+    "type": "gear",
+    "rarity": "relic",
+    "tier": 4,
+    "stats": {
+      "defense_bonus": 2,
+      "stat_bonuses": {"charisma": 1},
+      "skill_bonuses": {"persuasion": 1}
+    },
+    "lore": "A bronze officer's seal used to call watch companies to the old walls.",
+    "region_tie": "Stonewatch"
+  },
+  "riverroad_wayfarer_boots": {
+    "name": "Riverroad Wayfarer Boots",
+    "type": "gear",
+    "rarity": "relic",
+    "tier": 3,
+    "stats": {
+      "dodge_bonus": 2,
+      "skill_bonuses": {"survival": 1}
+    },
+    "lore": "River-stained leather boots favored by couriers who outran toll ambushes.",
+    "region_tie": "River Road"
+  }
+}

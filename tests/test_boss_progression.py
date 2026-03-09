@@ -1,4 +1,5 @@
 import random
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -124,6 +125,29 @@ class BossProgressionTests(unittest.TestCase):
         self._move_to_ironridge(reloaded)
         fight_after_load = reloaded.process_command("fight gorgos")
         self.assertIn("not a nearby enemy", fight_after_load)
+
+    def test_relic_drop_is_once_per_boss_and_persists(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            game = Game(data_dir="data", player_name="RelicTester", save_root=tmpdir)
+            for relic_id in game.world.relic_ids_for_boss("gorgos_the_sundered"):
+                game.world.relics[relic_id]["drop_chance"] = 100
+                game.world.items[relic_id]["drop_chance"] = 100
+
+            dropped_relic = game._roll_boss_relic_drop("gorgos_the_sundered", "Gorgos the Sundered")
+            self.assertIsNotNone(dropped_relic)
+            self.assertTrue(game.player.has_event("boss_relic_dropped", "enemy_id", "gorgos_the_sundered"))
+
+            dropped_again = game._roll_boss_relic_drop("gorgos_the_sundered", "Gorgos the Sundered")
+            self.assertIsNone(dropped_again)
+
+            save_output = game.process_command("save")
+            self.assertIn("Game saved", save_output)
+
+            reloaded = Game(data_dir="data", player_name="RelicTester", save_root=tmpdir)
+            load_output = reloaded.process_command("load")
+            self.assertIn("Game loaded", load_output)
+            dropped_after_load = reloaded._roll_boss_relic_drop("gorgos_the_sundered", "Gorgos the Sundered")
+            self.assertIsNone(dropped_after_load)
 
 
 if __name__ == "__main__":

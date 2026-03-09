@@ -5,6 +5,7 @@ from pathlib import Path
 
 class World:
     """Static data loader and persisting location/enemy/item runtime state."""
+    RELIC_DEFAULT_DROP_CHANCE = 45
     RANK_ORDER = {"E": 0, "D": 1, "C": 2, "B": 3, "A": 4, "S": 5}
     DUNGEON_TIERS = {
         "E": {
@@ -139,7 +140,8 @@ class World:
         base = Path(data_dir)
         self.locations = self._load_json(base / "locations.json")
         self.enemies = self._load_json(base / "enemies.json")
-        self.items = self._load_json(base / "items.json")
+        self.relics = self._normalize_relic_catalog(self._load_json(base / "relics.json"))
+        self.items = self._merge_item_catalogs(self._load_json(base / "items.json"), self.relics)
         self.contracts = self._load_json(base / "contracts.json")
         self.recipes = self._load_json(base / "recipes.json")
         self.npcs = self._load_json(base / "npcs.json")
@@ -159,6 +161,98 @@ class World:
         self.active_regional_events_by_region = {}
         self.active_road_encounter = {}
         self.starting_location = "village_square"
+
+    @classmethod
+    def _safe_int(cls, value, default: int = 0) -> int:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default
+
+    def _normalize_relic_catalog(self, relics: dict) -> dict[str, dict]:
+        if not isinstance(relics, dict):
+            return {}
+
+        normalized = {}
+        for relic_id, relic_data in relics.items():
+            if not isinstance(relic_data, dict):
+                continue
+            normalized_id = self._normalize_entity_id(relic_id)
+            if not normalized_id:
+                continue
+
+            item_type = self._normalize_entity_id(relic_data.get("type", "gear")) or "gear"
+            if item_type == "shield":
+                item_type = "armor"
+            if item_type not in {"weapon", "armor", "gear", "accessory"}:
+                item_type = "gear"
+
+            name = str(relic_data.get("name", "")).strip() or self._fallback_name(normalized_id)
+            lore = str(relic_data.get("lore", "")).strip()
+            description = str(relic_data.get("description", "")).strip() or lore or f"A relic recovered from {name}."
+            tier = max(3, self._safe_int(relic_data.get("tier"), 4))
+            boss_tie = self._normalize_entity_id(relic_data.get("boss_tie", ""))
+            region_tie = str(relic_data.get("region_tie", "")).strip()
+            drop_chance = max(0, min(100, self._safe_int(relic_data.get("drop_chance"), self.RELIC_DEFAULT_DROP_CHANCE)))
+            attack_stat = self._normalize_entity_id(relic_data.get("attack_stat", ""))
+            if attack_stat not in {"strength", "agility", "mind"}:
+                attack_stat = "strength"
+
+            raw_stats = relic_data.get("stats", {})
+            stats = {}
+            if isinstance(raw_stats, dict):
+                for key, value in raw_stats.items():
+                    normalized_key = self._normalize_entity_id(key)
+                    if not normalized_key:
+                        continue
+                    if normalized_key in {"stat_bonuses", "skill_bonuses"} and isinstance(value, dict):
+                        stats[normalized_key] = {
+                            self._normalize_entity_id(sub_key): self._safe_int(sub_value, 0)
+                            for sub_key, sub_value in value.items()
+                            if self._normalize_entity_id(sub_key)
+                        }
+                    else:
+                        stats[normalized_key] = self._safe_int(value, 0)
+
+            entry = {
+                "name": name,
+                "type": item_type,
+                "rarity": "relic",
+                "tier": tier,
+                "description": description,
+                "lore": lore,
+                "boss_tie": boss_tie,
+                "region_tie": region_tie,
+                "drop_chance": drop_chance,
+                "stats": stats,
+                "price": max(0, self._safe_int(relic_data.get("price"), 0)),
+            }
+            if item_type == "weapon":
+                entry["attack_stat"] = attack_stat
+
+            for key, value in stats.items():
+                if key in {"stat_bonuses", "skill_bonuses"} and isinstance(value, dict):
+                    entry[key] = value
+                    continue
+                if isinstance(value, int) and value != 0:
+                    entry[key] = value
+
+            if item_type == "weapon" and "attack_bonus" in entry:
+                entry["effect"] = f"attack_plus_{int(entry['attack_bonus'])}"
+            elif item_type == "armor" and "defense_bonus" in entry:
+                entry["effect"] = f"defense_plus_{int(entry['defense_bonus'])}"
+
+            normalized[normalized_id] = entry
+        return normalized
+
+    @staticmethod
+    def _merge_item_catalogs(base_items: dict, relics: dict) -> dict:
+        merged = dict(base_items) if isinstance(base_items, dict) else {}
+        if not isinstance(relics, dict):
+            return merged
+        for item_id, item_data in relics.items():
+            merged[item_id] = dict(item_data)
+        return merged
 
     @staticmethod
     def _load_json(path: Path) -> dict:
@@ -210,6 +304,27 @@ class World:
 
     def has_item(self, item_id: str) -> bool:
         return self._normalize_entity_id(item_id) in self.items
+
+    def relic_entry(self, relic_id: str) -> dict:
+        return self.relics.get(self._normalize_entity_id(relic_id), {})
+
+    def relic_ids_for_boss(self, enemy_id: str) -> list[str]:
+        normalized_enemy = self._normalize_entity_id(enemy_id)
+        relic_ids = []
+        for relic_id, relic_data in self.relics.items():
+            if self._normalize_entity_id(relic_data.get("boss_tie", "")) == normalized_enemy:
+                relic_ids.append(relic_id)
+        return relic_ids
+
+    def boss_relic_drop_chance(self, enemy_id: str, default: int | None = None) -> int:
+        fallback = self.RELIC_DEFAULT_DROP_CHANCE if default is None else int(default)
+        chances = []
+        for relic_id in self.relic_ids_for_boss(enemy_id):
+            relic = self.relics.get(relic_id, {})
+            chances.append(self._safe_int(relic.get("drop_chance"), fallback))
+        if not chances:
+            return max(0, min(100, fallback))
+        return max(0, min(100, max(chances)))
 
     def has_npc(self, npc_id: str) -> bool:
         return self._normalize_entity_id(npc_id) in self.npcs

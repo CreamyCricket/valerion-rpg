@@ -294,6 +294,14 @@ class Narrator:
         return "Loot gained: " + ", ".join(loot_names) + "."
 
     @staticmethod
+    def relic_drop_text(relic_name: str, lore: str, boss_name: str = "") -> str:
+        source_text = f" from {boss_name}" if str(boss_name).strip() else ""
+        lore_text = str(lore).strip()
+        if lore_text:
+            return f"Relic recovered{source_text}: {relic_name}. {lore_text}"
+        return f"Relic recovered{source_text}: {relic_name}."
+
+    @staticmethod
     def world_event_text(event_name: str, location_name: str, effect_summary: str) -> str:
         return f"World event: {event_name} at {location_name}. {effect_summary}"
 
